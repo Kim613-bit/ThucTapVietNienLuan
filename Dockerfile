@@ -1,11 +1,18 @@
-# Sử dụng image PHP có Apache
 FROM php:8.2-apache
 
-# Cài đặt các extension PHP cần thiết
+# Cài extension
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Copy toàn bộ mã nguồn vào thư mục chứa mã nguồn web của Apache
+# Bật rewrite nếu dùng .htaccess
+RUN a2enmod rewrite
+
+# Cho phép Apache dùng .htaccess
+RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+
+# Copy source
 COPY . /var/www/html/
 
-# Mở cổng 80 để server hoạt động
+# Cấp quyền
+RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
+
 EXPOSE 80
