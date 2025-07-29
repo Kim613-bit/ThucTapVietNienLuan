@@ -1,0 +1,48 @@
+# Bỏ qua file cấu hình chứa thông tin nhạy cảm
+db.php
+config.php
+
+# Bỏ qua các thư mục chứa ảnh tải lên, phản hồi từ người dùng
+uploads/
+
+# Bỏ qua các file tạm, log, hoặc sao lưu
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Bỏ qua hệ thống thư mục của XAMPP (nếu bạn clone toàn bộ thư mục XAMPP vào Git)
+xampp/
+
+# Bỏ qua thư mục vendor nếu sử dụng Composer nhưng không muốn đẩy lên
+/vendor/
+
+# Bỏ qua file composer.lock nếu không muốn đẩy lên repo (tùy chọn)
+/composer.lock
+
+# Bỏ qua IDE/editor settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Bỏ qua hệ điều hành sinh ra
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Nếu dùng môi trường môi trường ảo hoặc container
+.env
+.env.local
+
+# Nếu dùng PHPUnit
+phpunit.xml
+phpunit.xml.dist
+
+# Bỏ node_modules nếu có dùng npm (ví dụ frontend)
+node_modules/
+
+# Bỏ các thư mục build (nếu có)
+dist/
+build/
