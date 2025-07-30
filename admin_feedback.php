@@ -138,6 +138,13 @@ if ($params_filter) {
             z-index: 9999;
         }
 
+        img {
+          width: 40px;
+          height: 40px;
+          object-fit: cover;
+          border-radius: 50%;
+        }
+
         #overlay img {
             max-width: 90%;
             max-height: 90%;
