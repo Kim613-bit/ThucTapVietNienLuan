@@ -11,13 +11,10 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $account_id = isset($_GET['account_id']) ? intval($_GET['account_id']) : 0;
 
-// Lấy thông tin tài khoản
-$sql = "SELECT * FROM accounts WHERE id = ? AND user_id = ?";
-$stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_bind_param($stmt, "ii", $account_id, $user_id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-$account = mysqli_fetch_assoc($result);
+// 🔹 Lấy thông tin tài khoản
+$sql = "SELECT * FROM accounts WHERE id = $1 AND user_id = $2";
+$result = pg_query_params($conn, $sql, array($account_id, $user_id));
+$account = pg_fetch_assoc($result);
 
 if (!$account) {
     echo "Tài khoản không tồn tại.";
@@ -27,41 +24,29 @@ if (!$account) {
 $success = "";
 $error = "";
 
-// Gợi ý mô tả
+// 🔹 Gợi ý mô tả
 $descriptions = [];
 $sql_desc = "SELECT DISTINCT description FROM transactions 
-             WHERE user_id = ? AND account_id = ? AND type IN (0, 1) AND description <> '' 
+             WHERE user_id = $1 AND account_id = $2 AND type IN (0, 1) AND description <> '' 
              ORDER BY date DESC LIMIT 30";
-$stmt_desc = mysqli_prepare($conn, $sql_desc);
-mysqli_stmt_bind_param($stmt_desc, "ii", $user_id, $account_id);
-mysqli_stmt_execute($stmt_desc);
-$result_desc = mysqli_stmt_get_result($stmt_desc);
-while ($row = mysqli_fetch_assoc($result_desc)) {
+$result_desc = pg_query_params($conn, $sql_desc, array($user_id, $account_id));
+while ($row = pg_fetch_assoc($result_desc)) {
     $descriptions[] = $row['description'];
 }
 
-// Xử lý POST
+// 🔹 Xử lý POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Xóa tài khoản và toàn bộ giao dịch liên quan
     if (isset($_POST['delete_account']) && $_POST['delete_account'] === 'yes') {
+        pg_query($conn, "BEGIN");
         try {
-            $conn->begin_transaction();
-
-            $sql_del_trans = "DELETE FROM transactions WHERE account_id = ? AND user_id = ?";
-            $stmt_del_trans = mysqli_prepare($conn, $sql_del_trans);
-            mysqli_stmt_bind_param($stmt_del_trans, "ii", $account_id, $user_id);
-            mysqli_stmt_execute($stmt_del_trans);
-
-            $sql_del_acc = "DELETE FROM accounts WHERE id = ? AND user_id = ?";
-            $stmt_del_acc = mysqli_prepare($conn, $sql_del_acc);
-            mysqli_stmt_bind_param($stmt_del_acc, "ii", $account_id, $user_id);
-            mysqli_stmt_execute($stmt_del_acc);
-
-            $conn->commit();
+            pg_query_params($conn, "DELETE FROM transactions WHERE account_id = $1 AND user_id = $2", array($account_id, $user_id));
+            pg_query_params($conn, "DELETE FROM accounts WHERE id = $1 AND user_id = $2", array($account_id, $user_id));
+            pg_query($conn, "COMMIT");
             header("Location: dashboard.php?deleted=1");
             exit();
         } catch (Exception $e) {
-            $conn->rollback();
+            pg_query($conn, "ROLLBACK");
             $error = "❌ Không thể xóa tài khoản: " . $e->getMessage();
         }
     }
@@ -72,61 +57,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = isset($_POST['description']) ? trim($_POST['description']) : '';
     $name_changed = $new_name !== $account['name'];
 
-    $conn->begin_transaction();
+    pg_query($conn, "BEGIN");
 
     try {
-        // Cập nhật tên tài khoản nếu có thay đổi
+        // Cập nhật tên tài khoản nếu thay đổi
         if ($name_changed) {
-            $sql_update_name = "UPDATE accounts SET name = ? WHERE id = ? AND user_id = ?";
-            $stmt_update = mysqli_prepare($conn, $sql_update_name);
-            mysqli_stmt_bind_param($stmt_update, "sii", $new_name, $account_id, $user_id);
-            mysqli_stmt_execute($stmt_update);
-
+            pg_query_params($conn, "UPDATE accounts SET name = $1 WHERE id = $2 AND user_id = $3", array($new_name, $account_id, $user_id));
             $log_desc = "Đổi tên tài khoản từ '{$account['name']}' thành '{$new_name}'";
             $now = date("Y-m-d H:i:s");
-            $current_balance = $account['balance'];
-            $sql_log = "INSERT INTO transactions (account_id, user_id, type, amount, description, remaining_balance, date)
-                        VALUES (?, ?, 2, 0, ?, ?, ?)";
-            $stmt_log = mysqli_prepare($conn, $sql_log);
-            mysqli_stmt_bind_param($stmt_log, "iisds", $account_id, $user_id, $log_desc, $current_balance, $now);
-            mysqli_stmt_execute($stmt_log);
+            pg_query_params($conn, "INSERT INTO transactions (account_id, user_id, type, amount, description, remaining_balance, date) 
+                                    VALUES ($1, $2, 2, 0, $3, $4, $5)", 
+                            array($account_id, $user_id, $log_desc, $account['balance'], $now));
         }
 
-        // Nếu có thêm giao dịch thu/chi
+        // Thêm giao dịch thu/chi
         if ($type === 'thu' || $type === 'chi') {
             $type_value = ($type === 'chi') ? 1 : 0;
             $new_balance = $type_value === 0 ? $account['balance'] + $amount : $account['balance'] - $amount;
 
-            // Cập nhật số dư mới
-            $sql_update_balance = "UPDATE accounts SET balance = ? WHERE id = ? AND user_id = ?";
-            $stmt_balance = mysqli_prepare($conn, $sql_update_balance);
-            mysqli_stmt_bind_param($stmt_balance, "dii", $new_balance, $account_id, $user_id);
-            mysqli_stmt_execute($stmt_balance);
+            pg_query_params($conn, "UPDATE accounts SET balance = $1 WHERE id = $2 AND user_id = $3", array($new_balance, $account_id, $user_id));
 
-            // Giao dịch thu/chi
             if (empty($description)) {
                 $description = ($type_value == 0) ? 'Giao dịch thu không có nội dung' : 'Giao dịch chi không có nội dung';
             }
 
             $now = date("Y-m-d H:i:s");
-            $sql_insert = "INSERT INTO transactions (account_id, user_id, type, amount, description, remaining_balance, date)
-                           VALUES (?, ?, ?, ?, ?, ?, ?)";
-            $stmt_insert = mysqli_prepare($conn, $sql_insert);
-            mysqli_stmt_bind_param($stmt_insert, "iiidsss", $account_id, $user_id, $type_value, $amount, $description, $new_balance, $now);
-            mysqli_stmt_execute($stmt_insert);
+            pg_query_params($conn, "INSERT INTO transactions (account_id, user_id, type, amount, description, remaining_balance, date)
+                                    VALUES ($1, $2, $3, $4, $5, $6, $7)",
+                            array($account_id, $user_id, $type_value, $amount, $description, $new_balance, $now));
 
             $account['balance'] = $new_balance;
         }
 
-        $conn->commit();
+        pg_query($conn, "COMMIT");
         $success = "✅ Cập nhật thành công!";
         $account['name'] = $new_name;
     } catch (Exception $e) {
-        $conn->rollback();
+        pg_query($conn, "ROLLBACK");
         $error = "❌ Lỗi: " . $e->getMessage();
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
