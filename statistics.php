@@ -11,46 +11,41 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Tổng thu
-$sqlThu = "SELECT SUM(amount) AS total_thu FROM transactions WHERE user_id = ? AND type = 0";
-$stmt1 = mysqli_prepare($conn, $sqlThu);
-mysqli_stmt_bind_param($stmt1, "i", $user_id);
-mysqli_stmt_execute($stmt1);
-$result1 = mysqli_stmt_get_result($stmt1);
-$row1 = mysqli_fetch_assoc($result1);
+$result1 = pg_query_params($conn,
+    "SELECT SUM(amount) AS total_thu FROM transactions WHERE user_id = $1 AND type = 0",
+    array($user_id)
+);
+$row1 = pg_fetch_assoc($result1);
 $total_thu = $row1['total_thu'] ?? 0;
 
 // Tổng chi
-$sqlChi = "SELECT SUM(amount) AS total_chi FROM transactions WHERE user_id = ? AND type = 1";
-$stmt2 = mysqli_prepare($conn, $sqlChi);
-mysqli_stmt_bind_param($stmt2, "i", $user_id);
-mysqli_stmt_execute($stmt2);
-$result2 = mysqli_stmt_get_result($stmt2);
-$row2 = mysqli_fetch_assoc($result2);
+$result2 = pg_query_params($conn,
+    "SELECT SUM(amount) AS total_chi FROM transactions WHERE user_id = $1 AND type = 1",
+    array($user_id)
+);
+$row2 = pg_fetch_assoc($result2);
 $total_chi = $row2['total_chi'] ?? 0;
 
 // Số dư
 $so_du = $total_thu - $total_chi;
 
-// Thu/chi theo tháng
-$sqlMonthly = "
+// Tổng thu / chi theo tháng
+$result3 = pg_query_params($conn, "
     SELECT 
-        DATE_FORMAT(date, '%m/%Y') AS month,
+        TO_CHAR(date, 'MM/YYYY') AS month,
         SUM(CASE WHEN type = 0 THEN amount ELSE 0 END) AS thu,
         SUM(CASE WHEN type = 1 THEN amount ELSE 0 END) AS chi
     FROM transactions
-    WHERE user_id = ?
+    WHERE user_id = $1
     GROUP BY month
-    ORDER BY STR_TO_DATE(CONCAT('01/', month), '%d/%m/%Y')
-";
-$stmt3 = mysqli_prepare($conn, $sqlMonthly);
-mysqli_stmt_bind_param($stmt3, "i", $user_id);
-mysqli_stmt_execute($stmt3);
-$result3 = mysqli_stmt_get_result($stmt3);
+    ORDER BY TO_DATE('01/' || month, 'DD/MM/YYYY')
+", array($user_id));
 
 $labels = [];
 $thu_data = [];
 $chi_data = [];
-while ($row = mysqli_fetch_assoc($result3)) {
+
+while ($row = pg_fetch_assoc($result3)) {
     $labels[] = $row['month'];
     $thu_data[] = $row['thu'];
     $chi_data[] = $row['chi'];
