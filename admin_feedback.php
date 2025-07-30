@@ -187,7 +187,7 @@ if ($params_filter) {
             </select>
         </form>
 
-        <?php if (mysqli_num_rows($feedbacks) === 0): ?>
+        <?php if (pg_num_rows($feedbacks) === 0): ?>
             <p>Chưa có phản hồi nào từ người dùng.</p>
         <?php else: ?>
             <table>
