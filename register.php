@@ -5,37 +5,39 @@ $error = "";
 $success = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = trim($_POST["username"]);
-    $password = $_POST["password"];
-    $confirm  = $_POST["confirm"];
-    $fullname = trim($_POST["fullname"]);
+    $username  = trim($_POST["username"]);
+    $password  = $_POST["password"];
+    $confirm   = $_POST["confirm"];
+    $fullname  = trim($_POST["fullname"]);
     $birthyear = intval($_POST["birthyear"]);
-    $email = trim($_POST["email"]);
+    $email     = trim($_POST["email"]);
 
     if ($password !== $confirm) {
-        $error = "Mật khẩu xác nhận không khớp!";
+        $error = "❌ Mật khẩu xác nhận không khớp!";
+    } elseif (strlen($password) < 6) {
+        $error = "❌ Mật khẩu cần tối thiểu 6 ký tự!";
     } else {
-        // Kiểm tra username đã tồn tại chưa
+        // Kiểm tra trùng username
         $result = pg_query_params($conn,
-            "SELECT id FROM users WHERE username = $1",
-            [$username]
+            "SELECT id FROM users WHERE username = $1", [$username]
         );
 
         if (pg_num_rows($result) > 0) {
-            $error = "Tên đăng nhập đã tồn tại!";
+            $error = "❌ Tên đăng nhập đã tồn tại!";
         } else {
             $hash = password_hash($password, PASSWORD_DEFAULT);
 
-            // Thêm người dùng mới
+            // Thêm người dùng mới (không truyền id)
             $insert = pg_query_params($conn,
-                "INSERT INTO users (username, password, fullname, birthyear, email) VALUES ($1, $2, $3, $4, $5)",
+                "INSERT INTO users (username, password, fullname, birthyear, email)
+                 VALUES ($1, $2, $3, $4, $5)",
                 [$username, $hash, $fullname, $birthyear, $email]
             );
 
             if ($insert) {
-                $success = "Tạo tài khoản thành công! <br>Bạn có thể <a href='login.php'>đăng nhập</a>.";
+                $success = "✅ Tạo tài khoản thành công! <br>Bạn có thể <a href='login.php'>đăng nhập</a>.";
             } else {
-                $error = "Lỗi khi tạo tài khoản!";
+                $error = "❌ Lỗi khi tạo tài khoản. Vui lòng thử lại.";
             }
         }
     }
