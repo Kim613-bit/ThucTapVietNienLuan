@@ -15,18 +15,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($password !== $confirm) {
         $error = "Mật khẩu xác nhận không khớp!";
     } else {
-        $stmt = mysqli_prepare($conn, "SELECT id FROM users WHERE username = ?");
-        mysqli_stmt_bind_param($stmt, "s", $username);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
+        // Kiểm tra username đã tồn tại chưa
+        $result = pg_query_params($conn,
+            "SELECT id FROM users WHERE username = $1",
+            [$username]
+        );
 
-        if (mysqli_fetch_assoc($result)) {
+        if (pg_num_rows($result) > 0) {
             $error = "Tên đăng nhập đã tồn tại!";
         } else {
             $hash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = mysqli_prepare($conn, "INSERT INTO users (username, password, fullname, birthyear, email) VALUES (?, ?, ?, ?, ?)");
-            mysqli_stmt_bind_param($stmt, "sssis", $username, $hash, $fullname, $birthyear, $email);
-            if (mysqli_stmt_execute($stmt)) {
+
+            // Thêm người dùng mới
+            $insert = pg_query_params($conn,
+                "INSERT INTO users (username, password, fullname, birthyear, email) VALUES ($1, $2, $3, $4, $5)",
+                [$username, $hash, $fullname, $birthyear, $email]
+            );
+
+            if ($insert) {
                 $success = "Tạo tài khoản thành công! <br>Bạn có thể <a href='login.php'>đăng nhập</a>.";
             } else {
                 $error = "Lỗi khi tạo tài khoản!";
