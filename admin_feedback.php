@@ -152,7 +152,7 @@ if ($params_filter) {
     <h2>📬 Phản hồi người dùng</h2>
     <div class="user">
         <span><?= htmlspecialchars($admin['username']) ?></span>
-        <img src="<?= !empty($admin['avatar']) ? 'uploads/' . htmlspecialchars($admin['avatar']) : 'default-avatar.png' ?>" alt="Avatar">
+        <img src="<?= !empty($admin['avatar']) ? 'uploads/' . htmlspecialchars($admin['avatar']) : 'uploads/avt_ad.png' ?>" alt="Avatar">
     </div>
 </div>
 <div class="main">
