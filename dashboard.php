@@ -1,9 +1,9 @@
 <?php
 session_start();
 include "db.php";
-date_default_timezone_set('Asia/Ho_Chi_Minh');
+date_default_timezone_set('Asia/Ho_Chi_Minh";
 
-// Nếu là admin thì chuyển về admin_feedback
+// Chuyển admin nếu là user_id = 1
 if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == 1) {
     header("Location: admin_feedback.php");
     exit();
@@ -22,61 +22,65 @@ $from_date = $_GET['from_date'] ?? '';
 $to_date = $_GET['to_date'] ?? '';
 
 // Lấy thông tin người dùng
-$user_stmt = $conn->prepare("SELECT username, fullname AS full_name, avatar, role FROM users WHERE id = ?");
-$user_stmt->bind_param("i", $user_id);
-$user_stmt->execute();
-$user_result = $user_stmt->get_result();
-$user = $user_result->fetch_assoc();
+$user_result = pg_query_params($conn,
+    "SELECT username, fullname AS full_name, avatar, role FROM users WHERE id = $1",
+    [$user_id]
+);
+$user = pg_fetch_assoc($user_result);
 
 // Lấy danh sách tài khoản
-$stmt = $conn->prepare("SELECT id, name, balance FROM accounts WHERE user_id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$accounts = $result->fetch_all(MYSQLI_ASSOC);
+$account_result = pg_query_params($conn,
+    "SELECT id, name, balance FROM accounts WHERE user_id = $1",
+    [$user_id]
+);
+$accounts = [];
+while ($row = pg_fetch_assoc($account_result)) {
+    $accounts[] = $row;
+}
 
-// Lấy danh sách giao dịch
-$sql2 = "SELECT t.*, COALESCE(a.name, '[Không xác định]') AS account_name 
-        FROM transactions t
-        LEFT JOIN accounts a ON t.account_id = a.id
-        WHERE t.user_id = ?";
+// Lấy danh sách giao dịch theo điều kiện lọc
+$sql2 = "
+    SELECT t.*, COALESCE(a.name, '[Không xác định]') AS account_name
+    FROM transactions t
+    LEFT JOIN accounts a ON t.account_id = a.id
+    WHERE t.user_id = $1";
 $params = [$user_id];
-$types = "i";
+$i = 2;
 
 if ($filter_account > 0) {
-    $sql2 .= " AND t.account_id = ?";
+    $sql2 .= " AND t.account_id = $" . $i;
     $params[] = $filter_account;
-    $types .= "i";
+    $i++;
 }
 if ($filter_type !== 'all') {
-    $sql2 .= " AND t.type = ?";
-    $params[] = $filter_type;
-    $types .= "i";
+    $sql2 .= " AND t.type = $" . $i;
+    $params[] = intval($filter_type);
+    $i++;
 }
 if (!empty($filter_description)) {
-    $sql2 .= " AND t.description LIKE ?";
+    $sql2 .= " AND t.description ILIKE $" . $i;
     $params[] = '%' . $filter_description . '%';
-    $types .= "s";
+    $i++;
 }
 if (!empty($from_date)) {
-    $sql2 .= " AND DATE(t.date) >= ?";
+    $sql2 .= " AND DATE(t.date) >= $" . $i;
     $params[] = $from_date;
-    $types .= "s";
+    $i++;
 }
 if (!empty($to_date)) {
-    $sql2 .= " AND DATE(t.date) <= ?";
+    $sql2 .= " AND DATE(t.date) <= $" . $i;
     $params[] = $to_date;
-    $types .= "s";
+    $i++;
 }
 
 $sql2 .= " ORDER BY t.date DESC";
-$stmt2 = $conn->prepare($sql2);
-$stmt2->bind_param($types, ...$params);
-$stmt2->execute();
-$result2 = $stmt2->get_result();
-$transactions = $result2->fetch_all(MYSQLI_ASSOC);
+$trans_result = pg_query_params($conn, $sql2, $params);
+$transactions = [];
+while ($row = pg_fetch_assoc($trans_result)) {
+    $transactions[] = $row;
+}
 
-// Tính tổng thu và chi
+// Tổng thu chi
 $totalThuAll = 0;
 $totalChiAll = 0;
 foreach ($transactions as $row) {
@@ -84,7 +88,7 @@ foreach ($transactions as $row) {
     elseif ($row['type'] == 1) $totalChiAll += $row['amount'];
 }
 
-// Nhóm theo ngày
+// Nhóm giao dịch theo ngày
 $grouped = [];
 foreach ($transactions as $row) {
     $dateKey = date('d/m/Y', strtotime($row['date']));
