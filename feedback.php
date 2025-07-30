@@ -30,12 +30,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if (!empty($message)) {
-        $stmt = mysqli_prepare($conn, "INSERT INTO feedbacks (user_id, message, image, created_at) VALUES (?, ?, ?, NOW())");
-        mysqli_stmt_bind_param($stmt, "iss", $user_id, $message, $image_path);
-        mysqli_stmt_execute($stmt);
-        $success = "✅ Cảm ơn bạn đã gửi phản hồi!";
-    } else {
-        $error = "⚠️ Vui lòng nhập nội dung phản hồi.";
+        $sql = "INSERT INTO feedbacks (user_id, message, image, created_at) VALUES ($1, $2, $3, NOW())";
+        $params = [$user_id, $message, $image_path];
+        $result = pg_query_params($conn, $sql, $params);
+    
+        if ($result) {
+            $success = "✅ Cảm ơn bạn đã gửi phản hồi!";
+        } else {
+            $error = "❌ Có lỗi khi lưu phản hồi!";
+        }
     }
 }
 ?>
