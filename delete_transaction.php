@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "db.php";
+include "db.php"; // file này phải tạo kết nối bằng pg_connect()
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 if (!isset($_SESSION['user_id'])) {
@@ -16,14 +16,14 @@ if (!$transaction_id) {
     exit();
 }
 
-// Nếu người dùng xác nhận xoá
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['confirm']) && $_POST['confirm'] === "yes") {
-        // ❌ XÓA MỀM (đã bỏ)
-        // ✅ XÓA THẬT giao dịch
-        $stmt = mysqli_prepare($conn, "DELETE FROM transactions WHERE id = ? AND user_id = ?");
-        mysqli_stmt_bind_param($stmt, "ii", $transaction_id, $user_id);
-        mysqli_stmt_execute($stmt);
+        // ✅ XÓA giao dịch
+        $result = pg_query_params($conn,
+            "DELETE FROM transactions WHERE id = $1 AND user_id = $2",
+            array($transaction_id, $user_id)
+        );
+        // Bạn có thể kiểm tra kết quả: if ($result) { ... }
     }
     header("Location: dashboard.php");
     exit();
