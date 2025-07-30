@@ -197,7 +197,7 @@ if ($params_filter) {
                     <th>Thời gian</th>
                     <th>Trạng thái</th>
                 </tr>
-                <?php while ($row = mysqli_fetch_assoc($feedbacks)): ?>
+                <?php while ($row = pg_fetch_assoc($feedbacks)): ?>
                     <tr>
                         <td><?= htmlspecialchars($row['username']) ?></td>
                         <td>
