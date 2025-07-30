@@ -248,7 +248,7 @@ $typeLabels = [0 => 'Thu', 1 => 'Chi', 2 => 'Cập nhật tài khoản'];
         <?php foreach ($accounts as $acc): ?>
             <div class="account">
                 <strong><?= htmlspecialchars($acc['name']) ?></strong><br>
-                Số dư: <?= number_format($acc['balance'], 0, ',', '.') ?> VND
+                Số dư: <?= number_format($acc['balance'] ?? 0, 0, ',', '.') ?> VND
                 <a href="edit_account_balance.php?account_id=<?= $acc['id'] ?>"><br>Chỉnh sửa</a>
             </div>
         <?php endforeach; ?>
@@ -265,8 +265,8 @@ $typeLabels = [0 => 'Thu', 1 => 'Chi', 2 => 'Cập nhật tài khoản'];
             Từ ngày: <input type="date" name="from_date" value="<?= htmlspecialchars($from_date) ?>">
             Đến ngày: <input type="date" name="to_date" value="<?= htmlspecialchars($to_date) ?>">
             
-            🔼 <span style="color:green;">Tổng thu: <?= number_format($totalThuAll, 0, ',', '.') ?> VND</span>
-            🔽 <span style="color:red;">Tổng chi: <?= number_format($totalChiAll, 0, ',', '.') ?> VND</span>
+            🔼 <span style="color:green;">Tổng thu: <?= number_format($totalThuAll ?? 0, 0, ',', '.') ?> VND</span>
+            🔽 <span style="color:red;">Tổng chi: <?= number_format($totalChiAll ?? 0, 0, ',', '.') ?> VND</span>
 
             <br><br>
             Loại: 
