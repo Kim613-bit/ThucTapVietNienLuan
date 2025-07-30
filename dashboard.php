@@ -341,7 +341,7 @@ $typeLabels = [0 => 'Thu', 1 => 'Chi', 2 => 'Cập nhật tài khoản'];
                             <td><?= date('H:i:s', strtotime($row['date'])) ?></td>
                             <td><?= $typeLabels[$row['type']] ?? 'Không xác định' ?></td>
                             <td class="<?= $row['type'] == 0 ? 'amount-income' : ($row['type'] == 1 ? 'amount-expense' : '') ?>">
-                                <?= ($row['type'] == 2 ? '0' : number_format($row['amount'], 0, ',', '.')) ?> VND
+                                <?= ($row['type'] == 2 ? '0' : number_format($row['amount'] ?? 0, 0, ',', '.')) ?> VND
                             </td>
                             <td><?= !empty($row['description']) ? htmlspecialchars($row['description']) : '-' ?></td>
                             <td><?= number_format($row['remaining_balance'] ?? 0, 0, ',', '.') ?> VND</td>
