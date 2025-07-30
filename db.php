@@ -9,9 +9,6 @@ $password = "lMMkElD7noEARgTdAdH7l1nj8EictGsi";
 $conn = pg_connect("host=$host port=$port dbname=$dbname user=$user password=$password");
 
 // Kiểm tra kết nối
-if (!$conn) {
+if (!$conn)
     die("Kết nối đến PostgreSQL thất bại.");
-}
-
-echo "Kết nối thành công đến PostgreSQL!";
 ?>
