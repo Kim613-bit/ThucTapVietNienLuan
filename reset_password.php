@@ -23,14 +23,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
 
-        $stmt = mysqli_prepare($conn, "UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE email = ?");
-        mysqli_stmt_bind_param($stmt, "ss", $hashed_password, $email);
-        mysqli_stmt_execute($stmt);
+        // Cập nhật mật khẩu và xóa mã OTP
+        $update = pg_query_params($conn,
+            "UPDATE users SET password = $1, reset_token = NULL, reset_token_expiry = NULL WHERE email = $2",
+            [$hashed_password, $email]
+        );
 
-        unset($_SESSION["reset_email"]);
-        unset($_SESSION["otp_verified"]);
-
-        $success = "Đặt lại mật khẩu thành công. <a href='login.php'>Đăng nhập</a>";
+        if ($update) {
+            unset($_SESSION["reset_email"]);
+            unset($_SESSION["otp_verified"]);
+            $success = "Đặt lại mật khẩu thành công. <a href='login.php'>Đăng nhập</a>";
+        } else {
+            $error = "Có lỗi xảy ra khi cập nhật mật khẩu.";
+        }
     }
 }
 ?>
