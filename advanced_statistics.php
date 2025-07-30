@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "db.php";
+include "db.php"; // Đảm bảo db.php dùng pg_connect()
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 if (!isset($_SESSION['user_id'])) {
@@ -10,23 +10,18 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 $mode = $_GET['mode'] ?? 'month';
-$chartType = ($_GET['mode'] ?? 'month') === 'year' ? 'pie' : ($_GET['chart'] ?? 'line');
+$chartType = ($mode === 'year') ? 'pie' : ($_GET['chart'] ?? 'line');
 
-$labels = [];
-$thu_data = [];
-$chi_data = [];
-
-$labels2 = [];
-$thu_data2 = [];
-$chi_data2 = [];
+$labels = $thu_data = $chi_data = [];
+$labels2 = $thu_data2 = $chi_data2 = [];
 
 if ($mode === 'year') {
     $sql = "
-        SELECT YEAR(date) AS label,
+        SELECT EXTRACT(YEAR FROM date) AS label,
             SUM(CASE WHEN type = 0 THEN amount ELSE 0 END) AS thu,
             SUM(CASE WHEN type = 1 THEN amount ELSE 0 END) AS chi
         FROM transactions
-        WHERE user_id = ?
+        WHERE user_id = $1
         GROUP BY label
         ORDER BY label DESC
         LIMIT 2
@@ -38,17 +33,17 @@ if ($mode === 'year') {
                 SUM(CASE WHEN type = 0 THEN amount ELSE 0 END) AS thu,
                 SUM(CASE WHEN type = 1 THEN amount ELSE 0 END) AS chi
             FROM transactions
-            WHERE user_id = ? AND date >= CURDATE() - INTERVAL 8 DAY
+            WHERE user_id = $1 AND date >= CURRENT_DATE - INTERVAL '8 days'
             GROUP BY label
             ORDER BY label ASC
         ";
     } else {
         $sql = "
-            SELECT YEAR(date) AS y, WEEK(date, 1) AS w,
+            SELECT EXTRACT(YEAR FROM date) AS y, EXTRACT(WEEK FROM date) AS w,
                 SUM(CASE WHEN type = 0 THEN amount ELSE 0 END) AS thu,
                 SUM(CASE WHEN type = 1 THEN amount ELSE 0 END) AS chi
             FROM transactions
-            WHERE user_id = ?
+            WHERE user_id = $1
             GROUP BY y, w
             ORDER BY y DESC, w DESC
             LIMIT 2
@@ -61,17 +56,17 @@ if ($mode === 'year') {
                 SUM(CASE WHEN type = 0 THEN amount ELSE 0 END) AS thu,
                 SUM(CASE WHEN type = 1 THEN amount ELSE 0 END) AS chi
             FROM transactions
-            WHERE user_id = ? AND date >= CURDATE() - INTERVAL 29 DAY
+            WHERE user_id = $1 AND date >= CURRENT_DATE - INTERVAL '29 days'
             GROUP BY label
             ORDER BY label ASC
         ";
     } else {
         $sql = "
-            SELECT YEAR(date) AS y, MONTH(date) AS m,
+            SELECT EXTRACT(YEAR FROM date) AS y, EXTRACT(MONTH FROM date) AS m,
                 SUM(CASE WHEN type = 0 THEN amount ELSE 0 END) AS thu,
                 SUM(CASE WHEN type = 1 THEN amount ELSE 0 END) AS chi
             FROM transactions
-            WHERE user_id = ?
+            WHERE user_id = $1
             GROUP BY y, m
             ORDER BY y DESC, m DESC
             LIMIT 2
@@ -79,24 +74,22 @@ if ($mode === 'year') {
     }
 }
 
-$stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_bind_param($stmt, "i", $user_id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
+$params = [$user_id];
+$result = pg_query_params($conn, $sql, $params);
 
 $index = 0;
-while ($row = mysqli_fetch_assoc($result)) {
+while ($row = pg_fetch_assoc($result)) {
     if (($mode === 'week' || $mode === 'month') && $chartType === 'pie') {
+        $label = ($mode === 'week') ? "Tuần {$row['w']}/{$row['y']}" : "Tháng {$row['m']}/{$row['y']}";
         if ($index === 0) {
-            $labels[] = ($mode === 'week' ? "Tuần " . $row['w'] . "/" . $row['y'] : "Tháng " . $row['m'] . "/" . $row['y']);
+            $labels[] = $label;
             $thu_data[] = $row['thu'];
             $chi_data[] = $row['chi'];
         } else {
-            $labels2[] = ($mode === 'week' ? "Tuần " . $row['w'] . "/" . $row['y'] : "Tháng " . $row['m'] . "/" . $row['y']);
+            $labels2[] = $label;
             $thu_data2[] = $row['thu'];
             $chi_data2[] = $row['chi'];
         }
-        $index++;
     } elseif ($mode === 'year') {
         if ($index === 0) {
             $labels[] = $row['label'];
@@ -107,14 +100,15 @@ while ($row = mysqli_fetch_assoc($result)) {
             $thu_data2[] = $row['thu'];
             $chi_data2[] = $row['chi'];
         }
-        $index++;
     } else {
         $labels[] = $row['label'];
         $thu_data[] = $row['thu'];
         $chi_data[] = $row['chi'];
     }
+    $index++;
 }
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
