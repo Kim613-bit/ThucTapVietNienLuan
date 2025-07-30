@@ -1,7 +1,8 @@
 <?php
 session_start();
 include "db.php";
-date_default_timezone_set('Asia/Ho_Chi_Minh";
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+
 
 // Chuyển admin nếu là user_id = 1
 if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == 1) {
