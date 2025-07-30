@@ -1,46 +1,39 @@
 <?php
 session_start();
-include "db.php";
+include "db.php"; // đảm bảo file db.php có kết nối pg_connect()
+date_default_timezone_set('Asia/Ho_Chi_Minh');
 
-// Kiểm tra đăng nhập
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
 $user_id = $_SESSION['user_id'];
-
-// Lấy ID giao dịch
 $id = $_GET['id'] ?? null;
 if (!$id) {
     header("Location: transactions.php");
     exit();
 }
 
-// Xử lý cập nhật khi submit form
+// 👉 Khi người dùng cập nhật giao dịch
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $type = $_POST['type'];
     $amount = $_POST['amount'];
     $description = $_POST['description'];
     $date = $_POST['date'];
 
-    $sql = "UPDATE transactions SET type = ?, amount = ?, description = ?, date = ? 
-            WHERE id = ? AND user_id = ?";
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "idssii", $type, $amount, $description, $date, $id, $user_id);
-    mysqli_stmt_execute($stmt);
-
+    $query = "UPDATE transactions SET type = $1, amount = $2, description = $3, date = $4 
+              WHERE id = $5 AND user_id = $6";
+    $result = pg_query_params($conn, $query, array($type, $amount, $description, $date, $id, $user_id));
+    
     header("Location: transactions.php");
     exit();
 }
 
-// Lấy thông tin giao dịch cần sửa
-$sql = "SELECT * FROM transactions WHERE id = ? AND user_id = ?";
-$stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_bind_param($stmt, "ii", $id, $user_id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-$transaction = mysqli_fetch_assoc($result);
+// 👉 Lấy thông tin giao dịch để hiển thị form
+$query = "SELECT * FROM transactions WHERE id = $1 AND user_id = $2";
+$result = pg_query_params($conn, $query, array($id, $user_id));
+$transaction = pg_fetch_assoc($result);
 
 if (!$transaction) {
     echo "Giao dịch không tồn tại hoặc không thuộc quyền truy cập.";
