@@ -9,22 +9,20 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != 1) {
 $admin_id = $_SESSION['user_id'];
 
 // Lấy thông tin admin
-$sql = "SELECT username, avatar FROM users WHERE id = ?";
-$stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_bind_param($stmt, "i", $admin_id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-$admin = mysqli_fetch_assoc($result);
+$sql_admin = "SELECT username, avatar FROM users WHERE id = $1";
+$params_admin = [$admin_id];
+$result_admin = pg_query_params($conn, $sql_admin, $params_admin);
+$admin = pg_fetch_assoc($result_admin);
 
 // Lấy phản hồi chưa xử lý để hiển thị ở sidebar
-$pending_feedbacks_sql = "
+$pending_sql = "
     SELECT f.id, u.username, f.message
     FROM feedbacks f
     JOIN users u ON f.user_id = u.id
     WHERE f.status = 'pending'
     ORDER BY f.created_at DESC
 ";
-$pending_feedbacks = mysqli_query($conn, $pending_feedbacks_sql);
+$pending_feedbacks = pg_query($conn, $pending_sql);
 
 // Lọc phản hồi theo trạng thái
 $status_filter = $_GET['status'] ?? '';
@@ -35,16 +33,25 @@ $feedback_sql = "
     JOIN users u ON f.user_id = u.id
 ";
 
+$params_filter = [];
 if ($status_filter === 'processed') {
-    $feedback_sql .= " WHERE f.status = 'processed'";
+    $feedback_sql .= " WHERE f.status = $1";
+    $params_filter = ['processed'];
 } elseif ($status_filter === 'ignored') {
-    $feedback_sql .= " WHERE f.status = 'ignored'";
+    $feedback_sql .= " WHERE f.status = $1";
+    $params_filter = ['ignored'];
 } elseif ($status_filter === 'pending') {
-    $feedback_sql .= " WHERE f.status = 'pending'";
+    $feedback_sql .= " WHERE f.status = $1";
+    $params_filter = ['pending'];
 }
 
 $feedback_sql .= " ORDER BY f.created_at DESC";
-$feedbacks = mysqli_query($conn, $feedback_sql);
+
+if ($params_filter) {
+    $feedbacks = pg_query_params($conn, $feedback_sql, $params_filter);
+} else {
+    $feedbacks = pg_query($conn, $feedback_sql);
+}
 ?>
 
 <!DOCTYPE html>
