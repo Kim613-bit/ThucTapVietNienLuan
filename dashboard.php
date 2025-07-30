@@ -344,7 +344,7 @@ $typeLabels = [0 => 'Thu', 1 => 'Chi', 2 => 'Cập nhật tài khoản'];
                                 <?= ($row['type'] == 2 ? '0' : number_format($row['amount'], 0, ',', '.')) ?> VND
                             </td>
                             <td><?= !empty($row['description']) ? htmlspecialchars($row['description']) : '-' ?></td>
-                            <td><?= number_format($row['remaining_balance'], 0, ',', '.') ?> VND</td>
+                            <td><?= number_format($row['remaining_balance'] ?? 0, 0, ',', '.') ?> VND</td>
                             <td><?= htmlspecialchars($row['account_name']) ?></td>
                         </tr>
                     <?php endforeach; ?>
