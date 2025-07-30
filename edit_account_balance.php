@@ -26,9 +26,11 @@ $error = "";
 
 // 🔹 Gợi ý mô tả
 $descriptions = [];
-$sql_desc = "SELECT DISTINCT description FROM transactions 
+$sql_desc = "SELECT description FROM transactions 
              WHERE user_id = $1 AND account_id = $2 AND type IN (0, 1) AND description <> '' 
-             ORDER BY date DESC LIMIT 30";
+             GROUP BY description 
+             ORDER BY MAX(date) DESC 
+             LIMIT 30";
 $result_desc = pg_query_params($conn, $sql_desc, array($user_id, $account_id));
 while ($row = pg_fetch_assoc($result_desc)) {
     $descriptions[] = $row['description'];
