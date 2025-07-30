@@ -281,11 +281,16 @@ $typeLabels = [0 => 'Thu', 1 => 'Chi', 2 => 'Cập nhật tài khoản'];
             <select name="description">
                 <option value="">Tất cả</option>
                 <?php
-                $desc_stmt = $conn->prepare("SELECT DISTINCT description FROM transactions WHERE user_id = ? AND description IS NOT NULL AND description != ''");
-                $desc_stmt->bind_param("i", $user_id);
-                $desc_stmt->execute();
-                $desc_result = $desc_stmt->get_result();
-                while ($desc = $desc_result->fetch_assoc()):
+                $sql_desc = "SELECT description FROM transactions 
+                             WHERE user_id = $1 AND description IS NOT NULL AND description != '' 
+                             GROUP BY description 
+                             ORDER BY MAX(date) DESC LIMIT 30";
+                $result_desc = pg_query_params($conn, $sql_desc, array($user_id));
+                while ($desc = pg_fetch_assoc($result_desc)) {
+                    echo '<option value="' . htmlspecialchars($desc['description']) . '"' .
+                         ($desc['description'] === $filter_description ? ' selected' : '') .
+                         '>' . htmlspecialchars($desc['description']) . '</option>';
+                }
                 ?>
                     <option value="<?= htmlspecialchars($desc['description']) ?>" <?= $desc['description'] === $filter_description ? 'selected' : '' ?>>
                         <?= htmlspecialchars($desc['description']) ?>
