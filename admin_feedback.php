@@ -162,10 +162,10 @@ if ($params_filter) {
             <li><a href="logout.php">🚪 Đăng xuất</a></li>
         </ul>
 
-        <?php if (mysqli_num_rows($pending_feedbacks) > 0): ?>
+        <?php if (pg_num_rows($pending_feedbacks) > 0): ?>
             <h4>📌 Phản hồi chưa xử lý</h4>
             <ul>
-                <?php while ($row = mysqli_fetch_assoc($pending_feedbacks)): ?>
+                <?php while ($row = pg_fetch_assoc($pending_feedbacks)): ?>
                     <li>
                         <strong><?= htmlspecialchars($row['username']) ?></strong>: 
                         <?= htmlspecialchars(mb_strimwidth($row['message'], 0, 40, "...")) ?>
