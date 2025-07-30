@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "db.php"; // file kết nối CSDL
+include "db.php"; // file kết nối PostgreSQL
 
 $error = $success = "";
 
@@ -8,18 +8,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST["email"]);
 
     // Kiểm tra email có tồn tại không
-    $stmt = mysqli_prepare($conn, "SELECT id FROM users WHERE email = ?");
-    mysqli_stmt_bind_param($stmt, "s", $email);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_store_result($stmt);
+    $result = pg_query_params($conn,
+        "SELECT id FROM users WHERE email = $1",
+        [$email]
+    );
 
-    if (mysqli_stmt_num_rows($stmt) == 1) {
+    if (pg_num_rows($result) == 1) {
         $otp = rand(100000, 999999);
         $expiry = date("Y-m-d H:i:s", strtotime("+10 minutes"));
 
-        $update = mysqli_prepare($conn, "UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE email = ?");
-        mysqli_stmt_bind_param($update, "sss", $otp, $expiry, $email);
-        mysqli_stmt_execute($update);
+        // Cập nhật mã OTP và thời hạn
+        $update = pg_query_params($conn,
+            "UPDATE users SET reset_token = $1, reset_token_expiry = $2 WHERE email = $3",
+            [$otp, $expiry, $email]
+        );
 
         include "send_mail.php";
         if (sendOTP($email, $otp)) {
