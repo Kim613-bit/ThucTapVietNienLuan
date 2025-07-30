@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "db.php";
+include "db.php"; // kết nối PostgreSQL, ví dụ dùng pg_connect()
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -9,37 +9,27 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Lấy thông tin người dùng
-$sql = "SELECT username, avatar, fullname, birthyear, email FROM users WHERE id = ?";
-$stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_bind_param($stmt, "i", $user_id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-$user = mysqli_fetch_assoc($result);
+// 🔹 Lấy thông tin người dùng
+$sql = "SELECT username, avatar, fullname, birthyear, email FROM users WHERE id = $1";
+$result = pg_query_params($conn, $sql, array($user_id));
+$user = pg_fetch_assoc($result);
 
-// Cập nhật thông tin hoặc xóa tài khoản nếu gửi POST
+// 🔹 Cập nhật thông tin hoặc xóa tài khoản nếu gửi POST
 $success = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Nếu là nút xóa tài khoản
     if (isset($_POST['delete_account'])) {
-        // Xóa các dữ liệu liên quan (nếu có)
-        mysqli_query($conn, "DELETE FROM transactions WHERE user_id = $user_id");
-        mysqli_query($conn, "DELETE FROM accounts WHERE user_id = $user_id");
-        mysqli_query($conn, "DELETE FROM descriptions WHERE user_id = $user_id");
+        // Xóa dữ liệu liên quan
+        pg_query_params($conn, "DELETE FROM transactions WHERE user_id = $1", array($user_id));
+        pg_query_params($conn, "DELETE FROM accounts WHERE user_id = $1", array($user_id));
+        pg_query_params($conn, "DELETE FROM descriptions WHERE user_id = $1", array($user_id));
+        pg_query_params($conn, "DELETE FROM users WHERE id = $1", array($user_id));
 
-        // Xóa người dùng
-        $sql_delete = "DELETE FROM users WHERE id = ?";
-        $stmt_delete = mysqli_prepare($conn, $sql_delete);
-        mysqli_stmt_bind_param($stmt_delete, "i", $user_id);
-        mysqli_stmt_execute($stmt_delete);
-
-        // Xoá session và chuyển về đăng ký
         session_destroy();
         header("Location: login.php");
         exit();
     }
 
-    // Nếu là cập nhật thông tin
+    // Xử lý cập nhật thông tin
     $fullname = $_POST['fullname'];
     $birthyear = $_POST['birthyear'];
     $email = $_POST['email'];
@@ -55,10 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $sql_update = "UPDATE users SET fullname = ?, birthyear = ?, email = ?, avatar = ? WHERE id = ?";
-    $stmt_update = mysqli_prepare($conn, $sql_update);
-    mysqli_stmt_bind_param($stmt_update, "sissi", $fullname, $birthyear, $email, $avatar, $user_id);
-    mysqli_stmt_execute($stmt_update);
+    $sql_update = "UPDATE users SET fullname = $1, birthyear = $2, email = $3, avatar = $4 WHERE id = $5";
+    pg_query_params($conn, $sql_update, array($fullname, $birthyear, $email, $avatar, $user_id));
 
     $success = "✅ Cập nhật hồ sơ thành công!";
     $user['fullname'] = $fullname;
