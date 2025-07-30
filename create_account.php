@@ -3,7 +3,6 @@ session_start();
 include "db.php";
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
-
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -17,25 +16,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (!empty($name)) {
         // 1. Tạo tài khoản mới
-        $stmt = mysqli_prepare($conn, "INSERT INTO accounts (user_id, name, balance) VALUES (?, ?, ?)");
-        mysqli_stmt_bind_param($stmt, "isd", $user_id, $name, $balance);
-        mysqli_stmt_execute($stmt);
+        $insert_account = pg_query_params($conn,
+            "INSERT INTO accounts (user_id, name, balance) VALUES ($1, $2, $3) RETURNING id",
+            [$user_id, $name, $balance]
+        );
 
-        // 2. Lấy account_id vừa tạo
-        $account_id = mysqli_insert_id($conn);
+        if ($insert_account && pg_num_rows($insert_account) === 1) {
+            $account_data = pg_fetch_assoc($insert_account);
+            $account_id = $account_data['id'];
 
-        // 3. Ghi lịch sử vào bảng transactions
-        $description = "Tạo tài khoản mới: " . $name;
-        $now = date('Y-m-d H:i:s');
-        $type = 2; // Ghi chú hệ thống
+            // 2. Ghi lịch sử vào bảng transactions
+            $description = "Tạo tài khoản mới: " . $name;
+            $now = date('Y-m-d H:i:s');
+            $type = 2; // Ghi chú hệ thống
 
-        $stmt2 = mysqli_prepare($conn, "INSERT INTO transactions (user_id, account_id, type, amount, description, date) VALUES (?, ?, ?, ?, ?, ?)");
-        mysqli_stmt_bind_param($stmt2, "iiidss", $user_id, $account_id, $type, $balance, $description, $now);
-        mysqli_stmt_execute($stmt2);
+            pg_query_params($conn,
+                "INSERT INTO transactions (user_id, account_id, type, amount, description, date) VALUES ($1, $2, $3, $4, $5, $6)",
+                [$user_id, $account_id, $type, $balance, $description, $now]
+            );
 
-        // 4. Chuyển hướng về dashboard
-        header("Location: dashboard.php");
-        exit();
+            // 3. Chuyển hướng về dashboard
+            header("Location: dashboard.php");
+            exit();
+        } else {
+            $error = "Không thể tạo tài khoản. Vui lòng thử lại.";
+        }
     } else {
         $error = "Vui lòng nhập tên tài khoản.";
     }
