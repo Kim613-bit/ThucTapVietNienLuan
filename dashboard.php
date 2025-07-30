@@ -337,11 +337,12 @@ $typeLabels = [0 => 'Thu', 1 => 'Chi', 2 => 'Cập nhật tài khoản'];
                         <th>Giờ</th><th>Loại</th><th>Số tiền</th><th>Mô tả</th><th>Số dư còn lại</th><th>Khoản tiền</th>
                     </tr>
                     <?php foreach ($entries as $row): ?>
+                        <?php if (!is_array($row)) continue; ?>
                         <tr>
                             <td><?= date('H:i:s', strtotime($row['date'])) ?></td>
                             <td><?= $typeLabels[$row['type']] ?? 'Không xác định' ?></td>
                             <td class="<?= $row['type'] == 0 ? 'amount-income' : ($row['type'] == 1 ? 'amount-expense' : '') ?>">
-                                <?= ($row['type'] == 2 ? '0' : number_format($row['amount'] ?? 0, 0, ',', '.')) ?> VND
+                                <?= (isset($row['type']) && $row['type'] == 2 ? '0' : number_format($row['amount'] ?? 0, 0, ',', '.')) ?> VND
                             </td>
                             <td><?= !empty($row['description']) ? htmlspecialchars($row['description']) : '-' ?></td>
                             <td><?= number_format($row['remaining_balance'] ?? 0, 0, ',', '.') ?> VND</td>
