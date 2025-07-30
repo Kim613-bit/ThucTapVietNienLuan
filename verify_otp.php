@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "db.php";
+include "db.php"; // kết nối PostgreSQL
 
 $error = $success = "";
 
@@ -16,22 +16,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $entered_otp = trim($_POST["otp"]);
 
     // Lấy OTP và thời gian hết hạn từ CSDL
-    $stmt = mysqli_prepare($conn, "SELECT reset_token, reset_token_expiry FROM users WHERE email = ?");
-    mysqli_stmt_bind_param($stmt, "s", $email);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_bind_result($stmt, $stored_otp, $expiry_time);
-    mysqli_stmt_fetch($stmt);
+    $result = pg_query_params($conn,
+        "SELECT reset_token, reset_token_expiry FROM users WHERE email = $1",
+        [$email]
+    );
 
-    if ($entered_otp == $stored_otp) {
-        if (strtotime($expiry_time) >= time()) {
-            $_SESSION["otp_verified"] = true;
-            header("Location: reset_password.php");
-            exit();
+    if (pg_num_rows($result) == 1) {
+        $row = pg_fetch_assoc($result);
+        $stored_otp = $row["reset_token"];
+        $expiry_time = $row["reset_token_expiry"];
+
+        if ($entered_otp == $stored_otp) {
+            if (strtotime($expiry_time) >= time()) {
+                $_SESSION["otp_verified"] = true;
+                header("Location: reset_password.php");
+                exit();
+            } else {
+                $error = "Mã OTP đã hết hạn. Vui lòng thử lại.";
+            }
         } else {
-            $error = "Mã OTP đã hết hạn. Vui lòng thử lại.";
+            $error = "Mã OTP không chính xác.";
         }
     } else {
-        $error = "Mã OTP không chính xác.";
+        $error = "Không tìm thấy thông tin OTP.";
     }
 }
 ?>
