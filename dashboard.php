@@ -295,7 +295,6 @@ $typeLabels = [0 => 'Thu', 1 => 'Chi', 2 => 'Cập nhật tài khoản'];
                     <option value="<?= htmlspecialchars($desc['description']) ?>" <?= $desc['description'] === $filter_description ? 'selected' : '' ?>>
                         <?= htmlspecialchars($desc['description']) ?>
                     </option>
-                <?php endwhile; ?>
             </select>
 
             Khoản tiền:
