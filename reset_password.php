@@ -117,28 +117,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <?php if (!$success): ?>
     <form method="POST">
-      <!-- Thay đoạn này -->
-      <label for="new_password">Mật khẩu (6+ ký tự, 1 hoa, 1 số, 1 đặc biệt):</label>
+      <!-- Mật khẩu mới -->
       <input
         type="password"
         name="new_password"
         id="new_password"
+        placeholder="Mật khẩu (6+ ký tự, 1 hoa, 1 số, 1 đặc biệt)"
         required
         pattern="(?=.*[A-Z])(?=.*\d)(?=.*\W).{6,}"
         title="Ít nhất 6 ký tự, gồm 1 chữ hoa, 1 số và 1 ký tự đặc biệt."
       >
     
-      <label for="confirm_password">Xác nhận mật khẩu:</label>
+      <!-- Xác nhận mật khẩu -->
       <input
         type="password"
         name="confirm_password"
         id="confirm_password"
+        placeholder="Xác nhận mật khẩu"
         required
       >
-      <!--  hết thay  -->
     
       <button type="submit">Đổi mật khẩu</button>
     </form>
+
     <?php endif; ?>
 </div>
 </body>
