@@ -1,10 +1,11 @@
 <?php
 include "db.php";
 
-$error = "";
+$error   = "";
 $success = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // 1. Lấy và sanitize
     $username  = trim($_POST["username"]);
     $password  = $_POST["password"];
     $confirm   = $_POST["confirm"];
@@ -12,30 +13,50 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $birthyear = intval($_POST["birthyear"]);
     $email     = trim($_POST["email"]);
 
-    if ($password !== $confirm) {
+    // 2. Ràng buộc nhập liệu
+    // 2.1 Username không vượt quá 50 ký tự
+    if (strlen($username) === 0 || strlen($username) > 50) {
+        $error = "❌ Tên đăng nhập phải từ 1 đến 50 ký tự!";
+    }
+    // 2.2 Mật khẩu xác nhận
+    elseif ($password !== $confirm) {
         $error = "❌ Mật khẩu xác nhận không khớp!";
-    } elseif (strlen($password) < 6) {
-        $error = "❌ Mật khẩu cần tối thiểu 6 ký tự!";
-    } else {
-        // Kiểm tra trùng username
+    }
+    // 2.3 Mật khẩu mạnh: >=6 ký tự, 1 in hoa, 1 số, 1 đặc biệt
+    elseif (!preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*\W).{6,}$/', $password)) {
+        $error = "❌ Mật khẩu tối thiểu 6 ký tự, gồm ít nhất 1 chữ hoa, 1 số và 1 ký tự đặc biệt!";
+    }
+    // 2.4 Họ và tên chỉ chứa chữ và khoảng trắng
+    elseif (!preg_match('/^[A-Za-zÀ-Ỵà-ỵ\s]+$/u', $fullname)) {
+        $error = "❌ Họ tên chỉ được chứa chữ và khoảng trắng!";
+    }
+    // 2.5 Kiểm tra email đúng định dạng
+    elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "❌ Email không đúng định dạng!";
+    }
+    // 2.6 Năm sinh hợp lệ (1900 → năm hiện tại)
+    elseif ($birthyear < 1900 || $birthyear > intval(date('Y'))) {
+        $error = "❌ Năm sinh phải từ 1900 đến " . date('Y') . "!";
+    }
+    else {
+        // 3. Kiểm tra trùng username trong DB
         $result = pg_query_params($conn,
-            "SELECT id FROM users WHERE username = $1", [$username]
+            "SELECT id FROM users WHERE username = $1", 
+            [$username]
         );
-
         if (pg_num_rows($result) > 0) {
             $error = "❌ Tên đăng nhập đã tồn tại!";
         } else {
+            // 4. Lưu vào DB
             $hash = password_hash($password, PASSWORD_DEFAULT);
-
-            // Thêm người dùng mới (không truyền id)
             $insert = pg_query_params($conn,
                 "INSERT INTO users (username, password, fullname, birthyear, email)
-                 VALUES ($1, $2, $3, $4, $5)",
+                 VALUES ($1,$2,$3,$4,$5)",
                 [$username, $hash, $fullname, $birthyear, $email]
             );
-
             if ($insert) {
-                $success = "✅ Tạo tài khoản thành công! <br>Bạn có thể <a href='login.php'>đăng nhập</a>.";
+                $success = "✅ Tạo tài khoản thành công! 
+                            <br>Bạn có thể <a href='login.php'>đăng nhập</a>.";
             } else {
                 $error = "❌ Lỗi khi tạo tài khoản. Vui lòng thử lại.";
             }
