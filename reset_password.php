@@ -13,25 +13,30 @@ if (!isset($_SESSION["reset_email"]) || !isset($_SESSION["otp_verified"])) {
 $email = $_SESSION["reset_email"];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $new_password = $_POST["new_password"];
+    $new_password     = $_POST["new_password"];
     $confirm_password = $_POST["confirm_password"];
 
-    if (strlen($new_password) < 6) {
-        $error = "Mật khẩu phải có ít nhất 6 ký tự.";
-    } elseif ($new_password !== $confirm_password) {
+    // Regex: 6+ ký tự, 1 chữ hoa, 1 số, 1 đặc biệt
+    $pattern = '/^(?=.*[A-Z])(?=.*\d)(?=.*\W).{6,}$/';
+
+    if (!preg_match($pattern, $new_password)) {
+        $error = "Mật khẩu phải có ít nhất 6 ký tự, bao gồm 1 chữ hoa, 1 chữ số và 1 ký tự đặc biệt.";
+    }
+    elseif ($new_password !== $confirm_password) {
         $error = "Mật khẩu xác nhận không khớp.";
-    } else {
+    }
+    else {
         $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
 
-        // Cập nhật mật khẩu và xóa mã OTP
         $update = pg_query_params($conn,
-            "UPDATE users SET password = $1, reset_token = NULL, reset_token_expiry = NULL WHERE email = $2",
+            "UPDATE users
+             SET password = $1, reset_token = NULL, reset_token_expiry = NULL
+             WHERE email = $2",
             [$hashed_password, $email]
         );
 
         if ($update) {
-            unset($_SESSION["reset_email"]);
-            unset($_SESSION["otp_verified"]);
+            unset($_SESSION["reset_email"], $_SESSION["otp_verified"]);
             $success = "Đặt lại mật khẩu thành công. <a href='login.php'>Đăng nhập</a>";
         } else {
             $error = "Có lỗi xảy ra khi cập nhật mật khẩu.";
