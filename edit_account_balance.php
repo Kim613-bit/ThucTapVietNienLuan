@@ -1,6 +1,7 @@
 <?php
 session_start();
 include "db.php";
+define('MAX_BALANCE', 100_000_000_000);  // 100 tỷ
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 if (!isset($_SESSION['user_id'])) {
@@ -90,10 +91,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                              ? $account['balance'] + $amount
                              : $account['balance'] - $amount;
 
-                if (abs($new_balance) >= 100000000) {
-                    throw new Exception("Số dư sau giao dịch vượt giới hạn cho phép (< 100.000.000).");
+               if (abs($new_balance) >= MAX_BALANCE) {
+                    $formatted = number_format(MAX_BALANCE, 0, ',', '.');
+                    throw new Exception("Số dư sau giao dịch vượt giới hạn cho phép (< {$formatted}).");
                 }
-                
+               
                 // 5.3. Cập nhật số dư
                 pg_query_params(
                     $conn,
