@@ -1,13 +1,13 @@
 <?php
 session_start();
 include "db.php";
-include 'validation.php';
+include "validation.php";
 
 $errors = [];
 $old    = [];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // 1. Sanitize
+    // 1. Sanitize đầu vào
     $old['username'] = sanitize($_POST['username'] ?? '');
     $old['password'] = $_POST['password'] ?? '';
 
@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $errors['password'] = 'Mật khẩu không được để trống';
     }
 
-    // 3. Nếu không có lỗi thì kiểm tra DB
+    // 3. Nếu không có lỗi, kiểm tra DB
     if (empty($errors)) {
         $result = pg_query_params(
             $conn,
@@ -35,36 +35,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 exit();
             }
         }
+
+        // Nếu không match hoặc query lỗi
         $errors['general'] = 'Tên đăng nhập hoặc mật khẩu không đúng';
     }
 }
-
-    // Truy vấn người dùng theo username
-    $result = pg_query_params($conn,
-        "SELECT id, password FROM users WHERE username = $1",
-        [$username]
-    );
-
-    if ($result && pg_num_rows($result) === 1) {
-        $user = pg_fetch_assoc($result);
-
-        if (password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            header("Location: dashboard.php");
-            exit();
-        } else {
-            $_SESSION['error'] = "Sai tên đăng nhập hoặc mật khẩu!";
-            header("Location: login.php");
-            exit();
-        }
-    } else {
-        $_SESSION['error'] = "Sai tên đăng nhập hoặc mật khẩu!";
-        header("Location: login.php");
-        exit();
-    }
-}
 ?>
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -76,13 +52,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="login-container">
         <h2>Đăng nhập hệ thống</h2>
 
-        <?php if (isset($_SESSION['error'])): ?>
-            <p style="color:red;"><?= $_SESSION['error'] ?></p>
-            <?php unset($_SESSION['error']); // Xóa sau khi hiển thị ?>
+        <!-- Thông báo chung -->
+        <?php if (isset($errors['general'])): ?>
+            <p style="color:red"><?= $errors['general'] ?></p>
         <?php endif; ?>
 
-
         <form method="post">
+            <!-- Username -->
             <input
               type="text"
               name="username"
@@ -91,17 +67,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
               required
             >
             <span style="color:red"><?= $errors['username'] ?? '' ?></span><br>
-            <input type="password" name="password" placeholder="Mật khẩu" required><br>
-            <span style="color:red"><?= $errors['password'] ?? '' ?></span>
+
+            <!-- Password -->
+            <input
+              type="password"
+              name="password"
+              placeholder="Mật khẩu"
+              required
+            >
+            <span style="color:red"><?= $errors['password'] ?? '' ?></span><br>
+
             <button type="submit">Đăng nhập</button>
-            <p style="margin-top: 10px;">
-                Chưa có tài khoản? <a href="register.php">Đăng ký</a>
-            </p>
-            <p style="margin-top: 10px;">
-                <a href="forgot_password.php">Quên mật khẩu?</a>
-            </p>
-            <p style="color:red"><?= $errors['general'] ?? '' ?></p>
         </form>
+
+        <p style="margin-top: 10px;">
+            Chưa có tài khoản? <a href="register.php">Đăng ký</a>
+        </p>
+        <p style="margin-top: 10px;">
+            <a href="forgot_password.php">Quên mật khẩu?</a>
+        </p>
     </div>
 </body>
 </html>
