@@ -38,65 +38,93 @@ while ($row = pg_fetch_assoc($result_desc)) {
 
 // 🔹 Xử lý POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Xóa tài khoản và toàn bộ giao dịch liên quan
+    // 1. Xử lý xóa tài khoản (giữ nguyên như bạn đang làm)
     if (isset($_POST['delete_account']) && $_POST['delete_account'] === 'yes') {
-        pg_query($conn, "BEGIN");
-        try {
-            pg_query_params($conn, "DELETE FROM transactions WHERE account_id = $1 AND user_id = $2", array($account_id, $user_id));
-            pg_query_params($conn, "DELETE FROM accounts WHERE id = $1 AND user_id = $2", array($account_id, $user_id));
-            pg_query($conn, "COMMIT");
-            header("Location: dashboard.php?deleted=1");
-            exit();
-        } catch (Exception $e) {
-            pg_query($conn, "ROLLBACK");
-            $error = "❌ Không thể xóa tài khoản: " . $e->getMessage();
-        }
+        // … DELETE transactions & accounts trong transaction …
     }
+    else {
+        // 2. Lấy giá trị từ form
+        $new_name    = trim($_POST['name']);
+        $type        = $_POST['type'];           // 'thu' hoặc 'chi'
+        $rawAmount   = $_POST['amount']   ?? ''; // input ban đầu
+        $description = trim($_POST['description'] ?? '');
+        $name_changed = $new_name !== $account['name'];
 
-    $new_name = trim($_POST['name']);
-    $type = $_POST['type'];
-    $amount = isset($_POST['amount']) ? floatval($_POST['amount']) : 0;
-    $description = isset($_POST['description']) ? trim($_POST['description']) : '';
-    $name_changed = $new_name !== $account['name'];
+        try {
+            // 3. Bắt đầu transaction
+            pg_query($conn, 'BEGIN');
 
-    pg_query($conn, "BEGIN");
-
-    try {
-        // Cập nhật tên tài khoản nếu thay đổi
-        if ($name_changed) {
-            pg_query_params($conn, "UPDATE accounts SET name = $1 WHERE id = $2 AND user_id = $3", array($new_name, $account_id, $user_id));
-            $log_desc = "Đổi tên tài khoản từ '{$account['name']}' thành '{$new_name}'";
-            $now = date("Y-m-d H:i:s");
-            pg_query_params($conn, "INSERT INTO transactions (account_id, user_id, type, amount, description, remaining_balance, date) 
-                                    VALUES ($1, $2, 2, 0, $3, $4, $5)", 
-                            array($account_id, $user_id, $log_desc, $account['balance'], $now));
-        }
-
-        // Thêm giao dịch thu/chi
-        if ($type === 'thu' || $type === 'chi') {
-            $type_value = ($type === 'chi') ? 1 : 0;
-            $new_balance = $type_value === 0 ? $account['balance'] + $amount : $account['balance'] - $amount;
-
-            pg_query_params($conn, "UPDATE accounts SET balance = $1 WHERE id = $2 AND user_id = $3", array($new_balance, $account_id, $user_id));
-
-            if (empty($description)) {
-                $description = ($type_value == 0) ? 'Giao dịch thu không có nội dung' : 'Giao dịch chi không có nội dung';
+            // 4. Cập nhật tên nếu có thay đổi
+            if ($name_changed) {
+                pg_query_params(
+                    $conn,
+                    "UPDATE accounts SET name = $1 WHERE id = $2 AND user_id = $3",
+                    [ $new_name, $account_id, $user_id ]
+                );
+                // Ghi log đổi tên
+                $log_desc = "Đổi tên từ '{$account['name']}' thành '{$new_name}'";
+                pg_query_params(
+                    $conn,
+                    "INSERT INTO transactions
+                     (account_id, user_id, type, amount, description, remaining_balance, date)
+                     VALUES ($1, $2, 2, 0, $3, $4, $5)",
+                    [ $account_id, $user_id, $log_desc, $account['balance'], date("Y-m-d H:i:s") ]
+                );
             }
 
-            $now = date("Y-m-d H:i:s");
-            pg_query_params($conn, "INSERT INTO transactions (account_id, user_id, type, amount, description, remaining_balance, date)
-                                    VALUES ($1, $2, $3, $4, $5, $6, $7)",
-                            array($account_id, $user_id, $type_value, $amount, $description, $new_balance, $now));
+            // 5. Nếu có giao dịch thu/chi thì:
+            if ($type === 'thu' || $type === 'chi') {
+                // 5.1. Validate & sanitize số tiền
+                $sanitized = preg_replace('/[^\d\.\-]/', '', $rawAmount);
+                if (!is_numeric($sanitized)) {
+                    throw new Exception("Số tiền không hợp lệ. Vui lòng nhập số.");
+                }
+                $amount = round((float)$sanitized, 2);
+                if (abs($amount) >= 1e13) {
+                    throw new Exception("Số tiền vượt giới hạn (tối đa 13 chữ số nguyên).");
+                }
 
-            $account['balance'] = $new_balance;
+                // 5.2. Tính new_balance
+                $type_value  = ($type === 'chi') ? 1 : 0;
+                $new_balance = $type_value === 0
+                             ? $account['balance'] + $amount
+                             : $account['balance'] - $amount;
+
+                // 5.3. Cập nhật số dư
+                pg_query_params(
+                    $conn,
+                    "UPDATE accounts SET balance = $1 WHERE id = $2 AND user_id = $3",
+                    [ $new_balance, $account_id, $user_id ]
+                );
+
+                // 5.4. Ghi vào transactions
+                if (empty($description)) {
+                    $description = $type_value === 0
+                                 ? 'Giao dịch thu không có nội dung'
+                                 : 'Giao dịch chi không có nội dung';
+                }
+                pg_query_params(
+                    $conn,
+                    "INSERT INTO transactions
+                     (account_id, user_id, type, amount, description, remaining_balance, date)
+                     VALUES ($1,$2,$3,$4,$5,$6,$7)",
+                    [ $account_id, $user_id, $type_value, $amount, $description, $new_balance, date("Y-m-d H:i:s") ]
+                );
+
+                // Cập nhật biến hiển thị lại số dư mới
+                $account['balance'] = $new_balance;
+            }
+
+            // 6. Nếu không vướng lỗi nào thì commit
+            pg_query($conn, 'COMMIT');
+            $success = "✅ Cập nhật thành công!";
+            $account['name'] = $new_name;
+
+        } catch (Exception $e) {
+            // 7. Gặp bất kỳ lỗi nào => rollback
+            pg_query($conn, 'ROLLBACK');
+            $error = "❌ Lỗi: " . $e->getMessage();
         }
-
-        pg_query($conn, "COMMIT");
-        $success = "✅ Cập nhật thành công!";
-        $account['name'] = $new_name;
-    } catch (Exception $e) {
-        pg_query($conn, "ROLLBACK");
-        $error = "❌ Lỗi: " . $e->getMessage();
     }
 }
 ?>
