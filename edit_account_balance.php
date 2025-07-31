@@ -208,7 +208,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div id="transactionFields" style="display: none;">
             <label>Số tiền:</label>
-            <input type="number" name="amount" step="0.01" min="0" class="form-control">
+            <input
+              type="text"
+              id="amount"
+              name="amount"
+              placeholder="0"
+              class="form-control"
+            />
             <label>Nội dung giao dịch:</label>
             <input list="suggestions" name="description" placeholder="Nhập hoặc chọn nội dung"
                 value="<?= isset($_POST['description']) ? htmlspecialchars($_POST['description']) : '' ?>" class="form-control">
@@ -231,13 +237,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script>
+// 1. Hiện/ẩn khối nhập khi chọn Thu/Chi
 function toggleFields() {
-    const type = document.getElementById("transactionType").value;
-    const fields = document.getElementById("transactionFields");
-    fields.style.display = (type === "thu" || type === "chi") ? "block" : "none";
+  const type   = document.getElementById("transactionType").value;
+  const fields = document.getElementById("transactionFields");
+  fields.style.display = (type === "thu" || type === "chi")
+                       ? "block"
+                       : "none";
 }
-document.addEventListener("DOMContentLoaded", toggleFields);
-</script>
 
+// 2. Chèn dấu phẩy cho phần nguyên của số
+function formatWithCommas(value) {
+  const parts = value.split('.');
+  parts[0] = parts[0]
+    .replace(/^0+(?=\d)|\D/g, '')               // bỏ ký tự lạ, 0 dở đầu
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ',');     // chèn comma mỗi 3 chữ số
+  return parts.join('.');
+}
+
+// 3. Khi DOM đã sẵn sàng
+document.addEventListener("DOMContentLoaded", function() {
+  // 3.1 Hiện/ẩn lần đầu
+  toggleFields();
+
+  // 3.2 Gán sự kiện input để format số tiền
+  const amt = document.getElementById("amount");
+  amt.addEventListener("input", function() {
+    const oldPos = this.selectionStart;
+    let raw     = this.value.replace(/,/g, '');
+    if (raw === '' || raw === '.') {
+      this.value = raw;
+      return;
+    }
+    const [intPart, decPart] = raw.split('.');
+    let formatted = formatWithCommas(intPart);
+    if (decPart !== undefined) {
+      formatted += '.' + decPart;
+    }
+    // cập nhật giá trị và đặt lại con trỏ
+    this.value = formatted;
+    const newPos = oldPos + (this.value.length - raw.length);
+    this.setSelectionRange(newPos, newPos);
+  });
+});
+</script>
 </body>
 </html>
