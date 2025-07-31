@@ -7,7 +7,7 @@ $errors = [];
 $old    = [];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // 1. Sanitize đầu vào
+    // 1. Sanitize
     $old['username'] = sanitize($_POST['username'] ?? '');
     $old['password'] = $_POST['password'] ?? '';
 
@@ -52,9 +52,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <div class="login-container">
         <h2>Đăng nhập hệ thống</h2>
 
-        <!-- Thông báo chung -->
+        <!-- Lỗi chung -->
         <?php if (isset($errors['general'])): ?>
-            <p style="color:red"><?= $errors['general'] ?></p>
+            <p class="error"><?= htmlspecialchars($errors['general']) ?></p>
         <?php endif; ?>
 
         <form method="post">
@@ -65,8 +65,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
               placeholder="Tên đăng nhập"
               value="<?= htmlspecialchars($old['username'] ?? '') ?>"
               required
-            >
-            <span style="color:red"><?= $errors['username'] ?? '' ?></span><br>
+            />
+            <span class="error"><?= $errors['username'] ?? '' ?></span><br>
 
             <!-- Password -->
             <input
@@ -74,16 +74,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
               name="password"
               placeholder="Mật khẩu"
               required
-            >
-            <span style="color:red"><?= $errors['password'] ?? '' ?></span><br>
+            />
+            <span class="error"><?= $errors['password'] ?? '' ?></span><br>
 
             <button type="submit">Đăng nhập</button>
         </form>
 
-        <p style="margin-top: 10px;">
-            Chưa có tài khoản? <a href="register.php">Đăng ký</a>
-        </p>
-        <p style="margin-top: 10px;">
+        <p>
+            Chưa có tài khoản? <a href="register.php">Đăng ký</a><br>
             <a href="forgot_password.php">Quên mật khẩu?</a>
         </p>
     </div>
