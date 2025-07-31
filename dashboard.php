@@ -121,6 +121,10 @@ $typeLabels = [
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+        rel="stylesheet"
+      >
     <style>
         * {
             box-sizing: border-box;
@@ -250,7 +254,10 @@ $typeLabels = [
           padding: 10px;
           background: #e9f7ef;
           border: 1px solid #a3d7b9;
-          font-weight: bold;
+          font-family: 'Poppins', sans-serif;
+          font-weight: 600;        /* In đậm nhẹ */
+          font-size: 1.1rem;       /* Tăng chút để nổi bật */
+          color: #2c3e50; 
         }
     </style>
 </head>
