@@ -175,9 +175,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <form method="post">
             <input type="text" name="username" placeholder="Tên đăng nhập" required>
-            <input type="password" name="password" placeholder="Mật khẩu (Tối thiểu 6 kí tự)" required>
-            <input type="password" name="confirm" placeholder="Xác nhận mật khẩu" required>
-            <input type="text" name="fullname" placeholder="Họ và tên" required>
+            <input
+              type="password"
+              name="password"
+              placeholder="Mật khẩu (6+ ký tự, ít nhất 1 hoa, 1 số, 1 đặc biệt)"
+              required
+              pattern="(?=.*[A-Z])(?=.*\d)(?=.*\W).{6,}"
+              title="Mật khẩu phải từ 6 ký tự, bao gồm ít nhất 1 chữ hoa, 1 số và 1 ký tự đặc biệt"
+            />
+            <input
+              type="password"
+              name="confirm"
+              placeholder="Xác nhận mật khẩu"
+              required
+              pattern="(?=.*[A-Z])(?=.*\d)(?=.*\W).{6,}"
+              title="Phải khớp mật khẩu phía trên"
+            />
+            <input
+              type="text"
+              name="fullname"
+              placeholder="Họ và tên"
+              required
+              pattern="^[A-Za-zÀ-Ỵà-ỵ\s]+$"
+              title="Họ và tên chỉ được chứa chữ và khoảng trắng"
+            />
             <input type="number" name="birthyear" placeholder="Năm sinh (VD: 2000)" min="1900" max="2100" required>
             <input type="email" name="email" placeholder="Email" required>
             <button type="submit">Đăng ký</button>
