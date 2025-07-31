@@ -135,13 +135,7 @@ $typeLabels = [
             margin: 0;
             padding: 0;
         }
-         body {
-           /* 2. Đổi font body thành Poppins, thêm fallback */
-           font-family: 'Poppins', Arial, sans-serif;
-           margin: 0;
-           padding: 0;
-           line-height: 1.5;
-        }
+
         .header {
             background: #007BFF;
             color: white;
@@ -260,7 +254,7 @@ $typeLabels = [
           padding: 10px;
           background: #e9f7ef;
           border: 1px solid #a3d7b9;
-          font-family: 'Poppins', sans-serif;
+          font-family: Arial, sans-serif;
           font-weight: 600;        /* In đậm nhẹ */
           font-size: 1.1rem;       /* Tăng chút để nổi bật */
           color: #2c3e50; 
