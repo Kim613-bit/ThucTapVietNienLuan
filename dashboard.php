@@ -3,100 +3,117 @@ session_start();
 include "db.php";
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
-
-// Chuyển admin nếu là user_id = 1
+// 1. Chuyển admin nếu user_id = 1
 if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == 1) {
     header("Location: admin_feedback.php");
     exit();
 }
 
+// 2. Kiểm tra đăng nhập
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
 $user_id = $_SESSION['user_id'];
-$filter_account = isset($_GET['account_id']) ? intval($_GET['account_id']) : 0;
-$filter_type = isset($_GET['type']) ? $_GET['type'] : 'all';
-$filter_description = isset($_GET['description']) ? trim($_GET['description']) : '';
-$from_date = $_GET['from_date'] ?? '';
-$to_date = $_GET['to_date'] ?? '';
+$filter_account     = isset($_GET['account_id']) ? intval($_GET['account_id']) : 0;
+$filter_type        = isset($_GET['type'])       ? $_GET['type']           : 'all';
+$filter_description = isset($_GET['description'])? trim($_GET['description']) : '';
+$from_date          = $_GET['from_date'] ?? '';
+$to_date            = $_GET['to_date']   ?? '';
 
-// Lấy thông tin người dùng
-$user_result = pg_query_params($conn,
-    "SELECT username, fullname AS full_name, avatar, role FROM users WHERE id = $1",
+// 3. Lấy thông tin user
+$user_result = pg_query_params(
+    $conn,
+    "SELECT username, fullname AS full_name, avatar, role 
+     FROM users 
+     WHERE id = $1",
     [$user_id]
 );
 $user = pg_fetch_assoc($user_result);
 
-// Lấy danh sách tài khoản
-$account_result = pg_query_params($conn,
-    "SELECT id, name, balance FROM accounts WHERE user_id = $1",
+// 4. Lấy danh sách tài khoản và tính tổng số dư
+$accounts = [];
+$totalAccountBalance = 0.0;
+
+$account_q = pg_query_params(
+    $conn,
+    "SELECT id, name, balance 
+     FROM accounts 
+     WHERE user_id = $1",
     [$user_id]
 );
-$accounts = [];
-while ($row = pg_fetch_assoc($account_result)) {
-    $accounts[] = $row;
+while ($acc = pg_fetch_assoc($account_q)) {
+    $accounts[] = $acc;
+    // Ép float để cộng đúng
+    $totalAccountBalance += (float)$acc['balance'];
 }
 
-// Lấy danh sách giao dịch theo điều kiện lọc
-$sql2 = "
-    SELECT t.*, COALESCE(a.name, '[Không xác định]') AS account_name
+// 5. Lấy danh sách giao dịch theo filter
+$sql = "
+    SELECT t.*, COALESCE(a.name,'[Không xác định]') AS account_name
     FROM transactions t
     LEFT JOIN accounts a ON t.account_id = a.id
-    WHERE t.user_id = $1";
+    WHERE t.user_id = $1
+";
 $params = [$user_id];
-$i = 2;
+$idx    = 2;
 
 if ($filter_account > 0) {
-    $sql2 .= " AND t.account_id = $" . $i;
+    $sql    .= " AND t.account_id = \${$idx}";
     $params[] = $filter_account;
-    $i++;
+    $idx++;
 }
 if ($filter_type !== 'all') {
-    $sql2 .= " AND t.type = $" . $i;
+    $sql    .= " AND t.type = \${$idx}";
     $params[] = intval($filter_type);
-    $i++;
+    $idx++;
 }
-if (!empty($filter_description)) {
-    $sql2 .= " AND t.description ILIKE $" . $i;
-    $params[] = '%' . $filter_description . '%';
-    $i++;
+if ($filter_description !== '') {
+    $sql    .= " AND t.description ILIKE \${$idx}";
+    $params[] = "%{$filter_description}%";
+    $idx++;
 }
-if (!empty($from_date)) {
-    $sql2 .= " AND DATE(t.date) >= $" . $i;
+if ($from_date) {
+    $sql    .= " AND DATE(t.date) >= \${$idx}";
     $params[] = $from_date;
-    $i++;
+    $idx++;
 }
-if (!empty($to_date)) {
-    $sql2 .= " AND DATE(t.date) <= $" . $i;
+if ($to_date) {
+    $sql    .= " AND DATE(t.date) <= \${$idx}";
     $params[] = $to_date;
-    $i++;
+    $idx++;
 }
 
-$sql2 .= " ORDER BY t.date DESC";
-$trans_result = pg_query_params($conn, $sql2, $params);
+$sql .= " ORDER BY t.date DESC";
+$resTrans = pg_query_params($conn, $sql, $params);
+
 $transactions = [];
-while ($row = pg_fetch_assoc($trans_result)) {
+while ($row = pg_fetch_assoc($resTrans)) {
     $transactions[] = $row;
 }
 
-// Tổng thu chi
+// 6. Tính tổng thu/chi
 $totalThuAll = 0;
 $totalChiAll = 0;
-foreach ($transactions as $row) {
-    if ($row['type'] == 0) $totalThuAll += $row['amount'];
-    elseif ($row['type'] == 1) $totalChiAll += $row['amount'];
+foreach ($transactions as $t) {
+    if ($t['type'] == 0) $totalThuAll += $t['amount'];
+    if ($t['type'] == 1) $totalChiAll += $t['amount'];
 }
 
-// Nhóm giao dịch theo ngày
+// 7. Nhóm giao dịch theo ngày
 $grouped = [];
-foreach ($transactions as $row) {
-    $dateKey = date('d/m/Y', strtotime($row['date']));
-    $grouped[$dateKey][] = $row;
+foreach ($transactions as $t) {
+    $dateKey = date('d/m/Y', strtotime($t['date']));
+    $grouped[$dateKey][] = $t;
 }
 
-$typeLabels = [0 => 'Thu', 1 => 'Chi', 2 => 'Cập nhật tài khoản'];
+// Nhãn cho type
+$typeLabels = [
+    0 => 'Thu',
+    1 => 'Chi',
+    2 => 'Cập nhật tài khoản'
+];
 ?>
 
 <!DOCTYPE html>
@@ -228,8 +245,14 @@ $typeLabels = [0 => 'Thu', 1 => 'Chi', 2 => 'Cập nhật tài khoản'];
                 height: auto;
             }
         }
+        .account.total {
+          margin-top: 20px;
+          padding: 10px;
+          background: #e9f7ef;
+          border: 1px solid #a3d7b9;
+          font-weight: bold;
+        }
     </style>
-
 </head>
 <body>
 <div class="header">
@@ -253,6 +276,10 @@ $typeLabels = [0 => 'Thu', 1 => 'Chi', 2 => 'Cập nhật tài khoản'];
             </div>
         <?php endforeach; ?>
         <a href="create_account.php">+ Thêm khoản tiền</a>
+        <div class="account total">
+          <strong>Tổng số dư:</strong>
+          <?= number_format($totalAccountBalance, 0, ',', '.') ?> VND
+        </div>
         <hr>
         <a href="feedback.php">📩 Gửi phản hồi</a>
         <?php if ($user['role'] === 'admin'): ?>
