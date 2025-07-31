@@ -1,44 +1,39 @@
 <?php
 session_start();
-include "db.php";           // kết nối PostgreSQL
-include "validation.php";   // chứa các hàm validate_fullname(), validate_birthyear(), validate_email()
+include "db.php"; // kết nối PostgreSQL, ví dụ dùng pg_connect()
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
-$user_id  = $_SESSION['user_id'];
-$errors   = [ 'fullname'=>'', 'birthyear'=>'', 'email'=>'' ];
-$success  = '';
-// Lấy thông tin người dùng để hiển thị mặc định
+$user_id = $_SESSION['user_id'];
+
+// 🔹 Lấy thông tin người dùng
 $sql    = "SELECT username, avatar, fullname, birthyear, email FROM users WHERE id = $1";
-$result = pg_query_params($conn, $sql, [ $user_id ]);
+$result = pg_query_params($conn, $sql, array($user_id));
 $user   = pg_fetch_assoc($result);
 
+// 🔹 Cập nhật thông tin hoặc xóa tài khoản nếu gửi POST
+$success = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // 2.1 Xóa tài khoản
     if (isset($_POST['delete_account'])) {
-        pg_query_params($conn, "DELETE FROM transactions WHERE user_id = $1", [ $user_id ]);
-        pg_query_params($conn, "DELETE FROM accounts     WHERE user_id = $1", [ $user_id ]);
-        pg_query_params($conn, "DELETE FROM descriptions WHERE user_id = $1", [ $user_id ]);
-        pg_query_params($conn, "DELETE FROM users        WHERE id       = $1", [ $user_id ]);
+        // Xóa dữ liệu liên quan
+        pg_query_params($conn, "DELETE FROM transactions WHERE user_id = $1", array($user_id));
+        pg_query_params($conn, "DELETE FROM accounts WHERE user_id = $1", array($user_id));
+        pg_query_params($conn, "DELETE FROM descriptions WHERE user_id = $1", array($user_id));
+        pg_query_params($conn, "DELETE FROM users WHERE id = $1", array($user_id));
+
         session_destroy();
         header("Location: login.php");
         exit();
     }
 
-    // 2.2 Thu thập input
-    $fullname  = trim($_POST['fullname']);
-    $birthyear = trim($_POST['birthyear']);
-    $email     = trim($_POST['email']);
+    // Xử lý cập nhật thông tin
+    $fullname  = $_POST['fullname'];
+    $birthyear = $_POST['birthyear'];
+    $email     = $_POST['email'];
 
-    // 2.3 Server-side validation
-    $errors['fullname']  = validate_fullname($fullname);
-    $errors['birthyear'] = validate_birthyear($birthyear);
-    $errors['email']     = validate_email($email);
-
-    // 2.4 Xử lý avatar upload (nếu có)
     $avatar = $user['avatar'];
     if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
         $ext         = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
@@ -50,20 +45,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // 2.5 Nếu không có lỗi, thực hiện UPDATE
-    if (empty($errors['fullname']) && empty($errors['birthyear']) && empty($errors['email'])) {
-        $sql_update = "UPDATE users 
-                       SET fullname = $1, birthyear = $2, email = $3, avatar = $4 
-                       WHERE id = $5";
-        pg_query_params($conn, $sql_update, [ $fullname, $birthyear, $email, $avatar, $user_id ]);
+    $sql_update = "UPDATE users SET fullname = $1, birthyear = $2, email = $3, avatar = $4 WHERE id = $5";
+    pg_query_params($conn, $sql_update, array($fullname, $birthyear, $email, $avatar, $user_id));
 
-        $success = "✅ Cập nhật hồ sơ thành công!";
-        // cập nhật lại $user để hiển thị ngay
-        $user['fullname']  = $fullname;
-        $user['birthyear'] = $birthyear;
-        $user['email']     = $email;
-        $user['avatar']    = $avatar;
-    }
+    $success               = "✅ Cập nhật hồ sơ thành công!";
+    $user['fullname']      = $fullname;
+    $user['birthyear']     = $birthyear;
+    $user['email']         = $email;
+    $user['avatar']        = $avatar;
 }
 ?>
 <!DOCTYPE html>
@@ -72,81 +61,183 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <title>Hồ sơ cá nhân</title>
     <style>
-        /* ... giữ nguyên style cũ ... */
-        .error { color: red; margin-top: -8px; margin-bottom: 8px; font-size: 0.9em; }
+        body { font-family: Arial; margin: 0; }
+
+        .header {
+            background: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header .user {
+            display: flex;
+            align-items: center;
+        }
+        .header .user a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+        }
+        .header .user span {
+            font-weight: bold;
+        }
+        .header .user img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 10px;
+            object-fit: cover;
+        }
+
+        .main {
+            display: flex;
+        }
+        .sidebar {
+            width: 300px;
+            background: #f0f0f0;
+            padding: 20px;
+            height: 100vh;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+        .sidebar a {
+            display: block;
+            margin-bottom: 10px;
+            text-decoration: none;
+            color: #333;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button[type="submit"] {
+            background-color: #007BFF;
+            color: white;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .btn-delete {
+            background-color: red;
+            color: white;
+        }
+        .btn-delete:hover {
+            background-color: darkred;
+        }
+        .success {
+            color: green;
+            margin-bottom: 10px;
+        }
+        .profile-box {
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
-    <!-- header, sidebar giống cũ -->
-    <div class="content">
-        <h2>👤 Hồ sơ cá nhân</h2>
-        <?php if ($success): ?>
-            <p class="success"><?= $success ?></p>
-        <?php endif; ?>
-
-        <div class="profile-box">
-            <form method="post" enctype="multipart/form-data">
-
-                <!-- Fullname -->
-                <label>Họ tên:</label><br>
-                <input
-                  type="text"
-                  name="fullname"
-                  value="<?= htmlspecialchars($user['fullname']) ?>"
-                  required
-                  pattern="^[A-Za-zÀ-ỹ ]{2,100}$"
-                  title="Chỉ chứa chữ và khoảng trắng, từ 2 đến 100 ký tự."
-                ><br>
-                <?php if ($errors['fullname']): ?>
-                    <div class="error"><?= $errors['fullname'] ?></div>
-                <?php endif; ?>
-
-                <!-- Birthyear -->
-                <label>Năm sinh:</label><br>
-                <input
-                  type="number"
-                  name="birthyear"
-                  value="<?= htmlspecialchars($user['birthyear']) ?>"
-                  required
-                  min="1900"
-                  max="<?= date('Y') ?>"
-                ><br>
-                <?php if ($errors['birthyear']): ?>
-                    <div class="error"><?= $errors['birthyear'] ?></div>
-                <?php endif; ?>
-
-                <!-- Email -->
-                <label>Email:</label><br>
-                <input
-                  type="email"
-                  name="email"
-                  value="<?= htmlspecialchars($user['email']) ?>"
-                  required
-                ><br>
-                <?php if ($errors['email']): ?>
-                    <div class="error"><?= $errors['email'] ?></div>
-                <?php endif; ?>
-
-                <!-- Avatar -->
-                <label>Ảnh đại diện:</label><br>
-                <input type="file" name="avatar" accept="image/*"><br><br>
+    <div class="header">
+        <h2>Quản lý thu chi</h2>
+        <div class="user">
+            <a href="profile.php">
+                <span><?= htmlspecialchars($user['username']) ?></span>
                 <?php if (!empty($user['avatar'])): ?>
-                    <img src="uploads/<?= htmlspecialchars($user['avatar']) ?>"
-                         width="100" height="100"
-                         style="border-radius: 50%; object-fit: cover;">
+                    <img src="uploads/<?= htmlspecialchars($user['avatar']) ?>" alt="Avatar">
+                <?php else: ?>
+                    <img src="default-avatar.png" alt="Avatar">
                 <?php endif; ?>
-                <br><br>
+            </a>
+        </div>
+    </div>
+    <div class="main">
+        <div class="sidebar">
+            <h3>Menu</h3>
+            <a href="dashboard.php">🏠 Dashboard</a>
+            <a href="profile.php">👤 Hồ sơ cá nhân</a>
+            <a href="logout.php">🔓 Đăng xuất</a>
+        </div>
+        <div class="content">
+            <h2>👤 Hồ sơ cá nhân</h2>
+            <?php if ($success): ?>
+                <p class="success"><?= $success ?></p>
+            <?php endif; ?>
 
-                <button type="submit"
-                  onclick="return confirm('✅ Bạn có chắc chắn muốn cập nhật thông tin không?');">
-                    Cập nhật
-                </button>
-                <br><br>
-                <button type="submit" name="delete_account" class="btn-delete"
-                  onclick="return confirm('❌ Bạn có chắc chắn muốn xóa tài khoản không? Thao tác này không thể hoàn tác!');">
-                    ❌ Xóa tài khoản
-                </button>
-            </form>
+            <div class="profile-box">
+                <form method="post" enctype="multipart/form-data">
+                    <label>Họ tên:</label><br>
+                    <input
+                        type="text"
+                        name="fullname"
+                        value="<?= htmlspecialchars($user['fullname']) ?>"
+                        required
+                    >
+                    <br>
+
+                    <label>Năm sinh:</label><br>
+                    <input
+                        type="number"
+                        name="birthyear"
+                        value="<?= htmlspecialchars($user['birthyear']) ?>"
+                        required
+                    >
+                    <br>
+
+                    <label>Email:</label><br>
+                    <input
+                        type="email"
+                        name="email"
+                        value="<?= htmlspecialchars($user['email']) ?>"
+                        required
+                    >
+                    <br>
+
+                    <label>Ảnh đại diện:</label><br>
+                    <input type="file" name="avatar">
+                    <br><br>
+
+                    <?php if (!empty($user['avatar'])): ?>
+                        <img
+                            src="uploads/<?= htmlspecialchars($user['avatar']) ?>"
+                            width="100"
+                            height="100"
+                            style="border-radius: 50%; object-fit: cover;"
+                        >
+                    <?php endif; ?>
+                    <br><br>
+
+                    <button
+                        type="submit"
+                        onclick="return confirm('✅ Bạn có chắc chắn muốn cập nhật thông tin không?');"
+                    >
+                        Cập nhật
+                    </button>
+                    <br><br>
+
+                    <button
+                        type="submit"
+                        name="delete_account"
+                        class="btn-delete"
+                        onclick="return confirm('❌ Bạn có chắc chắn muốn xóa tài khoản không? Thao tác này không thể hoàn tác!');"
+                    >
+                        ❌ Xóa tài khoản
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </body>
