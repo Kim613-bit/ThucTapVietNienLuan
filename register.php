@@ -204,7 +204,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <button type="submit">Đăng ký</button>
     </form>
 
-    <a href="login.php" class="back-button">← Quay lại đăng nhập</a>
     <div class="link">
       Đã có tài khoản? <a href="login.php">Đăng nhập</a>
     </div>
