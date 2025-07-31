@@ -174,7 +174,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php endif; ?>
 
         <form method="post">
-            <input type="text" name="username" placeholder="Tên đăng nhập" required>
+            <input
+              type="text"
+              name="username"
+              placeholder="Tên đăng nhập"
+              required
+              maxlength="50"
+            />
             <input
               type="password"
               name="password"
