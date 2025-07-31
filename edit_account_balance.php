@@ -90,6 +90,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                              ? $account['balance'] + $amount
                              : $account['balance'] - $amount;
 
+                if (abs($new_balance) >= 100000000) {
+                    throw new Exception("Số dư sau giao dịch vượt giới hạn cho phép (< 100.000.000).");
+                }
+                
                 // 5.3. Cập nhật số dư
                 pg_query_params(
                     $conn,
