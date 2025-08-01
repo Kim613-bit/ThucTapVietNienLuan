@@ -38,14 +38,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $row = pg_fetch_assoc($insert);
                 $account_id = $row['id'];
 
-                // 3. Ghi vào lịch sử giao dịch
-                $description = "Tạo tài khoản mới: {$name}";
                 $now = date('Y-m-d H:i:s');
+
+                // Giao dịch “thu” ban đầu để ghi lại số dư
                 pg_query_params($conn,
                     "INSERT INTO transactions
-                     (user_id, account_id, type, amount, description, date)
-                     VALUES ($1, $2, 2, $3, $4, $5)",
-                    [$user_id, $account_id, $balance, $description, $now]
+                     (user_id, account_id, type, amount, description, remaining_balance, date)
+                     VALUES ($1, $2, 0, $3, $4, $3, $5)",
+                    [$user_id, $account_id, $balance, "Số dư ban đầu", $now]
+                );
+                
+                // Ghi chú hành động tạo tài khoản
+                pg_query_params($conn,
+                    "INSERT INTO transactions
+                     (user_id, account_id, type, amount, description, remaining_balance, date)
+                     VALUES ($1, $2, 2, 0, $3, $3, $4)",
+                    [$user_id, $account_id, "Tạo tài khoản mới: {$name}", $now]
                 );
 
                 header("Location: dashboard.php");
