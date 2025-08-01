@@ -1,6 +1,7 @@
 <?php
 session_start();
 include "db.php";
+define('MAX_BALANCE', 100000000);
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 if (!isset($_SESSION['user_id'])) {
@@ -25,8 +26,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         if ($balance < 0) {
             $error = "Số dư không được âm.";
-        } elseif ($balance > 1000000000000) {
-            $error = "Số dư vượt quá giới hạn (tối đa 1,000,000,000,000 VND).";
+        } elseif ($balance > MAX_BALANCE) {
+            $error = "Số dư vượt quá giới hạn (tối đa " . number_format(MAX_BALANCE, 0, ',', '.') . " VND).";
         } elseif (empty($name)) {
             $error = "Vui lòng nhập tên tài khoản.";
         } else {
@@ -67,6 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 ?>
+    
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -161,6 +163,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     id="balance"
                     name="balance"
                     inputmode="decimal"
+                    maxlength="14"
+                    title="Số dư tối đa: 99,999,999.99 VND"
                     placeholder="0"
                     value="<?= isset($_POST['balance']) ? htmlspecialchars($_POST['balance']) : '0' ?>"
                     required
