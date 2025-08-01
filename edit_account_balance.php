@@ -122,6 +122,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (! is_numeric($sanitized)) {
                     throw new Exception("Số tiền không hợp lệ. Vui lòng nhập số.");
                 }
+
+                $amount = floatval($sanitized);
+
                 if ($amount < 0) {
                     throw new Exception("Số tiền không được âm.");
                 }
