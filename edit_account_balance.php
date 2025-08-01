@@ -194,99 +194,94 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Sửa khoản tiền</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: #f2f2f2;
-            margin: 0;
-            padding: 0;
+          font-family: Arial, sans-serif;
+          background: #f2f2f2;
+          margin: 0;
+          padding: 0;
         }
-    
+        
         .container {
-            max-width: 520px;
-            margin: 60px auto;
-            padding: 30px 24px;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          max-width: 540px;
+          margin: 60px auto;
+          background: #fff;
+          border-radius: 12px;
+          padding: 32px 24px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
-    
+        
         h2 {
-            text-align: center;
-            margin-bottom: 28px;
+          text-align: center;
+          margin-bottom: 26px;
         }
-    
-        .form-group {
-            margin-bottom: 18px;
-        }
-    
+        
         label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 6px;
+          display: block;
+          font-weight: bold;
+          margin-bottom: 8px;           /* ✅ tăng khoảng cách giữa label & input */
+          font-size: 15px;
         }
-    
+        
         input[type="text"], select {
-            width: 100%;
-            padding: 10px 12px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
+          width: 100%;
+          padding: 10px 12px;
+          font-size: 16px;
+          border-radius: 6px;
+          border: 1px solid #ccc;
+          box-sizing: border-box;
+          margin-bottom: 20px;          /* ✅ thêm khoảng cách dưới input */
         }
-    
+        
         button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 14px;
-            font-size: 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
+          width: 100%;
+          padding: 12px;
+          font-size: 16px;
+          margin-top: 10px;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
         }
-    
-        .form-control {
-            margin-top: 10px;
+        
+        button.form-control {
+          margin-top: 0;
         }
-    
-        .btn-primary {
-            background-color: #007BFF;
-            color: white;
+        
+        button.form-control.btn-primary {
+          background-color: #007BFF;    /* ✅ màu xanh chuẩn */
+          color: white;
         }
-    
-        .btn-primary:hover {
-            background-color: #0056b3;
+        button.form-control.btn-primary:hover {
+          background-color: #0056b3;
         }
-    
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
+        
+        button.form-control.btn-danger {
+          background-color: #dc3545;    /* ✅ màu đỏ chuẩn */
+          color: white;
         }
-    
-        .btn-danger:hover {
-            background-color: #b02a37;
+        button.form-control.btn-danger:hover {
+          background-color: #b02a37;
         }
-    
+        
         .success {
-            color: green;
-            text-align: center;
-            margin-bottom: 16px;
+          color: green;
+          text-align: center;
+          margin-bottom: 16px;
         }
-    
+        
         .error {
-            color: red;
-            text-align: center;
-            margin-bottom: 16px;
+          color: red;
+          text-align: center;
+          margin-bottom: 16px;
         }
-    
+        
         .back {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: #007BFF;
-            text-decoration: none;
+          display: block;
+          text-align: center;
+          margin-top: 22px;
+          color: #007BFF;
+          text-decoration: none;
         }
-    
         .back:hover {
-            text-decoration: underline;
+          text-decoration: underline;
         }
     </style>
 </head>
@@ -358,7 +353,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </datalist>
         </div>
 
-        <button type="submit" class="form-control">💾 Lưu thay đổi</button>
+        <button type="submit"
+                class="form-control btn-primary">
+          💾 Lưu thay đổi
+        </button>
     </form>
 
     <form
@@ -366,8 +364,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         onsubmit="return confirm('Bạn có chắc chắn muốn xóa khoản tiền này không?');"
     >
         <input type="hidden" name="delete_account" value="yes">
-        <button type="submit" class="form-control danger">
-            🗑️ Xóa khoản tiền
+        <button type="submit"
+                name="delete_account"
+                value="yes"
+                class="form-control btn-danger"
+                onclick="return confirm('Bạn có chắc chắn muốn xóa khoản tiền này không?')">
+          🗑️ Xóa khoản tiền
         </button>
     </form>
 
