@@ -9,37 +9,43 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $type = $_POST['type'];
-    $amount = $_POST['amount'];
-    $description = $_POST['description'];
-    $date = $_POST['date'];
+$user_id = $_SESSION['user_id'];
+$error = "";
 
-    // Kiểm tra số tiền là số hợp lệ
-    if (!is_numeric($amount) || $amount <= 0) {
-        echo "<p style='color:red;'>Số tiền không hợp lệ!</p>";
+// Xử lý form
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $type        = $_POST['type'];
+    $rawAmount   = $_POST['amount'] ?? '0';
+    $description = trim($_POST['description']);
+    $date        = $_POST['date'];
+
+    // 👉 1. Lọc số tiền nhập
+    $sanitized = preg_replace('/[^\d\.]/', '', $rawAmount);
+    if ($sanitized === '' || !is_numeric($sanitized)) {
+        $error = "Số tiền không hợp lệ. Vui lòng nhập số.";
     } else {
-        $stmt = mysqli_prepare($conn, "INSERT INTO transactions (user_id, type, amount, description, date) VALUES (?, ?, ?, ?, ?)");
-        mysqli_stmt_bind_param($stmt, "isdss", $user_id, $type, $amount, $description, $date);
-        mysqli_stmt_execute($stmt);
-        header("Location: transactions.php");
-        exit();
+        $amount = floatval($sanitized);
+
+        // 👉 2. Kiểm tra giới hạn
+        if ($amount <= 0) {
+            $error = "Số tiền phải lớn hơn 0.";
+        } elseif ($amount > 1000000000000) {
+            $error = "Số tiền vượt quá giới hạn (tối đa 1,000,000,000,000 VND).";
+        } else {
+            // 👉 3. Thêm giao dịch vào DB (dùng prepared statement)
+            $stmt = mysqli_prepare($conn, "INSERT INTO transactions (user_id, type, amount, description, date) VALUES (?, ?, ?, ?, ?)");
+            mysqli_stmt_bind_param($stmt, "isdss", $user_id, $type, $amount, $description, $date);
+            mysqli_stmt_execute($stmt);
+
+            header("Location: transactions.php");
+            exit();
+        }
     }
-}
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $type = $_POST['type'];
-    $amount = $_POST['amount'];
-    $description = $_POST['description'];
-    $date = $_POST['date'];
-    $user_id = $_SESSION['user_id'];
-
-    $sql = "INSERT INTO transactions (user_id, type, amount, description, date)
-            VALUES ('$user_id', '$type', '$amount', '$description', '$date')";
-    mysqli_query($conn, $sql);
-
-    header("Location: dashboard.php");
-    exit();
+    // 👉 Nếu có lỗi thì hiển thị
+    if ($error !== "") {
+        echo "<p style='color:red;'>$error</p>";
+    }
 }
 ?>
 
