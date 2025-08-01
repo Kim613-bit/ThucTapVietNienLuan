@@ -193,48 +193,100 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <title>Sửa khoản tiền</title>
     <style>
-        body { font-family: Arial; margin: 0; padding: 0; background: #f2f2f2; }
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            margin: 0;
+            padding: 0;
         }
-        h2 { text-align: center; }
-        .form-control {
+    
+        .container {
+            max-width: 520px;
+            margin: 60px auto;
+            padding: 30px 24px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+    
+        h2 {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+    
+        .form-group {
+            margin-bottom: 18px;
+        }
+    
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+    
+        input[type="text"], select {
             width: 100%;
             padding: 10px 12px;
-            margin-top: 10px;
             font-size: 16px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 6px;
             box-sizing: border-box;
         }
-        button.form-control {
-            background-color: #007BFF;
-            color: white;
+    
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 14px;
+            font-size: 16px;
             border: none;
+            border-radius: 6px;
             cursor: pointer;
         }
-        button.form-control:hover {
+    
+        .form-control {
+            margin-top: 10px;
+        }
+    
+        .btn-primary {
+            background-color: #007BFF;
+            color: white;
+        }
+    
+        .btn-primary:hover {
             background-color: #0056b3;
         }
-        .danger {
+    
+        .btn-danger {
             background-color: #dc3545;
+            color: white;
         }
-        .danger:hover {
+    
+        .btn-danger:hover {
             background-color: #b02a37;
         }
-        .success { color: green; }
-        .error   { color: red; }
+    
+        .success {
+            color: green;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+    
+        .error {
+            color: red;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+    
         .back {
-            margin-top: 20px;
             display: block;
             text-align: center;
+            margin-top: 20px;
             color: #007BFF;
             text-decoration: none;
+        }
+    
+        .back:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
