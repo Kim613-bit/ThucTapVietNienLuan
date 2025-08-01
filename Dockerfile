@@ -16,5 +16,8 @@ COPY . /var/www/html/
 # Cấp quyền
 RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
 
+# Khai báo port
 EXPOSE 80
 
+# 👉 Lệnh khởi động Apache
+CMD ["apache2-foreground"]
