@@ -186,233 +186,178 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-    
+
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Sửa khoản tiền</title>
-    <style>
-        body {
-          font-family: Arial, sans-serif;
-          background: #f2f2f2;
-          margin: 0;
-          padding: 0;
-        }
-        
-        .container {
-          max-width: 540px;
-          margin: 60px auto;
-          background: #fff;
-          border-radius: 12px;
-          padding: 32px 24px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        
-        h2 {
-          text-align: center;
-          margin-bottom: 26px;
-        }
-        
-        label {
-          display: block;
-          font-weight: bold;
-          margin-bottom: 8px;           /* ✅ tăng khoảng cách giữa label & input */
-          font-size: 15px;
-        }
-        
-        input[type="text"], select {
-          width: 100%;
-          padding: 10px 12px;
-          font-size: 16px;
-          border-radius: 6px;
-          border: 1px solid #ccc;
-          box-sizing: border-box;
-          margin-bottom: 20px;          /* ✅ thêm khoảng cách dưới input */
-        }
-        
-        button {
-          width: 100%;
-          padding: 12px;
-          font-size: 16px;
-          margin-top: 10px;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-        }
-        
-        button.form-control {
-          margin-top: 0;
-        }
-        
-        button.form-control.btn-primary {
-          background-color: #007BFF;    /* ✅ màu xanh chuẩn */
-          color: white;
-        }
-        button.form-control.btn-primary:hover {
-          background-color: #0056b3;
-        }
-        
-        button.form-control.btn-danger {
-          background-color: #dc3545;    /* ✅ màu đỏ chuẩn */
-          color: white;
-        }
-        button.form-control.btn-danger:hover {
-          background-color: #b02a37;
-        }
-        
-        .success {
-          color: green;
-          text-align: center;
-          margin-bottom: 16px;
-        }
-        
-        .error {
-          color: red;
-          text-align: center;
-          margin-bottom: 16px;
-        }
-        
-        .back {
-          display: block;
-          text-align: center;
-          margin-top: 22px;
-          color: #007BFF;
-          text-decoration: none;
-        }
-        .back:hover {
-          text-decoration: underline;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Sửa khoản tiền</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 560px;
+      margin: 60px auto;
+      padding: 30px 24px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 26px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      margin-bottom: 18px;
+    }
+    button.form-control {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button.form-control:hover {
+      background-color: #0056b3;
+    }
+    .danger {
+      background-color: #dc3545;
+    }
+    .danger:hover {
+      background-color: #b02a37;
+    }
+    .success {
+      color: green;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .back {
+      display: block;
+      text-align: center;
+      margin-top: 22px;
+      color: #007BFF;
+      text-decoration: none;
+    }
+    .back:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
 <div class="container">
-    <h2>✏️ Sửa khoản tiền</h2>
+  <h2>✏️ Sửa khoản tiền</h2>
 
-    <?php if ($success): ?>
-        <p class="success"><?= $success ?></p>
-    <?php endif; ?>
+  <?php if ($success): ?>
+    <p class="success"><?= $success ?></p>
+  <?php endif; ?>
 
-    <?php if ($error): ?>
-        <p class="error"><?= $error ?></p>
-    <?php endif; ?>
+  <?php if ($error): ?>
+    <p class="error"><?= $error ?></p>
+  <?php endif; ?>
 
-    <form method="post"
-          id="balanceForm"
-          onsubmit="return confirm('Bạn có chắc chắn muốn lưu thay đổi không?');">
-        <label>Tên khoản tiền:</label>
-        <input
-            type="text"
-            name="name"
-            value="<?= htmlspecialchars($account['name']) ?>"
-            required
-            class="form-control"
-        >
+  <form method="post" id="balanceForm"
+        onsubmit="return confirm('Bạn có chắc chắn muốn lưu thay đổi không?');">
+    <label>Tên khoản tiền:</label>
+    <input type="text" name="name"
+           value="<?= htmlspecialchars($account['name']) ?>"
+           required class="form-control">
 
-        <label>Số dư hiện tại:</label>
-        <input
-            type="text"
-            value="<?= number_format($account['balance'], 0, ',', '.') ?> VND"
-            readonly
-            class="form-control"
-        >
+    <label>Số dư hiện tại:</label>
+    <input type="text"
+           value="<?= number_format($account['balance'], 0, ',', '.') ?> VND"
+           readonly class="form-control">
 
-        <label>Loại giao dịch:</label>
-        <select
-            name="type"
-            id="transactionType"
-            onchange="toggleFields()"
-            class="form-control"
-        >
-            <option value="">-- Không thay đổi số dư --</option>
-            <option value="thu">Thu</option>
-            <option value="chi">Chi</option>
-        </select>
+    <label>Loại giao dịch:</label>
+    <select name="type" id="transactionType"
+            onchange="toggleFields()" class="form-control">
+      <option value="">-- Không thay đổi số dư --</option>
+      <option value="thu">Thu</option>
+      <option value="chi">Chi</option>
+    </select>
 
-        <div id="transactionFields" style="display: none;">
-            <label>Số tiền:</label>
-            <input
-                type="text"
-                id="amount"
-                name="amount"
-                placeholder="0"
-                class="form-control"
-            >
-            <label>Nội dung giao dịch:</label>
-            <input
-                list="suggestions"
-                name="description"
-                placeholder="Nhập hoặc chọn nội dung"
-                value="<?= isset($_POST['description']) ? htmlspecialchars($_POST['description']) : '' ?>"
-                class="form-control"
-            >
-            <datalist id="suggestions">
-                <?php foreach ($descriptions as $desc): ?>
-                    <option value="<?= htmlspecialchars($desc) ?>">
-                <?php endforeach; ?>
-            </datalist>
-        </div>
+    <div id="transactionFields" style="display: none;">
+      <label>Số tiền:</label>
+      <input type="text" id="amount" name="amount"
+             placeholder="0" class="form-control">
 
-        <button type="submit"
-                class="form-control btn-primary">
-          💾 Lưu thay đổi
-        </button>
-    </form>
+      <label>Nội dung giao dịch:</label>
+      <input list="suggestions" name="description"
+             placeholder="Nhập hoặc chọn nội dung"
+             value="<?= isset($_POST['description']) ? htmlspecialchars($_POST['description']) : '' ?>"
+             class="form-control">
+      <datalist id="suggestions">
+        <?php foreach ($descriptions as $desc): ?>
+          <option value="<?= htmlspecialchars($desc) ?>">
+        <?php endforeach; ?>
+      </datalist>
+    </div>
 
-    <form
-        method="post"
-        onsubmit="return confirm('Bạn có chắc chắn muốn xóa khoản tiền này không?');"
-    >
-        <input type="hidden" name="delete_account" value="yes">
-        <button type="submit"
-                name="delete_account"
-                value="yes"
-                class="form-control btn-danger"
-                onclick="return confirm('Bạn có chắc chắn muốn xóa khoản tiền này không?')">
-          🗑️ Xóa khoản tiền
-        </button>
-    </form>
+    <button type="submit" class="form-control">💾 Lưu thay đổi</button>
+  </form>
 
-    <a href="dashboard.php" class="back">← Quay lại Dashboard</a>
+  <form method="post"
+        onsubmit="return confirm('Bạn có chắc chắn muốn xóa khoản tiền này không?');">
+    <input type="hidden" name="delete_account" value="yes">
+    <button type="submit" class="form-control danger">🗑️ Xóa khoản tiền</button>
+  </form>
+
+  <a href="dashboard.php" class="back">← Quay lại Dashboard</a>
 </div>
 
 <script>
 function toggleFields() {
-    const type   = document.getElementById("transactionType").value;
-    const fields = document.getElementById("transactionFields");
-    fields.style.display = (type === "thu" || type === "chi")
-                         ? "block"
-                         : "none";
+  const type = document.getElementById("transactionType").value;
+  const fields = document.getElementById("transactionFields");
+  fields.style.display = (type === "thu" || type === "chi") ? "block" : "none";
 }
 
 function formatWithCommas(value) {
-    const parts = value.split('.');
-    parts[0] = parts[0]
-        .replace(/^0+(?=\d)|\D/g, '')
-        .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    return parts.join('.');
+  const parts = value.split('.');
+  parts[0] = parts[0]
+    .replace(/^0+(?=\d)|\D/g, '')
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    toggleFields();
-
-    const amt = document.getElementById("amount");
-    amt.addEventListener("input", function() {
-        const oldPos = this.selectionStart;
-        let raw     = this.value.replace(/,/g, '');
-        if (raw === '' || raw === '.') {
-            this.value = raw;
-            return;
-        }
-        const [intPart, decPart] = raw.split('.');
-        let formatted = formatWithCommas(intPart);
-        if (decPart !== undefined) {
-            formatted += '.' + decPart;
-        }
-        this.value = formatted;
-        const newPos = oldPos + (this.value.length - raw.length);
-        this.setSelectionRange(newPos, newPos);
-    });
+document.addEventListener("DOMContentLoaded", function () {
+  toggleFields();
+  const amt = document.getElementById("amount");
+  amt.addEventListener("input", function () {
+    const oldPos = this.selectionStart;
+    let raw = this.value.replace(/,/g, '');
+    if (raw === '' || raw === '.') {
+      this.value = raw;
+      return;
+    }
+    const [intPart, decPart] = raw.split('.');
+    let formatted = formatWithCommas(intPart);
+    if (decPart !== undefined) {
+      formatted += '.' + decPart;
+    }
+    this.value = formatted;
+    const newPos = oldPos + (this.value.length - raw.length);
+    this.setSelectionRange(newPos, newPos);
+  });
 });
 </script>
 </body>
