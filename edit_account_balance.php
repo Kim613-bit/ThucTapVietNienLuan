@@ -1,7 +1,7 @@
 <?php
 session_start();
 include "db.php";
-define('MAX_BALANCE', 100_000_000_000);  // 100 tỷ
+define('MAX_BALANCE', 1000000000000); // 1 ngàn tỷ
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 if (!isset($_SESSION['user_id'])) {
@@ -122,9 +122,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (! is_numeric($sanitized)) {
                     throw new Exception("Số tiền không hợp lệ. Vui lòng nhập số.");
                 }
-                $amount = round((float)$sanitized, 2);
-                if (abs($amount) >= 1e13) {
-                    throw new Exception("Số tiền vượt giới hạn (tối đa 13 chữ số nguyên).");
+                if ($amount < 0) {
+                    throw new Exception("Số tiền không được âm.");
+                }
+                if ($amount > MAX_BALANCE) {
+                    throw new Exception("Số tiền vượt quá giới hạn cho phép (tối đa " . number_format(MAX_BALANCE, 0, ',', '.') . " VND).");
                 }
 
                 // 5.2. Tính new_balance
@@ -133,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                              ? $account['balance'] + $amount
                              : $account['balance'] - $amount;
 
-                if (abs($new_balance) >= MAX_BALANCE) {
+                if (abs($new_balance) > MAX_BALANCE) {
                     $formatted = number_format(MAX_BALANCE, 0, ',', '.');
                     throw new Exception("Số dư sau giao dịch vượt giới hạn cho phép (< {$formatted}).");
                 }
