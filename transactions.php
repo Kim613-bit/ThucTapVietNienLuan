@@ -46,9 +46,9 @@ $result = mysqli_stmt_get_result($stmt);
             echo "<tr>";
             echo "<td>" . $i++ . "</td>";
             echo "<td>" . ($row['type'] ? "Thu" : "Chi") . "</td>";
-            echo "<td>" . number_format($row['amount']) . " VND</td>";
+            echo "<td>" . number_format($row['amount'], 2, ',', '.') . " VND</td>";
             echo "<td>" . htmlspecialchars($row['description']) . "</td>";
-            echo "<td>" . $row['date'] . "</td>";
+            echo "<td>" . date("d/m/Y H:i", strtotime($row['date'])) . "</td>";
             echo "<td>
                     <a href='edit_transaction.php?id={$row['id']}'>Sửa</a> |
                     <a href='delete_transaction.php?id={$row['id']}' onclick=\"return confirm('Bạn có chắc chắn muốn xóa?')\">Xóa</a>
