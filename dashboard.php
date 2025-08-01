@@ -3,6 +3,13 @@ session_start();
 include "db.php";
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
+if (!function_exists('bcadd')) {
+    function bcadd($left_operand, $right_operand, $scale = 2) {
+        // Fallback dùng toán học thường (không hoàn toàn chính xác với số lớn)
+        return number_format($left_operand + $right_operand, $scale, '.', '');
+    }
+}
+
 // 1. Chuyển admin nếu user_id = 1
 if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == 1) {
     header("Location: admin_feedback.php");
