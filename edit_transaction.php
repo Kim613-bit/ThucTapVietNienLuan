@@ -17,11 +17,28 @@ if (!$id) {
 
 // 👉 Khi người dùng cập nhật giao dịch
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $type = $_POST['type'];
-    $amount = $_POST['amount'];
-    $description = $_POST['description'];
-    $date = $_POST['date'];
+    $type        = $_POST['type'];
+    $rawAmount   = $_POST['amount'] ?? '0';
+    $description = trim($_POST['description']);
+    $date        = $_POST['date'];
 
+    // ✅ Kiểm tra & lọc số tiền
+    $sanitized = preg_replace('/[^\d\.]/', '', $rawAmount);
+    if ($sanitized === '' || !is_numeric($sanitized)) {
+        echo "<p style='color:red;'>Số tiền không hợp lệ. Vui lòng nhập số.</p>";
+        exit();
+    }
+
+    $amount = floatval($sanitized);
+    if ($amount <= 0) {
+        echo "<p style='color:red;'>Số tiền phải lớn hơn 0.</p>";
+        exit();
+    } elseif ($amount > 1000000000000) {
+        echo "<p style='color:red;'>Số tiền vượt quá giới hạn (tối đa 1,000,000,000,000 VND).</p>";
+        exit();
+    }
+
+    // ✅ Thực hiện truy vấn cập nhật
     $query = "UPDATE transactions SET type = $1, amount = $2, description = $3, date = $4 
               WHERE id = $5 AND user_id = $6";
     $result = pg_query_params($conn, $query, array($type, $amount, $description, $date, $id, $user_id));
@@ -29,6 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header("Location: transactions.php");
     exit();
 }
+
 
 // 👉 Lấy thông tin giao dịch để hiển thị form
 $query = "SELECT * FROM transactions WHERE id = $1 AND user_id = $2";
