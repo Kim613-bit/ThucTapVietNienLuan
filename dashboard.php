@@ -46,7 +46,7 @@ $account_q = pg_query_params(
 while ($acc = pg_fetch_assoc($account_q)) {
     $accounts[] = $acc;
     // Ép float để cộng đúng
-    $totalAccountBalance += (float)$acc['balance'];
+    $totalAccountBalance = bcadd($totalAccountBalance, $acc['balance'], 2);
 }
 
 // 5. Lấy danh sách giao dịch theo filter
@@ -97,8 +97,8 @@ while ($row = pg_fetch_assoc($resTrans)) {
 $totalThuAll = 0;
 $totalChiAll = 0;
 foreach ($transactions as $t) {
-    if ($t['type'] == 0) $totalThuAll += $t['amount'];
-    if ($t['type'] == 1) $totalChiAll += $t['amount'];
+    if ($t['type'] == 0) $totalThuAll = bcadd($totalThuAll, $t['amount'], 2);
+    if ($t['type'] == 1) $totalChiAll = bcadd($totalChiAll, $t['amount'], 2);
 }
 
 // 7. Nhóm giao dịch theo ngày
