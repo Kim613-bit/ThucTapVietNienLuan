@@ -117,32 +117,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // 5. Nếu có giao dịch thu/chi thì:
             if ($type === 'thu' || $type === 'chi') {
-                // 5.1. Validate & sanitize số tiền
                 $sanitized = preg_replace('/[^\d\.\-]/', '', $rawAmount);
-                if (! is_numeric($sanitized)) {
+                if (!is_numeric($sanitized)) {
                     throw new Exception("Số tiền không hợp lệ. Vui lòng nhập số.");
                 }
-
                 $amount = floatval($sanitized);
-
                 if ($amount < 0) {
                     throw new Exception("Số tiền không được âm.");
                 }
                 if ($amount > MAX_BALANCE) {
-                    throw new Exception("Số tiền vượt quá giới hạn cho phép (tối đa " . number_format(MAX_BALANCE, 0, ',', '.') . " VND).");
+                    $limit = number_format(MAX_BALANCE, 0, ',', '.');
+                    throw new Exception("Số tiền vượt quá giới hạn cho phép (tối đa {$limit} VND).");
                 }
-
+                
                 // 5.2. Tính new_balance
                 $type_value  = ($type === 'chi') ? 1 : 0;
                 $new_balance = $type_value === 0
                              ? $account['balance'] + $amount
                              : $account['balance'] - $amount;
-
-                if (abs($new_balance) > MAX_BALANCE) {
-                    $formatted = number_format(MAX_BALANCE, 0, ',', '.');
-                    throw new Exception("Số dư sau giao dịch vượt giới hạn cho phép (< {$formatted}).");
+                
+                // 5.2.b. Kiểm tra số dư sau giao dịch
+                if ($new_balance < 0 || $new_balance > MAX_BALANCE) {
+                    $limit = number_format(MAX_BALANCE, 0, ',', '.');
+                    throw new Exception(
+                        "Số dư sau giao dịch phải nằm trong khoảng 0 đến {$limit} VND."
+                    );
                 }
-
+                
                 // 5.3. Cập nhật số dư
                 pg_query_params(
                     $conn,
@@ -295,10 +296,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <option value="chi">Chi</option>
     </select>
 
-    <div id="transactionFields" style="display: none;">
-      <label>Số tiền:</label>
-      <input type="text" id="amount" name="amount"
-             placeholder="0" class="form-control">
+     <input
+      type="text"
+      id="amount"
+      name="amount"
+      placeholder="0"
+      class="form-control"
+      value="<?= htmlspecialchars($_POST['amount'] ?? '') ?>"
+    >
+
+     <small class="form-text text-muted">
+       Tối đa <?= number_format(MAX_BALANCE, 0, ',', '.') ?> VND
+    </small>
 
       <label>Nội dung giao dịch:</label>
       <input list="suggestions" name="description"
