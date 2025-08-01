@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         if ($balance < 0) {
             $error = "Số dư không được âm.";
-        elseif ($balance > 1000000000000) {
+        } elseif ($balance > 1000000000000) {
             $error = "Số dư vượt quá giới hạn (tối đa 1,000,000,000,000 VND).";
         } elseif (empty($name)) {
             $error = "Vui lòng nhập tên tài khoản.";
