@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 pg_query_params($conn,
                     "INSERT INTO transactions
                      (user_id, account_id, type, amount, description, remaining_balance, date)
-                     VALUES ($1, $2, 2, 0, $3, $3, $4)",
+                     VALUES ($1, $2, 2, 0, $3, $4, $5)",
                     [$user_id, $account_id, "Tạo tài khoản mới: {$name}", $now]
                 );
 
