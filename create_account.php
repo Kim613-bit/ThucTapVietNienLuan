@@ -55,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     "INSERT INTO transactions
                      (user_id, account_id, type, amount, description, remaining_balance, date)
                      VALUES ($1, $2, 2, 0, $3, $4, $5)",
-                    [$user_id, $account_id, "Tạo tài khoản mới: {$name}", $now]
+                    [$user_id, $account_id, "Tạo tài khoản mới: {$name}", $balance, $now]
                 );
 
                 header("Location: dashboard.php");
