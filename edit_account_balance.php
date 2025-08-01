@@ -1,7 +1,7 @@
 <?php
 session_start();
 include "db.php";
-define('MAX_BALANCE', 1000000000000); // 1 ngàn tỷ
+define('MAX_BALANCE', 100000000); // Giới hạn theo kiểu numeric(10,2)
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 if (!isset($_SESSION['user_id'])) {
@@ -186,6 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+    
 <!DOCTYPE html>
 <html>
 <head>
