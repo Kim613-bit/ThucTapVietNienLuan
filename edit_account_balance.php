@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "db.php';
+include "db.php";
 define('MAX_BALANCE', 100_000_000_000);  // 100 tỷ
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
