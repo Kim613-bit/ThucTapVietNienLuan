@@ -52,6 +52,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         && $_POST['delete_account'] === 'yes'
     ) {
         // … DELETE transactions & accounts trong transaction …
+        pg_query($conn, 'BEGIN');
+
+        try {
+            // Xóa các giao dịch liên quan
+            pg_query_params(
+                $conn,
+                "DELETE FROM transactions WHERE account_id = $1 AND user_id = $2",
+                [ $account_id, $user_id ]
+            );
+        
+            // Xóa tài khoản
+            pg_query_params(
+                $conn,
+                "DELETE FROM accounts WHERE id = $1 AND user_id = $2",
+                [ $account_id, $user_id ]
+            );
+        
+            pg_query($conn, 'COMMIT');
+        
+            // Chuyển hướng về dashboard
+            header("Location: dashboard.php?deleted=1");
+            exit();
+        }
+        catch (Exception $e) {
+            pg_query($conn, 'ROLLBACK');
+            $error = "❌ Lỗi xoá: " . $e->getMessage();
+        }
     }
     else {
         // 2. Lấy giá trị từ form
