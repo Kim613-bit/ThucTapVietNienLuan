@@ -181,7 +181,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     id="balance"
                     name="balance"
                     inputmode="decimal"
-                    maxlength="14"
+                    maxlength="11"
                     title="Số dư tối đa: 99,999,999.99 VND"
                     placeholder="Tối đa 99,999,999.99 VND"
                     value="<?= isset($_POST['balance']) ? htmlspecialchars($_POST['balance']) : '0' ?>"
