@@ -317,13 +317,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           type="text"
           id="amount"
           name="amount"
-          placeholder="0"
+          placeholder="Tối đa <?= number_format(MAX_BALANCE, 0, ',', '.') ?> VND"
           class="form-control"
           value="<?= htmlspecialchars($_POST['amount'] ?? '') ?>"
         >
-        <small class="form-text text-muted">
-          Tối đa <?= number_format(MAX_BALANCE, 0, ',', '.') ?> VND
-        </small>
 
         <label>Nội dung giao dịch:</label>
         <input
