@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (number > 99999999.99) {
             e.preventDefault();
             inp.style.borderColor = 'red';
-            warning.textContent = '⚠️ Số dư quá lớn. Vui lòng nhập ≤ 99.999.999,99 VND.';
+            warning.textContent = '⚠️ Số dư quá lớn. Vui lòng nhập ≤ 99.999.999 VND.';
             warning.style.display = 'block';
             inp.focus();
         } else {
