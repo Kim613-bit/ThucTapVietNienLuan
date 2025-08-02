@@ -90,7 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                              : $account['balance'] - $amount;
 
                 if ($new_balance < 0 || $new_balance > MAX_BALANCE) {
-                    throw new Exception("Số dư sau giao dịch không hợp lệ.");
+                    throw new Exception("Số dư sau giao dịch >99,999,999 .");
                 }
 
                 pg_query_params($conn,
@@ -254,11 +254,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           id="amount"
           name="amount"
           maxlength="10"
-          placeholder="Tối đa <?= number_format(MAX_BALANCE, 0, ',', '.') ?> VND"
+          placeholder="Tối đa <?= number_format(99999999 - $account['balance'], 0, ',', '.') ?> VND"
           class="form-control"
           value="<?= htmlspecialchars($_POST['amount'] ?? '') ?>"
         >
-        <small id="amountWarning" class="error" style="display:none;"></small>
+
+        <?php if (!empty($error)): ?>
+              <p class="error"><?= $error ?></p>
+            <?php endif; ?>
         <label>Nội dung giao dịch:</label>
         <input
           list="suggestions"
@@ -288,8 +291,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <a href="dashboard.php" class="back">← Quay lại Dashboard</a>
   </div>
-
+  <?php $currentBalance = $account['balance']; ?>
   <script>
+    const currentBalance = <?= $currentBalance ?>;
+    const maxAvailable = 99999999 - currentBalance;
+      if ((type.value === "thu" || type.value === "chi") &&
+      (!raw || isNaN(number) || number <= 0 || number > maxAvailable)) {
+    e.preventDefault();
+    warning.textContent = "⚠️ Số tiền không hợp lệ. Vui lòng nhập đúng và ≤ " + maxAvailable.toLocaleString("vi-VN") + " VND.";
+    warning.style.display = "block";
+    amt.style.borderColor = "red";
+    amt.focus();
+  }
+
     function toggleFields() {
       const type   = document.getElementById("transactionType").value;
       const fields = document.getElementById("transactionFields");
