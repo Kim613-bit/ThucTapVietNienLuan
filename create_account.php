@@ -90,6 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>➕ Tạo tài khoản mới</title>
     <style>
         body {
@@ -182,7 +183,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     inputmode="decimal"
                     maxlength="14"
                     title="Số dư tối đa: 99,999,999.99 VND"
-                    placeholder="Tối đa 100.000.000 VND"
+                    placeholder="Tối đa 99,999,999.99 VND"
                     value="<?= isset($_POST['balance']) ? htmlspecialchars($_POST['balance']) : '0' ?>"
                     required
                 >
@@ -191,6 +192,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
               <p class="error"><?= $error ?></p>
             <?php endif; ?>
             <button type="submit" class="btn-add">💾 Tạo tài khoản</button>
+            <small id="balanceWarning" class="error" style="display:none;"></small>
         </form>
 
         <a class="back-link" href="dashboard.php">← Quay lại Dashboard</a>
@@ -206,24 +208,62 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         return parts.join('.');
     }
 
+    const submitBtn = document.querySelector('.btn-add');
+
+    form.addEventListener('submit', (e) => {
+        const rawValue = inp.value.replace(/,/g, '');
+        const number = parseFloat(rawValue);
+    
+        if (number <= 99999999.99) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Đang xử lý...';
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('createAccountForm');
         const inp = document.getElementById('balance');
+        const submitBtn = document.querySelector('.btn-add');
+        const warning = document.getElementById('balanceWarning');
+    
+        // ➕ Xử lý input dấu phẩy
         inp.addEventListener('input', () => {
-            const pos    = inp.selectionStart;
-            let raw      = inp.value.replace(/,/g, '');
+            const pos = inp.selectionStart;
+            let raw = inp.value.replace(/,/g, '');
             if (raw === '' || raw === '.') {
                 inp.value = raw;
                 return;
             }
+    
             const [intP, decP] = raw.split('.');
             let formatted = formatWithCommas(intP);
             if (decP !== undefined) {
                 formatted += '.' + decP.replace(/\D/g, '');
             }
+    
             inp.value = formatted;
-            // Giữ vị trí con trỏ
             const newPos = pos + (formatted.length - raw.length);
             inp.setSelectionRange(newPos, newPos);
+        });
+    
+        // ✅ Kiểm tra giới hạn khi submit
+        form.addEventListener('submit', (e) => {
+            const rawValue = inp.value.replace(/,/g, '');
+            const number = parseFloat(rawValue);
+    
+            if (number > 99999999.99) {
+                e.preventDefault();
+                inp.style.borderColor = 'red';
+                warning.textContent = '⚠️ Số dư quá lớn. Vui lòng nhập ≤ 99.999.999,99 VND.';
+                warning.style.display = 'block';
+                inp.focus();
+            } else {
+                inp.style.borderColor = '#ccc';
+                warning.style.display = 'none';
+                warning.textContent = '';
+                submitBtn.disabled = true;
+                submitBtn.textContent = '⏳ Đang xử lý...';
+            }
         });
     });
     </script>
