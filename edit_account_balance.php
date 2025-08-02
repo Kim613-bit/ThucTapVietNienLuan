@@ -192,6 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sửa khoản tiền</title>
   <style>
     body {
@@ -305,7 +306,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         onchange="toggleFields()"
         class="form-control"
       >
-        <option value="">-- Không thay đổi số dư --</option>
+        <option value="">-- Đổi tên khoản tiền --</option>
         <option value="thu">Thu</option>
         <option value="chi">Chi</option>
       </select>
@@ -321,7 +322,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           class="form-control"
           value="<?= htmlspecialchars($_POST['amount'] ?? '') ?>"
         >
-
+        <small id="amountWarning" class="error" style="display:none;"></small>
         <label>Nội dung giao dịch:</label>
         <input
           list="suggestions"
@@ -380,7 +381,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     document.addEventListener("DOMContentLoaded", function() {
       toggleFields();
 
-      const amt = document.getElementById("amount");
+  const form = document.getElementById("balanceForm");
+  const amt = document.getElementById("amount");
+  const submitBtn = document.querySelector('button[type="submit"]');
+  const warning = document.getElementById("amountWarning");
+  const type = document.getElementById("transactionType");
+    
+    form.addEventListener("submit", function(e) {
+      const raw = amt.value.replace(/,/g, '');
+      const number = parseFloat(raw);
+    
+      if ((type.value === "thu" || type.value === "chi") && (!raw || isNaN(number) || number <= 0 || number > 100000000)) {
+        e.preventDefault();
+        warning.textContent = "⚠️ Số tiền không hợp lệ. Vui lòng nhập đúng và ≤ 100.000.000 VND.";
+        warning.style.display = "block";
+        amt.style.borderColor = "red";
+        amt.focus();
+      } else {
+        warning.style.display = "none";
+        amt.style.borderColor = "#ccc";
+        submitBtn.disabled = true;
+        submitBtn.textContent = "⏳ Đang xử lý...";
+      }
+    });
+
       amt.addEventListener("input", function() {
         const oldPos = this.selectionStart;
         let raw = this.value.replace(/,/g, '');
