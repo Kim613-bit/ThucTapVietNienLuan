@@ -254,7 +254,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           id="amount"
           name="amount"
           maxlength="10"
-          placeholder="Tối đa <?= number_format(99999999 - $account['balance'], 0, ',', '.') ?> VND"
           class="form-control"
           value="<?= htmlspecialchars($_POST['amount'] ?? '') ?>"
         >
@@ -294,24 +293,32 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <?php $currentBalance = $account['balance']; ?>
 
     <script>
-  const currentBalance = <?= $currentBalance ?>;
+    const currentBalance = <?= $currentBalance ?>;
 
-  function toggleFields() {
-    const type   = document.getElementById("transactionType").value;
-    const fields = document.getElementById("transactionFields");
-    const amt    = document.getElementById("amount");
-    const desc   = document.querySelector('input[name="description"]');
-
-    if (type === "thu" || type === "chi") {
-      fields.style.display = "block";
-      amt.required  = true;
-      desc.required = true;
-    } else {
-      fields.style.display = "none";
-      amt.required  = false;
-      desc.required = false;
+    function toggleFields() {
+      const type   = document.getElementById("transactionType").value;
+      const fields = document.getElementById("transactionFields");
+      const amt    = document.getElementById("amount");
+      const desc   = document.querySelector('input[name="description"]');
+    
+      if (type === "thu" || type === "chi") {
+        fields.style.display = "block";
+        amt.required  = true;
+        desc.required = true;
+    
+        // ✅ Cập nhật placeholder tùy theo loại giao dịch
+        const maxLimit = (type === "thu")
+          ? 99999999 - currentBalance
+          : currentBalance;
+    
+        amt.placeholder = "Tối đa " + maxLimit.toLocaleString("vi-VN") + " VND";
+      } else {
+        fields.style.display = "none";
+        amt.required  = false;
+        desc.required = false;
+        amt.placeholder = ""; // Ẩn placeholder nếu không chọn loại
+      }
     }
-  }
 
   function formatWithCommas(value) {
     const parts = value.split('.');
