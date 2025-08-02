@@ -292,61 +292,80 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <a href="dashboard.php" class="back">← Quay lại Dashboard</a>
   </div>
   <?php $currentBalance = $account['balance']; ?>
-  <script>
-    const currentBalance = <?= $currentBalance ?>;
-    const maxAvailable = 99999999 - currentBalance;
-      if ((type.value === "thu" || type.value === "chi") &&
-      (!raw || isNaN(number) || number <= 0 || number > maxAvailable)) {
-    e.preventDefault();
-    warning.textContent = "⚠️ Số tiền không hợp lệ. Vui lòng nhập đúng và ≤ " + maxAvailable.toLocaleString("vi-VN") + " VND.";
-    warning.style.display = "block";
-    amt.style.borderColor = "red";
-    amt.focus();
+
+    <script>
+  const currentBalance = <?= $currentBalance ?>;
+  const maxAvailable = 99999999 - currentBalance;
+
+  function toggleFields() {
+    const type   = document.getElementById("transactionType").value;
+    const fields = document.getElementById("transactionFields");
+    const amt    = document.getElementById("amount");
+    const desc   = document.querySelector('input[name="description"]');
+
+    if (type === "thu" || type === "chi") {
+      fields.style.display = "block";
+      amt.required  = true;
+      desc.required = true;
+    } else {
+      fields.style.display = "none";
+      amt.required  = false;
+      desc.required = false;
+    }
   }
 
-    function toggleFields() {
-      const type   = document.getElementById("transactionType").value;
-      const fields = document.getElementById("transactionFields");
-      const amt    = document.getElementById("amount");
-      const desc   = document.querySelector('input[name="description"]');
+  function formatWithCommas(value) {
+    const parts = value.split('.');
+    parts[0] = parts[0]
+      .replace(/^0+(?=\d)|\D/g, '')
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return parts.join('.');
+  }
 
-      if (type === "thu" || type === "chi") {
-        fields.style.display = "block";
-        amt.required  = true;
-        desc.required = true;
-      } else {
-        fields.style.display = "none";
-        amt.required  = false;
-        desc.required = false;
+  document.addEventListener("DOMContentLoaded", function() {
+    toggleFields();
+
+    const form = document.getElementById("balanceForm");
+    const amt  = document.getElementById("amount");
+    const type = document.getElementById("transactionType");
+    const warning = document.getElementById("amountWarning") || document.createElement('small');
+    const submitBtn = document.querySelector('button[type="submit"]');
+
+    // ✅ Khôi phục định dạng số tiền khi nhập
+    amt.addEventListener("input", function() {
+      const oldPos = this.selectionStart;
+      let raw = this.value.replace(/,/g, '');
+      if (raw === '' || raw === '.') {
+        this.value = raw;
+        return;
       }
-    }
+      const [intPart, decPart] = raw.split('.');
+      let formatted = formatWithCommas(intPart);
+      if (decPart !== undefined) {
+        formatted += '.' + decPart.replace(/\D/g, '');
+      }
+      this.value = formatted;
+      const newPos = oldPos + (this.value.length - raw.length);
+      setTimeout(() => this.setSelectionRange(newPos, newPos), 0);
+    });
 
-    function formatWithCommas(value) {
-      const parts = value.split('.');
-      parts[0] = parts[0]
-        .replace(/^0+(?=\d)|\D/g, '')
-        .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-      return parts.join('.');
-    }
-
-    document.addEventListener("DOMContentLoaded", function() {
-      toggleFields();
-
-  const form = document.getElementById("balanceForm");
-  const amt = document.getElementById("amount");
-  const submitBtn = document.querySelector('button[type="submit"]');
-  const warning = document.getElementById("amountWarning");
-  const type = document.getElementById("transactionType");
-    
+    // ✅ Kiểm tra trước khi submit
     form.addEventListener("submit", function(e) {
       const raw = amt.value.replace(/,/g, '');
       const number = parseFloat(raw);
-    
-      if ((type.value === "thu" || type.value === "chi") && (!raw || isNaN(number) || number <= 0 || number > 100000000)) {
+
+      if ((type.value === "thu" || type.value === "chi") &&
+          (!raw || isNaN(number) || number <= 0 || number > maxAvailable)) {
         e.preventDefault();
-        warning.textContent = "⚠️ Số tiền không hợp lệ. Vui lòng nhập đúng và ≤ 100.000.000 VND.";
+        warning.textContent = "⚠️ Số tiền không hợp lệ. Vui lòng nhập ≤ " + maxAvailable.toLocaleString("vi-VN") + " VND.";
+        warning.classList.add("error");
         warning.style.display = "block";
         amt.style.borderColor = "red";
+
+        if (!document.getElementById("amountWarning")) {
+          warning.id = "amountWarning";
+          amt.parentNode.insertBefore(warning, amt.nextSibling);
+        }
         amt.focus();
       } else {
         warning.style.display = "none";
@@ -355,25 +374,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         submitBtn.textContent = "⏳ Đang xử lý...";
       }
     });
+  });
+</script>
 
-      amt.addEventListener("input", function() {
-        const oldPos = this.selectionStart;
-        let raw = this.value.replace(/,/g, '');
-        if (raw === '' || raw === '.') {
-          this.value = raw;
-          return;
-        }
-        const [intPart, decPart] = raw.split('.');
-        let formatted = formatWithCommas(intPart);
-        if (decPart !== undefined) {
-          formatted += '.' + decPart;
-        }
-        this.value = formatted;
-        // Giữ vị trí con trỏ
-        const newPos = oldPos + (this.value.length - raw.length);
-        this.setSelectionRange(newPos, newPos);
-      });
-    });
-  </script>
 </body>
 </html>
