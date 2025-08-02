@@ -36,34 +36,51 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 "INSERT INTO accounts (user_id, name, balance) VALUES ($1, $2, $3) RETURNING id",
                 [$user_id, $name, $balance]
             );
-
+            
             if ($insert && pg_num_rows($insert) === 1) {
                 $row = pg_fetch_assoc($insert);
                 $account_id = $row['id'];
-
+            
                 $now = date('Y-m-d H:i:s');
-
-                // Giao dịch “thu” ban đầu để ghi lại số dư
-                pg_query_params($conn,
+            
+                // Giao dịch “thu” ban đầu
+                $trans1 = pg_query_params($conn,
                     "INSERT INTO transactions
                      (user_id, account_id, type, amount, description, remaining_balance, date)
                      VALUES ($1, $2, 0, $3, $4, $3, $5)",
                     [$user_id, $account_id, $balance, "Số dư ban đầu", $now]
                 );
-                
+            
                 // Ghi chú hành động tạo tài khoản
-                pg_query_params($conn,
+                $trans2 = pg_query_params($conn,
                     "INSERT INTO transactions
                      (user_id, account_id, type, amount, description, remaining_balance, date)
                      VALUES ($1, $2, 2, 0, $3, $4, $5)",
                     [$user_id, $account_id, "Tạo tài khoản mới: {$name}", $balance, $now]
                 );
-
-                header("Location: dashboard.php");
-                exit();
+            
+                if ($trans1 && $trans2) {
+                    // ✅ Chỉ chuyển hướng nếu giao dịch tạo tài khoản thành công
+                    header("Location: dashboard.php");
+                    exit();
+                } else {
+                    // ❌ Xử lý lỗi giao dịch
+                    $pgError = pg_last_error($conn);
+                    if (str_contains($pgError, 'numeric field overflow')) {
+                        $error = "Giá trị số dư quá lớn. Vui lòng nhập số tiền nhỏ hơn (tối đa " . number_format(MAX_BALANCE, 0, ',', '.') . " VND).";
+                    } else {
+                        $error = "Không thể ghi giao dịch. Lỗi: " . htmlspecialchars($pgError);
+                    }
+                }
             } else {
-                $error = "Không thể tạo tài khoản. Vui lòng thử lại.";
-            }
+                // ❌ Xử lý lỗi chèn account
+                $pgError = pg_last_error($conn);
+                if (str_contains($pgError, 'numeric field overflow')) {
+                    $error = "Giá trị số dư quá lớn. Vui lòng nhập số tiền nhỏ hơn (tối đa " . number_format(MAX_BALANCE, 0, ',', '.') . " VND).";
+                } else {
+                    $error = "Không thể tạo tài khoản. Lỗi: " . htmlspecialchars($pgError);
+                }
+            }  
         }
     }
 }
@@ -165,12 +182,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     inputmode="decimal"
                     maxlength="14"
                     title="Số dư tối đa: 99,999,999.99 VND"
-                    placeholder="0"
+                    placeholder="Tối đa 100.000.000 VND"
                     value="<?= isset($_POST['balance']) ? htmlspecialchars($_POST['balance']) : '0' ?>"
                     required
                 >
             </div>
-
+            <?php if (!empty($error)): ?>
+              <p class="error"><?= $error ?></p>
+            <?php endif; ?>
             <button type="submit" class="btn-add">💾 Tạo tài khoản</button>
         </form>
 
