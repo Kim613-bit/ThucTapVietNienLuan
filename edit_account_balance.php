@@ -295,7 +295,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <script>
   const currentBalance = <?= $currentBalance ?>;
-  const maxAvailable = 99999999 - currentBalance;
 
   function toggleFields() {
     const type   = document.getElementById("transactionType").value;
@@ -325,13 +324,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   document.addEventListener("DOMContentLoaded", function() {
     toggleFields();
 
-    const form = document.getElementById("balanceForm");
-    const amt  = document.getElementById("amount");
-    const type = document.getElementById("transactionType");
-    const warning = document.getElementById("amountWarning") || document.createElement('small');
-    const submitBtn = document.querySelector('button[type="submit"]');
+    const form       = document.getElementById("balanceForm");
+    const amt        = document.getElementById("amount");
+    const type       = document.getElementById("transactionType");
+    const submitBtn  = document.querySelector('button[type="submit"]');
+    const warning    = document.getElementById("amountWarning") || document.createElement('small');
 
-    // ✅ Khôi phục định dạng số tiền khi nhập
+    // 💵 Tự động format số tiền khi nhập
     amt.addEventListener("input", function() {
       const oldPos = this.selectionStart;
       let raw = this.value.replace(/,/g, '');
@@ -349,15 +348,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       setTimeout(() => this.setSelectionRange(newPos, newPos), 0);
     });
 
-    // ✅ Kiểm tra trước khi submit
+    // ✅ Xử lý kiểm tra trước khi submit
     form.addEventListener("submit", function(e) {
       const raw = amt.value.replace(/,/g, '');
       const number = parseFloat(raw);
+      const selectedType = type.value;
+      const maxLimit = (selectedType === "thu")
+        ? 99999999 - currentBalance
+        : currentBalance; // 👈 điều kiện cho "chi"
 
-      if ((type.value === "thu" || type.value === "chi") &&
-          (!raw || isNaN(number) || number <= 0 || number > maxAvailable)) {
+      if ((selectedType === "thu" || selectedType === "chi") &&
+          (!raw || isNaN(number) || number <= 0 || number > maxLimit)) {
         e.preventDefault();
-        warning.textContent = "⚠️ Số tiền không hợp lệ. Vui lòng nhập ≤ " + maxAvailable.toLocaleString("vi-VN") + " VND.";
+        warning.textContent = "⚠️ Số tiền không hợp lệ. Vui lòng nhập ≤ " + maxLimit.toLocaleString("vi-VN") + " VND.";
         warning.classList.add("error");
         warning.style.display = "block";
         amt.style.borderColor = "red";
@@ -376,6 +379,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     });
   });
 </script>
-
 </body>
 </html>
