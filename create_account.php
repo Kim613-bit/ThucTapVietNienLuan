@@ -198,74 +198,62 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <a class="back-link" href="dashboard.php">← Quay lại Dashboard</a>
     </div>
 
-    <!-- JS tự động thêm dấu phẩy -->
     <script>
-    function formatWithCommas(value) {
-        const parts = value.split('.');
-        parts[0] = parts[0]
-            .replace(/^0+(?=\d)|\D/g, '')           // bỏ số 0 dư và ký tự lạ
-            .replace(/\B(?=(\d{3})+(?!\d))/g, ','); // chèn dấu phẩy
-        return parts.join('.');
-    }
+function formatWithCommas(value) {
+    const parts = value.split('.');
+    parts[0] = parts[0]
+        .replace(/^0+(?=\d)|\D/g, '')           // Bỏ số 0 dư và ký tự không hợp lệ
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ','); // Chèn dấu phẩy
+    return parts.join('.');
+}
 
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('createAccountForm');
+    const inp = document.getElementById('balance');
     const submitBtn = document.querySelector('.btn-add');
+    const warning = document.getElementById('balanceWarning');
 
+    // 🧠 Tự động thêm dấu phẩy khi nhập
+    inp.addEventListener('input', () => {
+        const pos = inp.selectionStart;
+        let raw = inp.value.replace(/,/g, '');
+
+        if (raw === '' || raw === '.') {
+            inp.value = raw;
+            return;
+        }
+
+        const [intP, decP] = raw.split('.');
+        let formatted = formatWithCommas(intP);
+        if (decP !== undefined) {
+            formatted += '.' + decP.replace(/\D/g, '');
+        }
+
+        inp.value = formatted;
+        const newPos = pos + (formatted.length - raw.length);
+        inp.setSelectionRange(newPos, newPos);
+    });
+
+    // ✅ Kiểm tra giới hạn khi submit
     form.addEventListener('submit', (e) => {
         const rawValue = inp.value.replace(/,/g, '');
         const number = parseFloat(rawValue);
-    
-        if (number <= 99999999.99) {
+
+        if (number > 99999999.99) {
+            e.preventDefault();
+            inp.style.borderColor = 'red';
+            warning.textContent = '⚠️ Số dư quá lớn. Vui lòng nhập ≤ 99.999.999,99 VND.';
+            warning.style.display = 'block';
+            inp.focus();
+        } else {
+            inp.style.borderColor = '#ccc';
+            warning.style.display = 'none';
+            warning.textContent = '';
             submitBtn.disabled = true;
             submitBtn.textContent = '⏳ Đang xử lý...';
         }
     });
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('createAccountForm');
-        const inp = document.getElementById('balance');
-        const submitBtn = document.querySelector('.btn-add');
-        const warning = document.getElementById('balanceWarning');
-    
-        // ➕ Xử lý input dấu phẩy
-        inp.addEventListener('input', () => {
-            const pos = inp.selectionStart;
-            let raw = inp.value.replace(/,/g, '');
-            if (raw === '' || raw === '.') {
-                inp.value = raw;
-                return;
-            }
-    
-            const [intP, decP] = raw.split('.');
-            let formatted = formatWithCommas(intP);
-            if (decP !== undefined) {
-                formatted += '.' + decP.replace(/\D/g, '');
-            }
-    
-            inp.value = formatted;
-            const newPos = pos + (formatted.length - raw.length);
-            inp.setSelectionRange(newPos, newPos);
-        });
-    
-        // ✅ Kiểm tra giới hạn khi submit
-        form.addEventListener('submit', (e) => {
-            const rawValue = inp.value.replace(/,/g, '');
-            const number = parseFloat(rawValue);
-    
-            if (number > 99999999.99) {
-                e.preventDefault();
-                inp.style.borderColor = 'red';
-                warning.textContent = '⚠️ Số dư quá lớn. Vui lòng nhập ≤ 99.999.999,99 VND.';
-                warning.style.display = 'block';
-                inp.focus();
-            } else {
-                inp.style.borderColor = '#ccc';
-                warning.style.display = 'none';
-                warning.textContent = '';
-                submitBtn.disabled = true;
-                submitBtn.textContent = '⏳ Đang xử lý...';
-            }
-        });
-    });
-    </script>
+});
+</script>   
 </body>
 </html>
