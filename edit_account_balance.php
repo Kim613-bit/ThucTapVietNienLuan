@@ -219,6 +219,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <input
         type="text"
         name="name"
+        maxlength="30"
         value="<?= htmlspecialchars($account['name']) ?>"
         required
         class="form-control"
