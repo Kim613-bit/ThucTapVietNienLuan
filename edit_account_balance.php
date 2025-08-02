@@ -253,7 +253,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           type="text"
           id="amount"
           name="amount"
-            maxlength="10"
+          maxlength="10"
           placeholder="Tối đa <?= number_format(MAX_BALANCE, 0, ',', '.') ?> VND"
           class="form-control"
           value="<?= htmlspecialchars($_POST['amount'] ?? '') ?>"
@@ -263,6 +263,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <input
           list="suggestions"
           name="description"
+          maxlength="30"
           placeholder="Nhập hoặc chọn nội dung"
           value="<?= htmlspecialchars($_POST['description'] ?? '') ?>"
           class="form-control"
