@@ -170,7 +170,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <form method="post" id="createAccountForm">
             <div class="form-group">
                 <label for="name">Tên khoản tiền:</label>
-                <input type="text" id="name" name="name" required>
+                <input type="text" id="name" name="name" maxlength="30" required>
             </div>
 
             <div class="form-group">
