@@ -253,6 +253,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           type="text"
           id="amount"
           name="amount"
+            maxlength="10"
           placeholder="Tối đa <?= number_format(MAX_BALANCE, 0, ',', '.') ?> VND"
           class="form-control"
           value="<?= htmlspecialchars($_POST['amount'] ?? '') ?>"
