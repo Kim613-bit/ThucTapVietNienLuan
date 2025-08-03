@@ -78,8 +78,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         @media screen and (max-width: 768px) {
           .main {
-            flex-direction: column;
-          }
+              display: flex;
+              flex-wrap: wrap;
+              min-height: 100vh; /* đảm bảo đủ chiều cao */
+            }
         
           .sidebar {
             width: 100%;
@@ -89,8 +91,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           }
         
           .content {
-            padding: 15px;
-          }
+              flex: 1;
+              padding: 15px;
+              overflow-y: auto; /* cho phép cuộn dọc trong vùng content */
+            }
         
           .header {
             flex-direction: column;
@@ -151,7 +155,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-left: 10px;
             object-fit: cover;
         }
-
+        html, body {
+          height: 100%;
+        }
         .main {
             display: flex;
         }
