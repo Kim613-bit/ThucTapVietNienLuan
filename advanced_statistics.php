@@ -116,6 +116,71 @@ while ($row = pg_fetch_assoc($result)) {
     <title>Thống kê nâng cao</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        @media screen and (max-width: 768px) {
+          body {
+            padding: 15px;
+          }
+        
+          .container {
+            padding: 15px;
+            border-radius: 0;
+            box-shadow: none;
+          }
+        
+          .pie-row {
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+          }
+        
+          canvas.pie-chart {
+            max-width: 90vw;
+          }
+        
+          .filter form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+          }
+        
+          select, button {
+            font-size: 14px;
+            width: 100%;
+            margin: 5px 0;
+          }
+        
+          h2 {
+            font-size: 20px;
+          }
+        
+          a {
+            font-size: 14px;
+          }
+        }
+        
+        @media screen and (max-width: 500px) {
+          h2 {
+            font-size: 18px;
+          }
+        
+          .container {
+            padding: 10px;
+          }
+        
+          select, button {
+            padding: 8px;
+          }
+        
+          p {
+            font-size: 14px;
+          }
+        
+          canvas.pie-chart {
+            max-width: 100%;
+          }
+        }
+
         body {
             font-family: Arial;
             background: #f0f2f5;
