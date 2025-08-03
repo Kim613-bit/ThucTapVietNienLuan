@@ -62,68 +62,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <title>Hồ sơ cá nhân</title>
     <style>
-        @media screen and (max-width: 500px) {
-          .header h2 {
-            font-size: 18px;
-          }
-        
-          .profile-box {
-            padding: 10px;
-          }
-        
-          input, label {
-            font-size: 14px;
-          }
+        @media (max-width: 500px) {
+            input, label, button {
+                font-size: 0.9rem;
+            }
+            .profile-box {
+                padding: 0.75rem;
+            }
         }
 
-        @media screen and (max-width: 768px) {
-          .main {
-              display: flex;
-              flex-wrap: wrap;
-              min-height: 100vh; /* đảm bảo đủ chiều cao */
-            }
-        
-          .sidebar {
+        @media (max-width: 768px) {
+        .sidebar {
             width: 100%;
-            height: auto;
+            margin-bottom: 1rem;
             box-shadow: none;
-            margin-bottom: 20px;
-          }
-        
-          .content {
-              flex: 1;
-              padding: 15px;
-              overflow-y: auto; /* cho phép cuộn dọc trong vùng content */
-            }
-        
-          .header {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-        
-          .header .user {
-            margin-top: 10px;
-          }
-        
-          .header .user img {
+        }
+        .header h2 {
+            font-size: 1.5rem;
+        }
+        .header .user img {
             width: 32px;
             height: 32px;
-          }
-        
-          .profile-box img {
-            width: 80px;
-            height: 80px;
-          }
-        
-          button {
-            width: 100%;
-            margin-bottom: 10px;
-          }
-        
-          input {
-            font-size: 16px;
-          }
         }
+    }
         
         body { font-family: Arial; margin: 0; }
 
@@ -155,28 +116,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-left: 10px;
             object-fit: cover;
         }
-        html, body {
-          height: 100%;
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100%;
         }
         .main {
             display: flex;
+            flex-wrap: wrap;
+            min-height: 100vh;
         }
         .sidebar {
-            width: 300px;
-            background: #f0f0f0;
-            padding: 20px;
-            height: 100vh;
+            width: 100%;
+            max-width: 300px;
+            background-color: #f0f0f0;
+            padding: 1rem;
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
         }
         .sidebar a {
             display: block;
-            margin-bottom: 10px;
-            text-decoration: none;
+            margin-bottom: 0.75rem;
             color: #333;
+            text-decoration: none;
         }
         .content {
             flex: 1;
-            padding: 20px;
+            padding: 1rem;
         }
 
         input {
@@ -185,10 +151,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-bottom: 10px;
         }
         button {
-            padding: 10px 20px;
+            padding: 0.75rem 1rem;
             border: none;
+            border-radius: 0.3rem;
             cursor: pointer;
-            border-radius: 5px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
         }
         button[type="submit"] {
             background-color: #007BFF;
@@ -206,13 +174,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         .success {
             color: green;
-            margin-bottom: 10px;
+            margin-bottom: 1rem;
         }
         .profile-box {
-            background: #fff;
-            padding: 20px;
+            background: white;
+            padding: 1rem;
             border: 1px solid #ccc;
-            border-radius: 8px;
+            border-radius: 0.5rem;
         }
     </style>
 </head>
