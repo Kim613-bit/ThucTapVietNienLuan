@@ -62,184 +62,148 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <title>Hồ sơ cá nhân</title>
     <style>
-        /* Base Reset */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        /* Typography & Layout */
-        body, html {
-            font-family: Arial, sans-serif;
-            height: 100%;
-            background-color: #f9f9f9;
-        }
-        
-        .header {
-            background-color: #007BFF;
-            color: white;
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
-        
-        .header h2 {
-            font-size: 1.75rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .header .user {
-            display: flex;
-            align-items: center;
-        }
-        
-        .header .user a {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            color: white;
-            font-weight: bold;
-        }
-        
-        .header .user img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-left: 0.5rem;
-        }
-        
-        /* Main layout */
-        .main {
-            display: flex;
-            flex-wrap: wrap;
-            min-height: 100vh;
-        }
-        
-        .sidebar {
-            width: 100%;
-            max-width: 280px;
-            background-color: #f0f0f0;
-            padding: 1rem;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
-        }
-        
-        .sidebar a {
-            display: block;
-            margin-bottom: 0.75rem;
-            color: #333;
-            text-decoration: none;
-            font-size: 1rem;
-        }
-        
-        .content {
-            flex: 1;
-            padding: 1rem;
-        }
-        
-        /* Form & Profile box */
-        .profile-box {
-            background: white;
-            padding: 1.5rem;
-            border: 1px solid #ccc;
-            border-radius: 1rem;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
-        }
-        
-        input[type="text"],
-        input[type="email"],
-        input[type="number"],
-        input[type="file"],
-        label {
-            width: 100%;
-            font-size: 1rem;
-            margin-bottom: 0.75rem;
-            display: block;
-        }
-        
-        input[type="text"],
-        input[type="email"],
-        input[type="number"],
-        input[type="file"] {
-            padding: 0.75rem;
-            border: 1px solid #ccc;
-            border-radius: 0.75rem;
-            transition: border-color 0.3s ease;
-        }
-        
-        input:focus {
-            border-color: #007BFF;
-            outline: none;
-        }
-        
-        /* Buttons */
-        button {
-            width: 100%;
-            padding: 0.75rem;
-            font-size: 1rem;
-            border: none;
-            border-radius: 0.75rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        
-        button[type="submit"] {
-            background-color: #007BFF;
-            color: white;
-        }
-        
-        button[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-        
-        .btn-delete {
-            background-color: #dc3545;
-            color: white;
-        }
-        
-        .btn-delete:hover {
-            background-color: #a71d2a;
-        }
-        
-        .success {
-            color: green;
-            margin-bottom: 1rem;
-            font-weight: bold;
-        }
-        
-        /* Avatar preview */
-        .profile-box img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            display: block;
-            margin: 0 auto 1rem auto;
-        }
-        
-        /* Responsive tweaks */
+        /* --- Responsive --- */
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
                 margin-bottom: 1rem;
                 box-shadow: none;
             }
-        
             .header h2 {
                 font-size: 1.5rem;
             }
-        
             .header .user img {
                 width: 32px;
                 height: 32px;
             }
-        
-            button {
+        }
+        @media (max-width: 500px) {
+            input, label, button {
                 font-size: 0.9rem;
             }
+            .profile-box {
+                padding: 0.75rem;
+            }
+        }
+
+        /* --- Base --- */
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100%;
+            background-color: #f9f9f9;
+        }
+
+        /* --- Header --- */
+        .header {
+            background: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .header h2 {
+            margin: 0;
+        }
+        .header .user {
+            display: flex;
+            align-items: center;
+        }
+        .header .user a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+        }
+        .header .user span {
+            font-weight: bold;
+        }
+        .header .user img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 10px;
+            object-fit: cover;
+        }
+
+        /* --- Layout --- */
+        .main {
+            display: flex;
+            flex-wrap: wrap;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 100%;
+            max-width: 300px;
+            background-color: #f0f0f0;
+            padding: 1rem;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+        .sidebar a {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .content {
+            flex: 1;
+            padding: 1rem;
+        }
+
+        /* --- Profile box --- */
+        .profile-box {
+            background: white;
+            padding: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 0.5rem;
+        }
+        .profile-box img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* --- Form elements --- */
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.3rem;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        button[type="submit"] {
+            background-color: #007BFF;
+            color: white;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .btn-delete {
+            background-color: red;
+            color: white;
+        }
+        .btn-delete:hover {
+            background-color: darkred;
+        }
+
+        .success {
+            color: green;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
@@ -257,6 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </a>
         </div>
     </div>
+
     <div class="main">
         <div class="sidebar">
             <h3>Menu</h3>
@@ -264,6 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="profile.php">👤 Hồ sơ cá nhân</a>
             <a href="logout.php">🔓 Đăng xuất</a>
         </div>
+
         <div class="content">
             <h2>👤 Hồ sơ cá nhân</h2>
             <?php if ($success): ?>
@@ -272,61 +238,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="profile-box">
                 <form method="post" enctype="multipart/form-data">
-                    <label>Họ tên:</label><br>
-                    <input
-                        type="text"
-                        name="fullname"
-                        value="<?= htmlspecialchars($user['fullname']) ?>"
-                        required
-                    >
-                    <br>
+                    <label>Họ tên:</label>
+                    <input type="text" name="fullname" value="<?= htmlspecialchars($user['fullname']) ?>" required>
 
-                    <label>Năm sinh:</label><br>
-                    <input
-                        type="number"
-                        name="birthyear"
-                        value="<?= htmlspecialchars($user['birthyear']) ?>"
-                        required
-                    >
-                    <br>
+                    <label>Năm sinh:</label>
+                    <input type="number" name="birthyear" value="<?= htmlspecialchars($user['birthyear']) ?>" required>
 
-                    <label>Email:</label><br>
-                    <input
-                        type="email"
-                        name="email"
-                        value="<?= htmlspecialchars($user['email']) ?>"
-                        required
-                    >
-                    <br>
+                    <label>Email:</label>
+                    <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required>
 
-                    <label>Ảnh đại diện:</label><br>
+                    <label>Ảnh đại diện:</label>
                     <input type="file" name="avatar">
-                    <br><br>
 
                     <?php if (!empty($user['avatar'])): ?>
-                        <img
-                            src="uploads/<?= htmlspecialchars($user['avatar']) ?>"
-                            width="100"
-                            height="100"
-                            style="border-radius: 50%; object-fit: cover;"
-                        >
+                        <img src="uploads/<?= htmlspecialchars($user['avatar']) ?>" alt="Avatar">
                     <?php endif; ?>
-                    <br><br>
 
-                    <button
-                        type="submit"
-                        onclick="return confirm('✅ Bạn có chắc chắn muốn cập nhật thông tin không?');"
-                    >
+                    <button type="submit" onclick="return confirm('✅ Bạn có chắc chắn muốn cập nhật thông tin không?');">
                         Cập nhật
                     </button>
-                    <br><br>
 
-                    <button
-                        type="submit"
-                        name="delete_account"
-                        class="btn-delete"
-                        onclick="return confirm('❌ Bạn có chắc chắn muốn xóa tài khoản không? Thao tác này không thể hoàn tác!');"
-                    >
+                    <button type="submit" name="delete_account" class="btn-delete" onclick="return confirm('❌ Bạn có chắc chắn muốn xóa tài khoản không? Thao tác này không thể hoàn tác!');">
                         ❌ Xóa tài khoản
                     </button>
                 </form>
@@ -335,3 +267,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </body>
 </html>
+
