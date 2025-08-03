@@ -55,12 +55,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user['avatar']        = $avatar;
 }
 ?>
+    
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>Hồ sơ cá nhân</title>
     <style>
+        @media screen and (max-width: 500px) {
+          .header h2 {
+            font-size: 18px;
+          }
+        
+          .profile-box {
+            padding: 10px;
+          }
+        
+          input, label {
+            font-size: 14px;
+          }
+        }
+
+        @media screen and (max-width: 768px) {
+          .main {
+            flex-direction: column;
+          }
+        
+          .sidebar {
+            width: 100%;
+            height: auto;
+            box-shadow: none;
+            margin-bottom: 20px;
+          }
+        
+          .content {
+            padding: 15px;
+          }
+        
+          .header {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+        
+          .header .user {
+            margin-top: 10px;
+          }
+        
+          .header .user img {
+            width: 32px;
+            height: 32px;
+          }
+        
+          .profile-box img {
+            width: 80px;
+            height: 80px;
+          }
+        
+          button {
+            width: 100%;
+            margin-bottom: 10px;
+          }
+        
+          input {
+            font-size: 16px;
+          }
+        }
+        
         body { font-family: Arial; margin: 0; }
 
         .header {
