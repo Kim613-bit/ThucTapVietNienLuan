@@ -59,6 +59,7 @@ $feedbacks    = $params_filter
     ? pg_query_params($conn, $feedback_sql, $params_filter)
     : pg_query($conn, $feedback_sql);
 ?>
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -182,10 +183,13 @@ $feedbacks    = $params_filter
                             <td><?= htmlspecialchars($row['username']) ?></td>
                             <td>
                                 <?= nl2br(htmlspecialchars($row['message'])) ?>
-                                <?php if (!empty($row['image'])): ?>
+                                <?php
+                                $imagePath = UPLOAD_DIR . $row['image'];
+                                if (!empty($row['image']) && file_exists($imagePath)):
+                                ?>
                                     <div style="margin-top:8px;">
                                         <img
-                                            src="<?= htmlspecialchars($row['image']) ?>"
+                                            src="<?= UPLOAD_URL . htmlspecialchars($row['image']) ?>"
                                             alt="Feedback image"
                                             class="zoomable"
                                             style="max-width:200px;max-height:150px;border:1px solid #ccc;cursor:zoom-in;"
