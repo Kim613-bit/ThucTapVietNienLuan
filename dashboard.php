@@ -261,6 +261,13 @@ $typeLabels = [
           font-weight: 600;        /* In đậm nhẹ */
           color: #2c3e50; 
         }
+        .avatar-header {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -269,7 +276,7 @@ $typeLabels = [
     <div class="user">
         <a href="profile.php">
             <span>Xin chào, <?= htmlspecialchars($user['full_name']) ?></span>
-            <img src="<?= !empty($user['avatar']) ? 'uploads/' . htmlspecialchars($user['avatar']) : 'default-avatar.png' ?>">
+            <img src="<?= $avatarPath ?>" alt="Avatar" class="avatar-header">
         </a>
     </div>
 </div>
