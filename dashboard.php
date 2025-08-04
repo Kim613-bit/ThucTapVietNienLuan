@@ -38,6 +38,7 @@ $user_result = pg_query_params(
     [$user_id]
 );
 $user = pg_fetch_assoc($user_result);
+$avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'default-avatar.png');
 
 // 4. Lấy danh sách tài khoản và tính tổng số dư
 $accounts = [];
