@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "db.php"; // kết nối PostgreSQL, ví dụ dùng pg_connect()
+include "db.php";
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -8,52 +8,66 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
-
-// 🔹 Lấy thông tin người dùng
-$sql    = "SELECT username, avatar, fullname, birthyear, email FROM users WHERE id = $1";
-$result = pg_query_params($conn, $sql, array($user_id));
-$user   = pg_fetch_assoc($result);
-
-// 🔹 Cập nhật thông tin hoặc xóa tài khoản nếu gửi POST
 $success = "";
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['delete_account'])) {
-        // Xóa dữ liệu liên quan
-        pg_query_params($conn, "DELETE FROM transactions WHERE user_id = $1", array($user_id));
-        pg_query_params($conn, "DELETE FROM accounts WHERE user_id = $1", array($user_id));
-        pg_query_params($conn, "DELETE FROM descriptions WHERE user_id = $1", array($user_id));
-        pg_query_params($conn, "DELETE FROM users WHERE id = $1", array($user_id));
-
+        // Xóa tài khoản + dữ liệu liên quan
+        pg_query_params($conn, "DELETE FROM transactions WHERE user_id = $1", [$user_id]);
+        pg_query_params($conn, "DELETE FROM accounts WHERE user_id = $1", [$user_id]);
+        pg_query_params($conn, "DELETE FROM descriptions WHERE user_id = $1", [$user_id]);
+        pg_query_params($conn, "DELETE FROM users WHERE id = $1", [$user_id]);
         session_destroy();
         header("Location: login.php");
         exit();
     }
 
-    // Xử lý cập nhật thông tin
-    $fullname  = $_POST['fullname'];
+    // Cập nhật thông tin
+    $fullname  = trim($_POST['fullname']);
     $birthyear = $_POST['birthyear'];
     $email     = $_POST['email'];
+    $avatar    = '';
 
-    $avatar = $user['avatar'];
-    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
-        $ext         = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
-        $filename    = time() . "_" . basename($_FILES['avatar']['name']);
-        $upload_path = "uploads/" . $filename;
-        if (!is_dir("uploads")) mkdir("uploads");
-        if (move_uploaded_file($_FILES['avatar']['tmp_name'], $upload_path)) {
-            $avatar = $filename;
+    // Ràng buộc: Tên không quá 30 ký tự
+    if (strlen($fullname) > 30) {
+        $success = "❌ Tên không được vượt quá 30 ký tự!";
+    } else {
+        // Xử lý avatar nếu có file upload
+        if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+            $type = mime_content_type($_FILES['avatar']['tmp_name']);
+            $ext  = strtolower(pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION));
+
+            if ($type !== 'image/png' || $ext !== 'png') {
+                $success = "❌ Avatar phải là file .png!";
+            } else {
+                $filename    = time() . "_" . basename($_FILES['avatar']['name']);
+                $upload_path = "uploads/" . $filename;
+                if (!is_dir("uploads")) mkdir("uploads");
+                if (move_uploaded_file($_FILES['avatar']['tmp_name'], $upload_path)) {
+                    $avatar = $filename;
+                }
+            }
         }
+
+        // Nếu không upload mới, giữ avatar cũ
+        if (!$avatar) {
+            $sql_old = "SELECT avatar FROM users WHERE id = $1";
+            $res_old = pg_query_params($conn, $sql_old, [$user_id]);
+            $old     = pg_fetch_assoc($res_old);
+            $avatar  = $old['avatar'];
+        }
+
+        // Thực hiện cập nhật
+        $sql_update = "UPDATE users SET fullname = $1, birthyear = $2, email = $3, avatar = $4 WHERE id = $5";
+        pg_query_params($conn, $sql_update, [$fullname, $birthyear, $email, $avatar, $user_id]);
+        $success = "✅ Cập nhật hồ sơ thành công!";
     }
-
-    $sql_update = "UPDATE users SET fullname = $1, birthyear = $2, email = $3, avatar = $4 WHERE id = $5";
-    pg_query_params($conn, $sql_update, array($fullname, $birthyear, $email, $avatar, $user_id));
-
-    $success               = "✅ Cập nhật hồ sơ thành công!";
-    $user['fullname']      = $fullname;
-    $user['birthyear']     = $birthyear;
-    $user['email']         = $email;
-    $user['avatar']        = $avatar;
 }
+
+// Tải lại thông tin user để hiển thị
+$sql_user = "SELECT username, avatar, fullname, birthyear, email FROM users WHERE id = $1";
+$result   = pg_query_params($conn, $sql_user, [$user_id]);
+$user     = pg_fetch_assoc($result);
 ?>
     
 <!DOCTYPE html>
@@ -239,7 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="profile-box">
                 <form method="post" enctype="multipart/form-data">
                     <label>Họ tên:</label>
-                    <input type="text" name="fullname" value="<?= htmlspecialchars($user['fullname']) ?>" required>
+                    <input type="text" name="fullname" maxlength="30" value="<?= htmlspecialchars($user['fullname']) ?>" required>
 
                     <label>Năm sinh:</label>
                     <input type="number" name="birthyear" value="<?= htmlspecialchars($user['birthyear']) ?>" required>
@@ -248,7 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required>
 
                     <label>Ảnh đại diện:</label>
-                    <input type="file" name="avatar">
+                    <input type="file" name="avatar" accept=".png" required>
 
                     <?php if (!empty($user['avatar'])): ?>
                         <img src="uploads/<?= htmlspecialchars($user['avatar']) ?>" alt="Avatar">
