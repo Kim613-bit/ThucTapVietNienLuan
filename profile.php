@@ -68,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $sql_user = "SELECT username, avatar, fullname, birthyear, email FROM users WHERE id = $1";
 $result   = pg_query_params($conn, $sql_user, [$user_id]);
 $user     = pg_fetch_assoc($result);
+$avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem.png.png');
 ?>
     
 <!DOCTYPE html>
@@ -227,11 +228,7 @@ $user     = pg_fetch_assoc($result);
         <div class="user">
             <a href="profile.php">
                 <span><?= htmlspecialchars($user['username']) ?></span>
-                <?php if (!empty($user['avatar'])): ?>
-                    <img src="uploads/<?= htmlspecialchars($user['avatar']) ?>" alt="Avatar">
-                <?php else: ?>
-                    <img src="default-avatar.png" alt="Avatar">
-                <?php endif; ?>
+                <img src="<?= htmlspecialchars($avatarPath) ?>" alt="Avatar">
             </a>
         </div>
     </div>
@@ -262,11 +259,9 @@ $user     = pg_fetch_assoc($result);
                     <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required>
 
                     <label>Ảnh đại diện:</label>
-                    <input type="file" name="avatar" accept=".png" required>
+                    <input type="file" name="avatar" accept=".png">
 
-                    <?php if (!empty($user['avatar'])): ?>
-                        <img src="uploads/<?= htmlspecialchars($user['avatar']) ?>" alt="Avatar">
-                    <?php endif; ?>
+                    <img src="<?= htmlspecialchars($avatarPath) ?>" alt="Avatar" style="margin-bottom: 10px;">
 
                     <button type="submit" onclick="return confirm('✅ Bạn có chắc chắn muốn cập nhật thông tin không?');">
                         Cập nhật
