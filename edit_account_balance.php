@@ -150,8 +150,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <title>Sửa khoản tiền</title>
   <style>
       @media (max-width: 480px) {
-          .container div[style*="display: flex"] {
-            flex-direction: column;
+          .form-control,
+          .flatpickr-wrapper,
+          .container > div {
+            width: 100%;
+            margin-bottom: 14px;
           }
         }
     body {
@@ -222,13 +225,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     .back:hover {
       text-decoration: underline;
     }
+    .flatpickr-wrapper {
+      position: relative;
+    }
+    
     .calendar-btn {
       position: absolute;
-      top: 8px;
-      right: 12px;
+      top: 6px;
+      right: 10px;
       background: none;
       border: none;
-      font-size: 18px;
+      font-size: 20px;
       color: #333;
       cursor: pointer;
     }
@@ -456,12 +463,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   });
     flatpickr(".flatpickr-wrapper", {
       dateFormat: "d/m/Y",
-      locale: "vn",
-      defaultDate: "<?= date('d/m/Y') ?>",
+      locale: "vi",
+      defaultDate: new Date(),
       wrap: true,
       allowInput: true
     });
+    document.querySelector("[data-toggle]").addEventListener("click", function() {
+      document.querySelector("#datepicker")._flatpickr.open();
+    });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vi.js"></script>
 </body>
 </html>
