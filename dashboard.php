@@ -309,8 +309,10 @@ $typeLabels = [
             Từ ngày: <input type="date" name="from_date" value="<?= htmlspecialchars($from_date) ?>">
             Đến ngày: <input type="date" name="to_date" value="<?= htmlspecialchars($to_date) ?>">
             
-            🔼 <span style="color:green;">Tổng thu: <?= number_format($totalThuAll ?? 0, 0, ',', '.') ?> VND</span>
-            🔽 <span style="color:red;">Tổng chi: <?= number_format($totalChiAll ?? 0, 0, ',', '.') ?> VND</span>
+            <div>
+                🔼 <span style="color:green;">Tổng thu: <?= number_format($totalThuAll ?? 0, 0, ',', '.') ?> VND</span>
+                🔽 <span style="color:red;">Tổng chi: <?= number_format($totalChiAll ?? 0, 0, ',', '.') ?> VND</span>
+            </div>
 
             <br><br>
             Loại: 
