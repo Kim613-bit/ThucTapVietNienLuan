@@ -48,7 +48,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         }
-
+        
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $success = "❌ Email không hợp lệ!";
+            exit();
+        }
         // Nếu không upload mới, giữ avatar cũ
         if (!$avatar) {
             $sql_old = "SELECT avatar FROM users WHERE id = $1";
@@ -66,15 +70,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Tải lại thông tin user để hiển thị
 $sql_user = "SELECT username, avatar, fullname, birthyear, email FROM users WHERE id = $1";
-$result   = pg_query_params($conn, $sql_user, [$user_id]);
-$user     = pg_fetch_assoc($result);
-if (!is_array($user)) {
-    // Có thể redirect hoặc hiển thị thông báo lỗi
+$result = pg_query_params($conn, $sql_user, [$user_id]);
+if (!$result) {
+    error_log("❌ Truy vấn thất bại: " . pg_last_error($conn));
     header("Location: login.php");
     exit();
 }
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $success = "❌ Email không hợp lệ!";
+$user = pg_fetch_assoc($result);
+if (!is_array($user)) {
+    header("Location: login.php");
+    exit();
 }
 $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem.png');
 ?>
