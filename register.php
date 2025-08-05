@@ -81,7 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             ]
         );
         if ($res) {
-            $success = "Tạo tài khoản thành công! Bạn có thể <a href='login.php'>đăng nhập</a>.";
+            $success = "Tạo tài khoản thành công!<br>Bạn có thể <a href='login.php'>đăng nhập</a>.";
             $old = [];  // Xoá data cũ
         } else {
             $errors['general'] = "Lỗi khi tạo tài khoản, vui lòng thử lại.";
