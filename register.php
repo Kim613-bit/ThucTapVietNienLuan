@@ -6,6 +6,7 @@ include "db.php";       // Kết nối PostgreSQL: $conn
 $success = "";
 $old     = [];          // Lưu lại giá trị đã nhập
 $errors  = [];          // Mảng lỗi chi tiết
+$avatar = 'uploads/avt_mem.png';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // 1. Sanitize & giữ lại giá trị cũ
@@ -68,14 +69,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (empty($errors)) {
         $hash = password_hash($old['password'], PASSWORD_DEFAULT);
         $res = pg_query_params($conn,
-            "INSERT INTO users (username,password,fullname,birthyear,email)
-             VALUES ($1,$2,$3,$4,$5)",
+            "INSERT INTO users (username,password,fullname,birthyear,email,avatar)
+             VALUES ($1,$2,$3,$4,$5,$6)",
             [
               $old['username'],
               $hash,
               $old['fullname'],
               $by,
-              $old['email']
+              $old['email'],
+              $avatar
             ]
         );
         if ($res) {
