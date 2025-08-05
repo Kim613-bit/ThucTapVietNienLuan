@@ -53,9 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $rawAmount   = $_POST['amount'] ?? '';
         $description = trim($_POST['description'] ?? '');
         $name_changed = $new_name !== $account['name'];
-
-        $now = date('Y-m-d H:i:s');
-
+                
         try {
             pg_query($conn, 'BEGIN');
 
@@ -65,6 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     "UPDATE accounts SET name = $1 WHERE id = $2 AND user_id = $3",
                     [ $new_name, $account_id, $user_id ]
                 );
+                $now = date('Y-m-d H:i:s'); 
                 pg_query_params($conn,
                     "INSERT INTO transactions
                      (account_id, user_id, type, amount, description, remaining_balance, date)
@@ -77,6 +76,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             // 🔸 Giao dịch thu/chi nếu có
             if ($type === 'thu' || $type === 'chi') {
+                $date_input = $_POST['transaction_date'] ?? '';
+                $time_input = $_POST['transaction_time'] ?? date('H:i');
+                
+                // Kiểm tra định dạng dd/mm/yyyy
+                if (!preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $date_input) || !preg_match('/^\d{2}:\d{2}$/', $time_input)) {
+                    throw new Exception("Ngày giờ không hợp lệ (dd/mm/yyyy & HH:mm).");
+                }
+                
+                // Chuyển đổi định dạng ngày sang yyyy-mm-dd
+                $dtObj = DateTime::createFromFormat('d/m/Y H:i', "$date_input $time_input");
+                if (!$dtObj) {
+                    throw new Exception("Ngày giờ không hợp lệ.");
+                }
+                $datetime = $dtObj->format('Y-m-d H:i:s');
+
+                $test = DateTime::createFromFormat('Y-m-d H:i', $datetime);
+                if (!$test) {
+                    throw new Exception("Ngày giờ không hợp lệ.");
+                }
+
                 $sanitized = preg_replace('/[^\d\.\-]/', '', $rawAmount);
                 if (!is_numeric($sanitized)) throw new Exception("Số tiền không hợp lệ.");
 
@@ -106,7 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     "INSERT INTO transactions
                      (account_id, user_id, type, amount, description, remaining_balance, date)
                      VALUES ($1, $2, $3, $4, $5, $6, $7)",
-                    [ $account_id, $user_id, $type_value, $amount, $description, $new_balance, $now ]
+                    [ $account_id, $user_id, $type_value, $amount, $description, $new_balance, $datetime ]
                 );
 
                 $account['balance'] = $new_balance;
@@ -277,7 +296,30 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           <?php endforeach; ?>
         </datalist>
       </div>
-
+    <div style="display: flex; gap: 12px;">
+      <div style="flex: 1;">
+        <label>Ngày giao dịch (dd/mm/yyyy):</label>
+        <input
+          type="text"
+          name="transaction_date"
+          class="form-control"
+          value="<?= htmlspecialchars($_POST['transaction_date'] ?? date('d/m/Y')) ?>"
+          placeholder="VD: 05/08/2025"
+          required
+        >
+      </div>
+    
+      <div style="flex: 1;">
+        <label>Giờ giao dịch (HH:mm):</label>
+        <input
+          type="time"
+          name="transaction_time"
+          class="form-control"
+          value="<?= htmlspecialchars($_POST['transaction_time'] ?? date('H:i')) ?>"
+          required
+        >
+      </div>
+    </div>
       <button type="submit" class="form-control">💾 Lưu thay đổi</button>
     </form>
 
