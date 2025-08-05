@@ -324,8 +324,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     data-input
                     placeholder="VD: 05/08/2025"
                     required
+                    <button type="button" class="calendar-btn" data-toggle title="Chọn ngày">📅</button>
                   >
-                  <button type="button" class="calendar-btn" data-toggle title="Chọn ngày">📅</button>
                 </div>
               </div>
             
@@ -338,6 +338,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                   value="<?= htmlspecialchars($_POST['transaction_time'] ?? date('H:i')) ?>"
                   required
                 >
+        </div>
       </div>
     
     </div>
