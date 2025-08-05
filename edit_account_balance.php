@@ -149,6 +149,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sửa khoản tiền</title>
   <style>
+      @media (max-width: 480px) {
+          .container div[style*="display: flex"] {
+            flex-direction: column;
+          }
+        }
     body {
       font-family: Arial, sans-serif;
       background: #f2f2f2;
@@ -217,7 +222,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     .back:hover {
       text-decoration: underline;
     }
+    .calendar-btn {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+    }
   </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body>
   <div class="container">
@@ -295,30 +312,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <option value="<?= htmlspecialchars($desc) ?>">
           <?php endforeach; ?>
         </datalist>
-      </div>
-    <div style="display: flex; gap: 12px;">
-      <div style="flex: 1;">
-        <label>Ngày giao dịch (dd/mm/yyyy):</label>
-        <input
-          type="text"
-          name="transaction_date"
-          class="form-control"
-          value="<?= htmlspecialchars($_POST['transaction_date'] ?? date('d/m/Y')) ?>"
-          placeholder="VD: 05/08/2025"
-          required
-        >
+          <div style="display: flex; gap: 12px;">
+              <div style="flex: 1;" >
+                <label>Ngày giao dịch (dd/mm/yyyy):</label>
+                <div class="flatpickr-wrapper" style="position: relative;">
+                  <input
+                    type="text"
+                    id="datepicker"
+                    name="transaction_date"
+                    class="form-control"
+                    data-input
+                    placeholder="VD: 05/08/2025"
+                    required
+                  >
+                  <button type="button" class="calendar-btn" data-toggle title="Chọn ngày">📅</button>
+                </div>
+              </div>
+            
+              <div style="flex: 1;">
+                <label>Giờ giao dịch (HH:mm):</label>
+                <input
+                  type="time"
+                  name="transaction_time"
+                  class="form-control"
+                  value="<?= htmlspecialchars($_POST['transaction_time'] ?? date('H:i')) ?>"
+                  required
+                >
       </div>
     
-      <div style="flex: 1;">
-        <label>Giờ giao dịch (HH:mm):</label>
-        <input
-          type="time"
-          name="transaction_time"
-          class="form-control"
-          value="<?= htmlspecialchars($_POST['transaction_time'] ?? date('H:i')) ?>"
-          required
-        >
-      </div>
     </div>
       <button type="submit" class="form-control">💾 Lưu thay đổi</button>
     </form>
@@ -428,6 +449,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       }
     });
   });
+    flatpickr(".flatpickr-wrapper", {
+      dateFormat: "d/m/Y",
+      locale: "vn",
+      defaultDate: "<?= date('d/m/Y') ?>",
+      wrap: true,
+      allowInput: true
+    });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 </body>
 </html>
