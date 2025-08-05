@@ -68,7 +68,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $sql_user = "SELECT username, avatar, fullname, birthyear, email FROM users WHERE id = $1";
 $result   = pg_query_params($conn, $sql_user, [$user_id]);
 $user     = pg_fetch_assoc($result);
-$avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem.png.png');
+if (!is_array($user)) {
+    // Có thể redirect hoặc hiển thị thông báo lỗi
+    header("Location: login.php");
+    exit();
+}
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $success = "❌ Email không hợp lệ!";
+}
+$avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem.png');
 ?>
     
 <!DOCTYPE html>
