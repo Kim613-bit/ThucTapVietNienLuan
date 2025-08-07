@@ -267,32 +267,45 @@ $typeLabels = [
     
     
     /* ——— Module: filter form ——— */
-    .filter-panel {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: var(--spacing);
+    .filter-panel-horizontal {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: flex-end;
       background: var(--color-card);
       padding: var(--spacing);
       border-radius: var(--border-radius);
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       margin-bottom: var(--spacing);
     }
-    .filter-panel .form-group {
+    
+    .filter-panel-horizontal .form-group {
       display: flex;
       flex-direction: column;
+      min-width: 150px;
     }
-    .filter-panel label {
-      font-size: 0.85rem;
-      color: var(--color-muted);
-      margin-bottom: 6px;
-    }
-    .filter-panel input,
-    .filter-panel select {
-      padding: 8px;
-      border: 1px solid #cbd5e1;
-      border-radius: 4px;
+    
+    .filter-panel-horizontal .stats-inline {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 160px;
       font-size: 0.95rem;
     }
+    
+    .filter-panel-horizontal .filter-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+    .filter-panel-horizontal button,
+    .filter-panel-horizontal .reset {
+      padding: 8px 12px;
+      border-radius: var(--border-radius);
+      font-size: 0.95rem;
+    }
+
     .stats-inline {
       grid-column: 1 / -1;
       display: flex;
@@ -448,7 +461,18 @@ $typeLabels = [
         transform: translateX(0);
       }
     }
-
+    @media (max-width: 768px) {
+      .filter-panel-horizontal {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    
+      .filter-panel-horizontal .stats-inline,
+      .filter-panel-horizontal .filter-buttons {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+    }
     @media (max-width: 600px) {
       .filter-panel {
         grid-template-columns: 1fr;
@@ -502,7 +526,7 @@ $typeLabels = [
         </div>
     
         <!-- Filter Form -->
-        <form method="get" class="filter-panel">
+        <form method="get" class="filter-panel-horizontal">
           <div class="filter-row">
             <!-- Các bộ lọc -->
             <div class="filters">
