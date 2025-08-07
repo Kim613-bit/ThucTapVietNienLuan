@@ -127,11 +127,14 @@ $typeLabels = [
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard</title>
+
   <style>
+    /* 1. Biến toàn cục */
     :root {
+      --sidebar-width: 280px;
       --color-primary: #1e88e5;
       --color-secondary: #66bb6a;
       --color-danger: #e53935;
@@ -144,8 +147,8 @@ $typeLabels = [
       --transition-speed: 0.3s;
     }
 
-    /* Reset + Global */
-    * {
+    /* 2. Reset + Global */
+    *, *::before, *::after {
       box-sizing: border-box;
       margin: 0; padding: 0;
     }
@@ -157,7 +160,37 @@ $typeLabels = [
     }
     a { text-decoration: none; color: inherit; }
 
-    /* Header */
+    /* 3. Layout chính */
+    .dashboard-wrapper {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr;
+      max-width: 1200px;
+      margin: 0 auto;
+      gap: var(--spacing);
+      padding: var(--spacing);
+      border-radius: var(--border-radius);
+    }
+
+    .dashboard-wrapper .sidebar {
+      position: sticky;
+      top: calc(60px + var(--spacing));
+      height: calc(100vh - 60px - 2 * var(--spacing));
+      overflow-y: auto;
+      background: var(--color-card);
+      padding: var(--spacing);
+      border-radius: var(--border-radius);
+      transition: transform var(--transition-speed);
+    }
+
+    .dashboard-wrapper .content {
+      background: var(--color-card);
+      padding: var(--spacing);
+      border-radius: var(--border-radius);
+      min-height: calc(100vh - 60px - 2 * var(--spacing));
+      overflow-y: auto;
+    }
+
+    /* 4. Header */
     .header {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -171,47 +204,11 @@ $typeLabels = [
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       z-index: 1001;
     }
-    #sidebar-toggle {
-      background: none;
-      border: none;
-      color: #fff;
-      font-size: 1.4rem;
-      cursor: pointer;
-    }
-    .brand {
-      font-size: 1.25rem;
-      font-weight: 600;
-    }
-    .profile-link {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #fff;
-    }
-    .profile-link img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #fff;
-    }
+    #sidebar-toggle { /* giữ nguyên */ }
+    .brand { /* giữ nguyên */ }
+    .profile-link { /* giữ nguyên */ }
 
-    /* Sidebar */
-    .sidebar {
-      position: fixed;
-      top: 60px; left: 0; bottom: 0;
-      width: 260px;
-      background: var(--color-card);
-      padding: var(--spacing);
-      border-right: 1px solid #e2e8f0;
-      overflow-y: auto;
-      transform: translateX(0);
-      transition: transform var(--transition-speed) ease;
-      z-index: 1000;
-    }
-    .sidebar.closed {
-      transform: translateX(-100%);
-    }
+    /* 5. Module (Filter panel, Table, Sidebar items…) */
     .sidebar h3 {
       font-size: 0.9rem;
       color: var(--color-muted);
@@ -259,31 +256,9 @@ $typeLabels = [
       height: 1px;
       background: #e2e8f0;
     }
-
-    /* Main content wrapper */
-    .main {
-      margin-top: 60px;
-      margin-left: 260px;
-      padding: var(--spacing);
-      transition: margin-left var(--transition-speed) ease;
-    }
-    .main.full {
-      margin-left: 0;
-    }
-
-    /* Content header */
-    .content-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--spacing);
-    }
-    .content-header h2 {
-      font-size: 1.2rem;
-      color: var(--color-text);
-    }
-
-    /* Filter panel */
+    
+    
+    /* ——— Module: filter form ——— */
     .filter-panel {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -347,8 +322,9 @@ $typeLabels = [
       border: 1px solid #cbd5e1;
       border-radius: var(--border-radius);
     }
-
-    /* Table */
+    
+    
+    /* ——— Module: bảng giao dịch ——— */
     .table-wrapper {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
@@ -383,8 +359,9 @@ $typeLabels = [
       color: var(--color-danger);
       font-weight: 600;
     }
-
-    /* Ngày nhóm */
+    
+    
+    /* ——— Module: nhóm ngày ——— */
     .date-group {
       margin-top: 24px;
     }
@@ -399,18 +376,34 @@ $typeLabels = [
       border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
-    /* Responsive */
+    /* 6. Responsive */
     @media (max-width: 992px) {
-      .sidebar {
+      .dashboard-wrapper .sidebar {
         transform: translateX(-100%);
       }
-      .sidebar.open {
+      .dashboard-wrapper .sidebar.open {
         transform: translateX(0);
       }
-      .main {
-        margin-left: 0;
+        .main.full {
+        margin-left: calc(-1 * var(--sidebar-width));
+        width: calc(100% + var(--sidebar-width));
       }
     }
+
+    @media (max-width: 800px) {
+      .dashboard-wrapper {
+        display: block;
+        padding: 0;
+      }
+      .dashboard-wrapper .sidebar {
+        position: relative;
+        top: 0;
+        height: auto;
+        margin-bottom: var(--spacing);
+        transform: translateX(0);
+      }
+    }
+
     @media (max-width: 600px) {
       .filter-panel {
         grid-template-columns: 1fr;
@@ -434,187 +427,189 @@ $typeLabels = [
     </a>
   </div>
 
-  <!-- Sidebar -->
-  <nav class="sidebar closed">
-    <h3><a href="advanced_statistics.php">📊 Thống kê nâng cao</a></h3>
-    <h3>Các khoản tiền</h3>
-    <?php foreach ($accounts as $acc): ?>
-      <a href="edit_account_balance.php?account_id=<?= $acc['id'] ?>" class="account-card">
-        <div class="account-name"><?= htmlspecialchars($acc['name']) ?></div>
-        <div class="account-balance">
-          Số dư: <?= number_format($acc['balance'] ?? 0, 0, ',', '.') ?> VND
+  <div class="dashboard-wrapper">  
+      <!-- Sidebar -->
+      <nav class="sidebar closed">
+        <h3><a href="advanced_statistics.php">📊 Thống kê nâng cao</a></h3>
+        <h3>Các khoản tiền</h3>
+        <?php foreach ($accounts as $acc): ?>
+          <a href="edit_account_balance.php?account_id=<?= $acc['id'] ?>" class="account-card">
+            <div class="account-name"><?= htmlspecialchars($acc['name']) ?></div>
+            <div class="account-balance">
+              Số dư: <?= number_format($acc['balance'] ?? 0, 0, ',', '.') ?> VND
+            </div>
+          </a>
+        <?php endforeach; ?>
+        <a href="create_account.php" class="add-account">+ Thêm khoản tiền</a>
+        <div class="account-total">
+          <strong>Tổng số dư:</strong>
+          <?= number_format($totalAccountBalance, 0, ',', '.') ?> VND
         </div>
-      </a>
-    <?php endforeach; ?>
-    <a href="create_account.php" class="add-account">+ Thêm khoản tiền</a>
-    <div class="account-total">
-      <strong>Tổng số dư:</strong>
-      <?= number_format($totalAccountBalance, 0, ',', '.') ?> VND
-    </div>
-    <hr>
-    <a href="feedback.php">📩 Gửi phản hồi</a>
-    <?php if ($user['role'] === 'admin'): ?>
-      <a href="admin_feedback.php">📬 Xem phản hồi</a>
-    <?php endif; ?>
-  </nav>
-
-  <!-- Main Content -->
-  <main class="main">
-    <div class="content-header">
-      <h2>Lịch sử thu chi</h2>
-    </div>
-
-    <!-- Filter Form -->
-    <form method="get" class="filter-panel">
-      <div class="form-group">
-        <label for="from_date">Từ ngày</label>
-        <input type="date" id="from_date" name="from_date"
-               value="<?= htmlspecialchars($from_date) ?>">
-      </div>
-      <div class="form-group">
-        <label for="to_date">Đến ngày</label>
-        <input type="date" id="to_date" name="to_date"
-               value="<?= htmlspecialchars($to_date) ?>">
-      </div>
-      <div class="form-group">
-        <label for="type">Loại</label>
-        <select id="type" name="type">
-          <option value="all" <?= $filter_type === 'all'? 'selected':'' ?>>Tất cả</option>
-          <option value="0" <?= $filter_type === '0'? 'selected':'' ?>>Thu</option>
-          <option value="1" <?= $filter_type === '1'? 'selected':'' ?>>Chi</option>
-          <option value="2" <?= $filter_type === '2'? 'selected':'' ?>>
-            Cập nhật
-          </option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="description">Mô tả</label>
-        <select id="description" name="description">
-          <option value="">Tất cả</option>
-          <?php
-            $sql_desc = "SELECT description FROM transactions
-                         WHERE user_id = $1 AND description IS NOT NULL
-                         AND description != ''
-                         GROUP BY description
-                         ORDER BY MAX(date) DESC LIMIT 30";
-            $result_desc = pg_query_params($conn, $sql_desc, [$user_id]);
-            while ($desc = pg_fetch_assoc($result_desc)) {
-              $sel = $desc['description'] === $filter_description ? 'selected' : '';
-              echo "<option value=\"".htmlspecialchars($desc['description'])."\" $sel>"
-                   . htmlspecialchars($desc['description'])
-                   . "</option>";
-            }
-          ?>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="account_id">Khoản tiền</label>
-        <select id="account_id" name="account_id">
-          <option value="0" <?= $filter_account===0? 'selected':'' ?>>Tất cả</option>
-          <?php foreach ($accounts as $acc): ?>
-            <option value="<?= $acc['id'] ?>"
-              <?= $filter_account===$acc['id']? 'selected':'' ?>>
-              <?= htmlspecialchars($acc['name']) ?>
-            </option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-
-      <!-- Tổng thu/chi chung -->
-      <div class="stats-inline">
-        <span>🔼 Tổng thu:
-          <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong>
-        </span>
-        <span>🔽 Tổng chi:
-          <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong>
-        </span>
-      </div>
-
-      <!-- Nút Lọc / Làm mới -->
-      <div class="filter-buttons">
-        <button type="submit">Lọc</button>
-        <a href="dashboard.php" class="reset">🧹 Làm mới</a>
-      </div>
-    </form>
-
-    <!-- Grouped Transactions -->
-    <?php if (empty($grouped)): ?>
-      <p>Không có giao dịch nào.</p>
-    <?php else: ?>
-      <?php foreach ($grouped as $date => $entries): ?>
-        <?php
-          $totalThu = 0; $totalChi = 0;
-          foreach ($entries as $row) {
-            if ($row['type']==0) $totalThu += $row['amount'];
-            elseif ($row['type']==1) $totalChi += $row['amount'];
-          }
-        ?>
-        <div class="date-group">
-          <div class="date-heading">
-            <span><?= $date ?></span>
-            <span>
-              🔼 Tổng thu: <?= number_format($totalThu,0,',','.') ?> VND
-              &nbsp;&nbsp;
-              🔽 Tổng chi: <?= number_format($totalChi,0,',','.') ?> VND
+        <hr>
+        <a href="feedback.php">📩 Gửi phản hồi</a>
+        <?php if ($user['role'] === 'admin'): ?>
+          <a href="admin_feedback.php">📬 Xem phản hồi</a>
+        <?php endif; ?>
+      </nav>
+    <div class="content">
+      <!-- Main Content -->
+      <main class="main">
+        <div class="content-header">
+          <h2>Lịch sử thu chi</h2>
+        </div>
+    
+        <!-- Filter Form -->
+        <form method="get" class="filter-panel">
+          <div class="form-group">
+            <label for="from_date">Từ ngày</label>
+            <input type="date" id="from_date" name="from_date"
+                   value="<?= htmlspecialchars($from_date) ?>">
+          </div>
+          <div class="form-group">
+            <label for="to_date">Đến ngày</label>
+            <input type="date" id="to_date" name="to_date"
+                   value="<?= htmlspecialchars($to_date) ?>">
+          </div>
+          <div class="form-group">
+            <label for="type">Loại</label>
+            <select id="type" name="type">
+              <option value="all" <?= $filter_type === 'all'? 'selected':'' ?>>Tất cả</option>
+              <option value="0" <?= $filter_type === '0'? 'selected':'' ?>>Thu</option>
+              <option value="1" <?= $filter_type === '1'? 'selected':'' ?>>Chi</option>
+              <option value="2" <?= $filter_type === '2'? 'selected':'' ?>>
+                Cập nhật
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="description">Mô tả</label>
+            <select id="description" name="description">
+              <option value="">Tất cả</option>
+              <?php
+                $sql_desc = "SELECT description FROM transactions
+                             WHERE user_id = $1 AND description IS NOT NULL
+                             AND description != ''
+                             GROUP BY description
+                             ORDER BY MAX(date) DESC LIMIT 30";
+                $result_desc = pg_query_params($conn, $sql_desc, [$user_id]);
+                while ($desc = pg_fetch_assoc($result_desc)) {
+                  $sel = $desc['description'] === $filter_description ? 'selected' : '';
+                  echo "<option value=\"".htmlspecialchars($desc['description'])."\" $sel>"
+                       . htmlspecialchars($desc['description'])
+                       . "</option>";
+                }
+              ?>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="account_id">Khoản tiền</label>
+            <select id="account_id" name="account_id">
+              <option value="0" <?= $filter_account===0? 'selected':'' ?>>Tất cả</option>
+              <?php foreach ($accounts as $acc): ?>
+                <option value="<?= $acc['id'] ?>"
+                  <?= $filter_account===$acc['id']? 'selected':'' ?>>
+                  <?= htmlspecialchars($acc['name']) ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+    
+          <!-- Tổng thu/chi chung -->
+          <div class="stats-inline">
+            <span>🔼 Tổng thu:
+              <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong>
+            </span>
+            <span>🔽 Tổng chi:
+              <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong>
             </span>
           </div>
-        </div>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Giờ</th>
-                <th>Loại</th>
-                <th>Số tiền</th>
-                <th>Mô tả</th>
-                <th>Số dư còn lại</th>
-                <th>Khoản tiền</th>
-                <th>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php foreach ($entries as $row): ?>
-                <?php if (!is_array($row)) continue; ?>
-                <?php
-                  // fix mô tả khởi tạo
-                  $d = $row['description'];
-                  if (strpos($d, 'Tạo tài khoản mới:')===0) {
-                    $d = 'Tạo khoản tiền mới';
-                  }
-                ?>
-                <tr>
-                  <td><?= date('H:i:s', strtotime($row['date'])) ?></td>
-                  <td><?= $typeLabels[$row['type']] ?? '-' ?></td>
-                  <td class="<?= $row['type']==0? 'amount-income':
-                                ($row['type']==1? 'amount-expense':'') ?>">
-                    <?= $row['type']==2? '0': number_format($row['amount']??0,0,',','.') ?>
-                    VND
-                  </td>
-                  <td><?= htmlspecialchars($d ?: '-') ?></td>
-                  <td><?= number_format($row['remaining_balance']??0,0,',','.') ?> VND</td>
-                  <td><?= htmlspecialchars($row['account_name']) ?></td>
-                  <td>
-                    <a href="edit_transaction.php?id=<?= $row['id'] ?>">✏️ Sửa</a>
-                    |
-                    <a href="delete_transaction.php?id=<?= $row['id'] ?>"
-                       onclick="return confirm('Bạn có chắc muốn xoá giao dịch này?')">
-                      🗑️ Xoá
-                    </a>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
-      <?php endforeach; ?>
-    <?php endif; ?>
-  </main>
-
+    
+          <!-- Nút Lọc / Làm mới -->
+          <div class="filter-buttons">
+            <button type="submit">Lọc</button>
+            <a href="dashboard.php" class="reset">🧹 Làm mới</a>
+          </div>
+        </form>
+    
+        <!-- Grouped Transactions -->
+        <?php if (empty($grouped)): ?>
+          <p>Không có giao dịch nào.</p>
+        <?php else: ?>
+          <?php foreach ($grouped as $date => $entries): ?>
+            <?php
+              $totalThu = 0; $totalChi = 0;
+              foreach ($entries as $row) {
+                if ($row['type']==0) $totalThu += $row['amount'];
+                elseif ($row['type']==1) $totalChi += $row['amount'];
+              }
+            ?>
+            <div class="date-group">
+              <div class="date-heading">
+                <span><?= $date ?></span>
+                <span>
+                  🔼 Tổng thu: <?= number_format($totalThu,0,',','.') ?> VND
+                  &nbsp;&nbsp;
+                  🔽 Tổng chi: <?= number_format($totalChi,0,',','.') ?> VND
+                </span>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Giờ</th>
+                    <th>Loại</th>
+                    <th>Số tiền</th>
+                    <th>Mô tả</th>
+                    <th>Số dư còn lại</th>
+                    <th>Khoản tiền</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php foreach ($entries as $row): ?>
+                    <?php if (!is_array($row)) continue; ?>
+                    <?php
+                      // fix mô tả khởi tạo
+                      $d = $row['description'];
+                      if (strpos($d, 'Tạo tài khoản mới:')===0) {
+                        $d = 'Tạo khoản tiền mới';
+                      }
+                    ?>
+                    <tr>
+                      <td><?= date('H:i:s', strtotime($row['date'])) ?></td>
+                      <td><?= $typeLabels[$row['type']] ?? '-' ?></td>
+                      <td class="<?= $row['type']==0? 'amount-income':
+                                    ($row['type']==1? 'amount-expense':'') ?>">
+                        <?= $row['type']==2? '0': number_format($row['amount']??0,0,',','.') ?>
+                        VND
+                      </td>
+                      <td><?= htmlspecialchars($d ?: '-') ?></td>
+                      <td><?= number_format($row['remaining_balance']??0,0,',','.') ?> VND</td>
+                      <td><?= htmlspecialchars($row['account_name']) ?></td>
+                      <td>
+                        <a href="edit_transaction.php?id=<?= $row['id'] ?>">✏️ Sửa</a>
+                        |
+                        <a href="delete_transaction.php?id=<?= $row['id'] ?>"
+                           onclick="return confirm('Bạn có chắc muốn xoá giao dịch này?')">
+                          🗑️ Xoá
+                        </a>
+                      </td>
+                    </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </main>
+    </div>
+  </div>
   <script>
     const btn = document.getElementById('sidebar-toggle'),
           sb  = document.querySelector('.sidebar'),
           mn  = document.querySelector('.main');
-    btn.addEventListener('click', () => {
+      btn.addEventListener('click', () => {
       sb.classList.toggle('open');
       sb.classList.toggle('closed');
       mn.classList.toggle('full');
