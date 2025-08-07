@@ -538,6 +538,7 @@ $typeLabels = [
                 </select>
               </div>
             </div>
+        
             <!-- Tổng thu/chi -->
             <div class="stats-inline">
               <span>🔼 Tổng thu: <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong></span>
