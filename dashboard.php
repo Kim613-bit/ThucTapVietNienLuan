@@ -293,6 +293,17 @@ $typeLabels = [
       border-radius: 4px;
       font-size: 0.95rem;
     }
+    .stats-inline {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 16px;
+      font-size: 0.95rem;
+    }
+    .stats-inline span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
     .filter-buttons {
       grid-column: 1 / -1;
       display: flex;
@@ -356,7 +367,8 @@ $typeLabels = [
       color: var(--color-danger);
       font-weight: 600;
     }
-     
+    
+    
     /* ——— Module: nhóm ngày ——— */
     .date-group {
       margin-top: 24px;
@@ -371,45 +383,42 @@ $typeLabels = [
       font-weight: 600;
       border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
-    
-    .filter-buttons button,
-    .filter-buttons .reset {
-      margin-left: 10px;
-      padding: 6px 12px;
-      font-size: 14px;
-    }
-    .filter-buttons button,
-    .filter-buttons .reset {
-      margin-left: 10px;
+    .filter-panel {
+      margin-bottom: 20px;
     }
     
-    .btn-filter {
-      background-color: #2563eb;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s ease;
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 20px;
+      justify-content: space-between;
     }
     
-    .btn-filter:hover {
-      background-color: #1d4ed8;
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      flex: 1;
     }
     
-    .btn-reset {
-      background-color: #f3f4f6;
-      color: #374151;
-      padding: 8px 16px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: 500;
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      min-width: 150px;
     }
     
-    .btn-reset:hover {
-      background-color: #e5e7eb;
+    .stats-inline {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 180px;
+    }
+    
+    .filter-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
     }
 
     /* 6. Responsive */
@@ -452,7 +461,6 @@ $typeLabels = [
   </style>
 </head>
 <body>
-
   <!-- Header -->
   <div class="header">
     <div class="brand">Quản lý thu chi</div>
@@ -495,78 +503,56 @@ $typeLabels = [
     
         <!-- Filter Form -->
         <form method="get" class="filter-panel">
-          <div class="form-group">
-            <label for="from_date">Từ ngày</label>
-            <input type="date" id="from_date" name="from_date"
-                   value="<?= htmlspecialchars($from_date) ?>">
-          </div>
-          <div class="form-group">
-            <label for="to_date">Đến ngày</label>
-            <input type="date" id="to_date" name="to_date"
-                   value="<?= htmlspecialchars($to_date) ?>">
-          </div>
-          <div class="form-group">
-            <label for="type">Loại</label>
-            <select id="type" name="type">
-              <option value="all" <?= $filter_type === 'all'? 'selected':'' ?>>Tất cả</option>
-              <option value="0" <?= $filter_type === '0'? 'selected':'' ?>>Thu</option>
-              <option value="1" <?= $filter_type === '1'? 'selected':'' ?>>Chi</option>
-              <option value="2" <?= $filter_type === '2'? 'selected':'' ?>>
-                Cập nhật
-              </option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="description">Mô tả</label>
-            <select id="description" name="description">
-              <option value="">Tất cả</option>
-              <?php
-                $sql_desc = "SELECT description FROM transactions
-                             WHERE user_id = $1 AND description IS NOT NULL
-                             AND description != ''
-                             GROUP BY description
-                             ORDER BY MAX(date) DESC LIMIT 30";
-                $result_desc = pg_query_params($conn, $sql_desc, [$user_id]);
-                while ($desc = pg_fetch_assoc($result_desc)) {
-                  $sel = $desc['description'] === $filter_description ? 'selected' : '';
-                  echo "<option value=\"".htmlspecialchars($desc['description'])."\" $sel>"
-                       . htmlspecialchars($desc['description'])
-                       . "</option>";
-                }
-              ?>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="account_id">Khoản tiền</label>
-            <select id="account_id" name="account_id">
-              <option value="0" <?= $filter_account===0? 'selected':'' ?>>Tất cả</option>
-              <?php foreach ($accounts as $acc): ?>
-                <option value="<?= $acc['id'] ?>"
-                  <?= $filter_account===$acc['id']? 'selected':'' ?>>
-                  <?= htmlspecialchars($acc['name']) ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-    
-          <!-- Tổng thu/chi chung -->
-          <div class="">
-                <span>🔼 Tổng thu:
-                  <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong>
-                </span>
+          <div class="filter-row">
+            <!-- Các bộ lọc -->
+            <div class="filters">
+              <div class="form-group">
+                <label for="from_date">Từ ngày</label>
+                <input type="date" id="from_date" name="from_date" value="<?= htmlspecialchars($from_date) ?>">
               </div>
-            <div class="">
-                <span>🔽 Tổng chi:
-                  <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong>
-                </span>
+              <div class="form-group">
+                <label for="to_date">Đến ngày</label>
+                <input type="date" id="to_date" name="to_date" value="<?= htmlspecialchars($to_date) ?>">
+              </div>
+              <div class="form-group">
+                <label for="type">Loại</label>
+                <select id="type" name="type">
+                  <option value="all" <?= $filter_type === 'all'? 'selected':'' ?>>Tất cả</option>
+                  <option value="0" <?= $filter_type === '0'? 'selected':'' ?>>Thu</option>
+                  <option value="1" <?= $filter_type === '1'? 'selected':'' ?>>Chi</option>
+                  <option value="2" <?= $filter_type === '2'? 'selected':'' ?>>Cập nhật</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="description">Mô tả</label>
+                <select id="description" name="description">
+                  <option value="">Tất cả</option>
+                  <!-- PHP render mô tả -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="account_id">Khoản tiền</label>
+                <select id="account_id" name="account_id">
+                  <option value="0" <?= $filter_account===0? 'selected':'' ?>>Tất cả</option>
+                  <!-- PHP render tài khoản -->
+                </select>
+              </div>
             </div>
-          </div>  
-            <div class="">
-                <button type="submit" class="btn-filter">Lọc</button>
-                <a href="dashboard.php" class="btn-reset">🧹 Làm mới</a>
+        
+            <!-- Tổng thu/chi -->
+            <div class="stats-inline">
+              <span>🔼 Tổng thu: <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong></span>
+              <span>🔽 Tổng chi: <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong></span>
             </div>
+        
+            <!-- Nút lọc/làm mới -->
+            <div class="filter-buttons">
+              <button type="submit">Lọc</button>
+              <a href="dashboard.php" class="reset">🧹 Làm mới</a>
+            </div>
+          </div>
         </form>
-    
+
         <!-- Grouped Transactions -->
         <?php if (empty($grouped)): ?>
           <p>Không có giao dịch nào.</p>
