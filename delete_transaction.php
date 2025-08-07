@@ -15,6 +15,29 @@ if (!$transaction_id) {
     echo "Không tìm thấy giao dịch.";
     exit();
 }
+// Truy vấn thông tin giao dịch
+$info_query = "SELECT amount, type, account_id FROM transactions WHERE id = $1 AND user_id = $2";
+$info_result = pg_query_params($conn, $info_query, array($transaction_id, $user_id));
+$info = pg_fetch_assoc($info_result);
+
+if ($info) {
+    $amount = floatval($info['amount']);
+    $type = intval($info['type']);
+    $account_id = intval($info['account_id']);
+
+    $account_name_query = "SELECT name FROM accounts WHERE id = $1 AND user_id = $2";
+    $account_name_result = pg_query_params($conn, $account_name_query, array($account_id, $user_id));
+    $account_name = pg_fetch_result($account_name_result, 0, 0);
+    if ($account_name === false) {
+        echo "Tài khoản không tồn tại hoặc không thuộc quyền truy cập.";
+        exit();
+    }
+    // Cập nhật lại số dư tài khoản
+    $adjust_query = ($type == 1)
+        ? "UPDATE accounts SET balance = balance - $1 WHERE id = $2 AND user_id = $3"
+        : "UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3";
+    pg_query_params($conn, $adjust_query, array($amount, $account_id, $user_id));
+}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['confirm']) && $_POST['confirm'] === "yes") {
@@ -23,7 +46,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             "DELETE FROM transactions WHERE id = $1 AND user_id = $2",
             array($transaction_id, $user_id)
         );
-        // Bạn có thể kiểm tra kết quả: if ($result) { ... }
+    if ($result) {
+    // Xoá thành công
+        } else {
+            echo "<p style='color:red;'>Lỗi khi xoá giao dịch. Vui lòng thử lại.</p>";
+            exit();
+        }
     }
     header("Location: dashboard.php");
     exit();
@@ -81,6 +109,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <form method="post">
         <p>Bạn có chắc chắn muốn xóa giao dịch này?</p>
+        <p><strong>Tài khoản:</strong> <?= htmlspecialchars($account_name) ?></p>
+        <p><strong>Loại:</strong> <?= $info['type'] == 1 ? 'Thu' : 'Chi' ?></p>
+        <p><strong>Số tiền:</strong> <?= number_format($info['amount'], 2) ?> VND</p>
         <input type="hidden" name="confirm" value="yes">
         <button type="submit">✅ Đồng ý</button>
         <a href="dashboard.php">❌ Hủy</a>
