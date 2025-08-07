@@ -543,12 +543,10 @@ $typeLabels = [
             <div class="stats-inline">
               <span>🔼 Tổng thu: <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong></span>
               <span>🔽 Tổng chi: <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong></span>
-            </div>
         
-            <!-- Nút lọc/làm mới -->
-            <div class="filter-buttons">
               <button type="submit">Lọc</button>
               <a href="dashboard.php" class="reset">🧹 Làm mới</a>
+            </div>
             </div>
         </form>
 
