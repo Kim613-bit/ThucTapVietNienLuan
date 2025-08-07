@@ -390,6 +390,10 @@ $typeLabels = [
                             <td><?= !empty($row['description']) ? htmlspecialchars($row['description']) : '-' ?></td>
                             <td><?= number_format($row['remaining_balance'] ?? 0, 0, ',', '.') ?> VND</td>
                             <td><?= htmlspecialchars($row['account_name']) ?></td>
+                            <td>
+                              <a href="edit_transaction.php?id=<?= $row['id'] ?>">✏️ Sửa</a> |
+                              <a href="delete_transaction.php?id=<?= $row['id'] ?>" onclick="return confirm('Bạn có chắc muốn xoá giao dịch này?')">🗑️ Xoá</a>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </table>
