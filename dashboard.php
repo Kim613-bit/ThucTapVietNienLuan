@@ -164,8 +164,9 @@ $typeLabels = [
     .dashboard-wrapper {
       display: grid;
       grid-template-columns: var(--sidebar-width) 1fr;
-      max-width: 1200px;
-      margin: 0 auto;
+      width: 100%;         
+      max-width: none;    
+      margin: 0;       
       gap: var(--spacing);
       padding: var(--spacing);
       border-radius: var(--border-radius);
