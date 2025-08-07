@@ -371,33 +371,6 @@ $typeLabels = [
       font-weight: 600;
       border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
-    .stats-filter-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap; /* nếu màn hình nhỏ thì tự xuống dòng */
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap; /* Tự xuống dòng nếu màn hình nhỏ */
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    
-    .stats-inline {
-      display: flex;
-      gap: 20px;
-      font-size: 16px;
-    }
-    
-    .stats-inline span strong {
-      margin-left: 5px;
-      color: #2c3e50;
-    }
     
     .filter-buttons button,
     .filter-buttons .reset {
@@ -409,7 +382,50 @@ $typeLabels = [
     .filter-buttons .reset {
       margin-left: 10px;
     }
+    .summary-total {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #1e293b;
+      display: flex;
+      justify-content: space-between;
+    }
     
+    .summary-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    
+    .btn-filter {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    
+    .btn-filter:hover {
+      background-color: #1d4ed8;
+    }
+    
+    .btn-reset {
+      background-color: #f3f4f6;
+      color: #374151;
+      padding: 8px 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .btn-reset:hover {
+      background-color: #e5e7eb;
+    }
+
     /* 6. Responsive */
     @media (max-width: 992px) {
       .dashboard-wrapper .sidebar {
@@ -548,17 +564,20 @@ $typeLabels = [
           </div>
     
           <!-- Tổng thu/chi chung -->
-          <div class="summary-row">
+          <div class="summary-total">
                 <span>🔼 Tổng thu:
                   <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong>
                 </span>
+              </div>
+            <div class="summary-total">
                 <span>🔽 Tổng chi:
                   <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong>
                 </span>
+            </div>
           </div>  
-            <div class="summary-row">
-                <button type="submit">Lọc</button>
-                <a href="dashboard.php" class="reset">🧹 Làm mới</a>
+            <div class="summary-actions">
+                <button type="submit" class="btn-filter">Lọc</button>
+                <a href="dashboard.php" class="btn-reset">🧹 Làm mới</a>
             </div>
         </form>
     
