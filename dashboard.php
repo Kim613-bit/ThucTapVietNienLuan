@@ -153,13 +153,20 @@ $typeLabels = [
       margin: 0; padding: 0;
     }
     body {
+      padding-top: 60px;
       font-family: 'Segoe UI', Tahoma, sans-serif;
       background: var(--color-bg);
       color: var(--color-text);
       line-height: 1.6;
     }
     a { text-decoration: none; color: inherit; }
-
+    .brand {
+      font-size: 1.75rem;      
+      font-weight: 700;        
+      letter-spacing: 1px;     
+      text-transform: uppercase;  
+      color: #fff;         
+    }
     /* 3. Layout chính */
     .dashboard-wrapper {
       display: grid;
@@ -420,7 +427,6 @@ $typeLabels = [
 
   <!-- Header -->
   <div class="header">
-    <button id="sidebar-toggle">☰</button>
     <div class="brand">Quản lý thu chi</div>
     <a href="profile.php" class="profile-link">
       <span>Xin chào, <?= htmlspecialchars($user['full_name']) ?></span>
