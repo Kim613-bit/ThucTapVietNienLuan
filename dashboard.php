@@ -383,6 +383,23 @@ $typeLabels = [
       font-weight: 600;
       border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
+    .stats-filter-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap; /* nếu màn hình nhỏ thì tự xuống dòng */
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .stats-inline span {
+      margin-right: 15px;
+    }
+    
+    .filter-buttons button,
+    .filter-buttons .reset {
+      margin-left: 10px;
+    }
 
     /* 6. Responsive */
     @media (max-width: 992px) {
@@ -522,20 +539,21 @@ $typeLabels = [
           </div>
     
           <!-- Tổng thu/chi chung -->
-          <div class="stats-inline">
-            <span>🔼 Tổng thu:
-              <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong>
-            </span>
-            <span>🔽 Tổng chi:
-              <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong>
-            </span>
-          </div>
-    
-          <!-- Nút Lọc / Làm mới -->
-          <div class="filter-buttons">
-            <button type="submit">Lọc</button>
-            <a href="dashboard.php" class="reset">🧹 Làm mới</a>
-          </div>
+          <div class="stats-filter-row">
+              <div class="stats-inline">
+                <span>🔼 Tổng thu:
+                  <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong>
+                </span>
+                <span>🔽 Tổng chi:
+                  <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong>
+                </span>
+              </div>
+            
+              <div class="filter-buttons">
+                <button type="submit">Lọc</button>
+                <a href="dashboard.php" class="reset">🧹 Làm mới</a>
+              </div>
+            </div>
         </form>
     
         <!-- Grouped Transactions -->
