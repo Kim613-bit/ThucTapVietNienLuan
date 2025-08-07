@@ -555,7 +555,8 @@ $typeLabels = [
                 <span>🔽 Tổng chi:
                   <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong>
                 </span>
-            
+          </div>  
+            <div class="summary-row">
                 <button type="submit">Lọc</button>
                 <a href="dashboard.php" class="reset">🧹 Làm mới</a>
             </div>
