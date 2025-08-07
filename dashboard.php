@@ -293,17 +293,6 @@ $typeLabels = [
       border-radius: 4px;
       font-size: 0.95rem;
     }
-    .stats-inline {
-      grid-column: 1 / -1;
-      display: flex;
-      gap: 16px;
-      font-size: 0.95rem;
-    }
-    .stats-inline span {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
     .filter-buttons {
       grid-column: 1 / -1;
       display: flex;
@@ -367,8 +356,7 @@ $typeLabels = [
       color: var(--color-danger);
       font-weight: 600;
     }
-    
-    
+     
     /* ——— Module: nhóm ngày ——— */
     .date-group {
       margin-top: 24px;
@@ -391,16 +379,37 @@ $typeLabels = [
       gap: 10px;
       margin-bottom: 15px;
     }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap; /* Tự xuống dòng nếu màn hình nhỏ */
+      gap: 10px;
+      margin-bottom: 20px;
+    }
     
-    .stats-inline span {
-      margin-right: 15px;
+    .stats-inline {
+      display: flex;
+      gap: 20px;
+      font-size: 16px;
+    }
+    
+    .stats-inline span strong {
+      margin-left: 5px;
+      color: #2c3e50;
     }
     
     .filter-buttons button,
     .filter-buttons .reset {
       margin-left: 10px;
+      padding: 6px 12px;
+      font-size: 14px;
     }
-
+    .filter-buttons button,
+    .filter-buttons .reset {
+      margin-left: 10px;
+    }
+    
     /* 6. Responsive */
     @media (max-width: 992px) {
       .dashboard-wrapper .sidebar {
@@ -539,7 +548,7 @@ $typeLabels = [
           </div>
     
           <!-- Tổng thu/chi chung -->
-          <div class="stats-filter-row">
+          <div class="summary-row">
               <div class="stats-inline">
                 <span>🔼 Tổng thu:
                   <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong>
