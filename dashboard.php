@@ -564,18 +564,18 @@ $typeLabels = [
           </div>
     
           <!-- Tổng thu/chi chung -->
-          <div class="summary-total">
+          <div class="">
                 <span>🔼 Tổng thu:
                   <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong>
                 </span>
               </div>
-            <div class="summary-total">
+            <div class="">
                 <span>🔽 Tổng chi:
                   <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong>
                 </span>
             </div>
           </div>  
-            <div class="">
+            <div class="summary-actions">
                 <button type="submit" class="btn-filter">Lọc</button>
                 <a href="dashboard.php" class="btn-reset">🧹 Làm mới</a>
             </div>
