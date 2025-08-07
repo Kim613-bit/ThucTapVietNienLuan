@@ -537,7 +537,6 @@ $typeLabels = [
                   <!-- PHP render tài khoản -->
                 </select>
               </div>
-            </div>
         
             <!-- Tổng thu/chi -->
             <div class="stats-inline">
@@ -550,6 +549,7 @@ $typeLabels = [
               <button type="submit">Lọc</button>
               <a href="dashboard.php" class="reset">🧹 Làm mới</a>
             </div>
+           </div>   
           </div>
         </form>
 
