@@ -387,7 +387,15 @@ $typeLabels = [
                             <td class="<?= $row['type'] == 0 ? 'amount-income' : ($row['type'] == 1 ? 'amount-expense' : '') ?>">
                                 <?= (isset($row['type']) && $row['type'] == 2 ? '0' : number_format($row['amount'] ?? 0, 0, ',', '.')) ?> VND
                             </td>
-                            <td><?= !empty($row['description']) ? htmlspecialchars($row['description']) : '-' ?></td>
+                            <td>
+                                <?php
+                                $desc = $row['description'];
+                                if (strpos($desc, 'Tạo tài khoản mới:') === 0) {
+                                    $desc = 'Tạo khoản tiền mới';
+                                }
+                                echo !empty($desc) ? htmlspecialchars($desc) : '-';
+                                ?>
+                            </td>
                             <td><?= number_format($row['remaining_balance'] ?? 0, 0, ',', '.') ?> VND</td>
                             <td><?= htmlspecialchars($row['account_name']) ?></td>
                             <td>
