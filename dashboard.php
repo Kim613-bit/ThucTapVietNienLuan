@@ -267,46 +267,32 @@ $typeLabels = [
     
     
     /* ——— Module: filter form ——— */
-    .filter-panel-horizontal {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 16px;
-          align-items: flex-end;
-          background: var(--color-card);
-          padding: var(--spacing);
-          border-radius: var(--border-radius);
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-          margin-bottom: var(--spacing);
-        }
-        
-        .filter-panel-horizontal .form-group {
-          display: flex;
-          flex-direction: column;
-          min-width: 140px;
-          flex: 1;
-        }
-        
-        .filter-panel-horizontal .stats-inline {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          min-width: 160px;
-          font-size: 0.95rem;
-        }
-        
-        .filter-panel-horizontal .filter-buttons {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-          min-width: 120px;
-        }
-        
-          .filter-panel-horizontal .stats-inline,
-          .filter-panel-horizontal .filter-buttons {
-            flex-direction: row;
-            justify-content: space-between;
-          }
-
+    .filter-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing);
+      background: var(--color-card);
+      padding: var(--spacing);
+      border-radius: var(--border-radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: var(--spacing);
+    }
+    .filter-panel .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .filter-panel label {
+      font-size: 0.85rem;
+      color: var(--color-muted);
+      margin-bottom: 6px;
+    }
+    .filter-panel input,
+    .filter-panel select {
+      padding: 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
     .stats-inline {
       grid-column: 1 / -1;
       display: flex;
@@ -422,15 +408,17 @@ $typeLabels = [
       min-width: 150px;
     }
     
+    .stats-inline {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 180px;
+    }
+    
     .filter-buttons {
       display: flex;
       flex-direction: column;
       gap: 5px;
-    }
-      
-    input, select, button {
-      font-family: inherit;
-      font-size: 1rem;
     }
 
     /* 6. Responsive */
@@ -460,13 +448,7 @@ $typeLabels = [
         transform: translateX(0);
       }
     }
-    @media (max-width: 768px) {
-      .filter-panel-horizontal {
-        flex-direction: column;
-        align-items: stretch;
-      }
-    }
-      
+
     @media (max-width: 600px) {
       .filter-panel {
         grid-template-columns: 1fr;
@@ -520,54 +502,54 @@ $typeLabels = [
         </div>
     
         <!-- Filter Form -->
-        <form method="get" class="filter-panel-horizontal">
-          <div class="form-group">
-            <label for="from_date">Từ ngày</label>
-            <input type="date" id="from_date" name="from_date" value="<?= htmlspecialchars($from_date) ?>">
-          </div>
-          <div class="form-group">
-            <label for="to_date">Đến ngày</label>
-            <input type="date" id="to_date" name="to_date" value="<?= htmlspecialchars($to_date) ?>">
-          </div>
-          <div class="form-group">
-            <label for="type">Loại</label>
-            <select id="type" name="type">
-              <option value="all" <?= $filter_type === 'all'? 'selected':'' ?>>Tất cả</option>
-              <option value="0" <?= $filter_type === '0'? 'selected':'' ?>>Thu</option>
-              <option value="1" <?= $filter_type === '1'? 'selected':'' ?>>Chi</option>
-              <option value="2" <?= $filter_type === '2'? 'selected':'' ?>>Cập nhật</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="description">Mô tả</label>
-            <select id="description" name="description">
-              <option value="">Tất cả</option>
-              <?php while ($desc = pg_fetch_assoc($result_desc)): ?>
-                <option value="<?= htmlspecialchars($desc['description']) ?>"
-                  <?= $desc['description'] === $filter_description ? 'selected' : '' ?>>
-                  <?= htmlspecialchars($desc['description']) ?>
-                </option>
-              <?php endwhile; ?>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="account_id">Khoản tiền</label>
-            <select id="account_id" name="account_id">
-              <option value="0" <?= $filter_account===0? 'selected':'' ?>>Tất cả</option>
-              <?php foreach ($accounts as $acc): ?>
-                <option value="<?= $acc['id'] ?>" <?= $filter_account===$acc['id']? 'selected':'' ?>>
-                  <?= htmlspecialchars($acc['name']) ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-          <div class="stats-inline">
-            <span>🔼 Tổng thu: <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong></span>
-            <span>🔽 Tổng chi: <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong></span>
-          </div>
-          <div class="filter-buttons">
-            <button type="submit">Lọc</button>
-            <a href="dashboard.php" class="reset">🧹 Làm mới</a>
+        <form method="get" class="filter-panel">
+          <div class="filter-row">
+            <!-- Các bộ lọc -->
+            <div class="filters">
+              <div class="form-group">
+                <label for="from_date">Từ ngày</label>
+                <input type="date" id="from_date" name="from_date" value="<?= htmlspecialchars($from_date) ?>">
+              </div>
+              <div class="form-group">
+                <label for="to_date">Đến ngày</label>
+                <input type="date" id="to_date" name="to_date" value="<?= htmlspecialchars($to_date) ?>">
+              </div>
+              <div class="form-group">
+                <label for="type">Loại</label>
+                <select id="type" name="type">
+                  <option value="all" <?= $filter_type === 'all'? 'selected':'' ?>>Tất cả</option>
+                  <option value="0" <?= $filter_type === '0'? 'selected':'' ?>>Thu</option>
+                  <option value="1" <?= $filter_type === '1'? 'selected':'' ?>>Chi</option>
+                  <option value="2" <?= $filter_type === '2'? 'selected':'' ?>>Cập nhật</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="description">Mô tả</label>
+                <select id="description" name="description">
+                  <option value="">Tất cả</option>
+                  <!-- PHP render mô tả -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="account_id">Khoản tiền</label>
+                <select id="account_id" name="account_id">
+                  <option value="0" <?= $filter_account===0? 'selected':'' ?>>Tất cả</option>
+                  <!-- PHP render tài khoản -->
+                </select>
+              </div>
+            </div>
+        
+            <!-- Tổng thu/chi -->
+            <div class="stats-inline">
+              <span>🔼 Tổng thu: <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong></span>
+              <span>🔽 Tổng chi: <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong></span>
+            </div>
+        
+            <!-- Nút lọc/làm mới -->
+            <div class="filter-buttons">
+              <button type="submit">Lọc</button>
+              <a href="dashboard.php" class="reset">🧹 Làm mới</a>
+            </div>
           </div>
         </form>
 
