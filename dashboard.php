@@ -420,27 +420,6 @@ $typeLabels = [
       flex-direction: column;
       gap: 5px;
     }
-    .filter-panel-horizontal label {
-      font-weight: 600;
-      margin-bottom: 4px;
-      color: var(--color-muted);
-    }
-    
-    .filter-panel-horizontal input,
-    .filter-panel-horizontal select {
-      padding: 8px 10px;
-      border: 1px solid #cbd5e1;
-      border-radius: var(--border-radius);
-      background: #fff;
-      color: var(--color-text);
-      transition: border var(--transition-speed);
-    }
-    
-    .filter-panel-horizontal input:focus,
-    .filter-panel-horizontal select:focus {
-      border-color: var(--color-primary);
-      outline: none;
-    }
       
     /* 6. Responsive */
     @media (max-width: 992px) {
@@ -523,7 +502,7 @@ $typeLabels = [
         </div>
     
         <!-- Filter Form -->
-        <form method="get" class="filter-panel-horizontal">
+        <form method="get" class="filter-panel">
           <div class="form-group">
             <label for="from_date">📅 Từ ngày</label>
             <input type="date" id="from_date" name="from_date" value="<?= htmlspecialchars($from_date) ?>">
