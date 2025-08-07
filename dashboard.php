@@ -575,7 +575,7 @@ $typeLabels = [
                 </span>
             </div>
           </div>  
-            <div class="summary-actions">
+            <div class="">
                 <button type="submit" class="btn-filter">Lọc</button>
                 <a href="dashboard.php" class="btn-reset">🧹 Làm mới</a>
             </div>
