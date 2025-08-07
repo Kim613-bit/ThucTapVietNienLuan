@@ -67,25 +67,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // 4. Lưu user mới
     if (empty($errors)) {
-        $hash = password_hash($old['password'], PASSWORD_DEFAULT);
-        $res = pg_query_params($conn,
-            "INSERT INTO users (username,password,fullname,birthyear,email,avatar)
-             VALUES ($1,$2,$3,$4,$5,$6)",
-            [
-              $old['username'],
-              $hash,
-              $old['fullname'],
-              $by,
-              $old['email'],
-              $avatar
-            ]
-        );
-        if ($res) {
-            $success = "Tạo tài khoản thành công!<br>Bạn có thể <a href='login.php'>đăng nhập</a>.";
-            $old = [];  // Xoá data cũ
-        } else {
-            $errors['general'] = "Lỗi khi tạo tài khoản, vui lòng thử lại.";
-        }
+        // Tạo mã OTP ngẫu nhiên
+        $otp = rand(100000, 999999);
+        $_SESSION['otp'] = $otp;
+        $_SESSION['pending_user'] = [
+            'username'  => $old['username'],
+            'password'  => password_hash($old['password'], PASSWORD_DEFAULT),
+            'fullname'  => $old['fullname'],
+            'birthyear' => $by,
+            'email'     => $old['email'],
+            'avatar'    => $avatar
+        ];
+    
+        // Gửi email OTP
+        require 'send_mail.php'; // Đảm bảo file này có hàm send_otp_email
+        send_otp_email($old['email'], $otp);
+    
+        // Chuyển hướng đến trang xác nhận OTP
+        header("Location: verify_otp.php");
+        exit;
+    }
     }
 }
 ?>
