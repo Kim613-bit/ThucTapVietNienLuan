@@ -550,7 +550,6 @@ $typeLabels = [
               <button type="submit">Lọc</button>
               <a href="dashboard.php" class="reset">🧹 Làm mới</a>
             </div>
-          </div>
         </form>
 
         <!-- Grouped Transactions -->
