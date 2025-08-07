@@ -382,20 +382,6 @@ $typeLabels = [
     .filter-buttons .reset {
       margin-left: 10px;
     }
-    .summary-total {
-      font-size: 1rem;
-      font-weight: 500;
-      margin-bottom: 8px;
-      color: #1e293b;
-      display: flex;
-      justify-content: space-between;
-    }
-    
-    .summary-actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 12px;
-    }
     
     .btn-filter {
       background-color: #2563eb;
@@ -575,7 +561,7 @@ $typeLabels = [
                 </span>
             </div>
           </div>  
-            <div class="summary-actions">
+            <div class="">
                 <button type="submit" class="btn-filter">Lọc</button>
                 <a href="dashboard.php" class="btn-reset">🧹 Làm mới</a>
             </div>
