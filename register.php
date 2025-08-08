@@ -47,9 +47,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $errors['fullname'] = "Họ và tên chỉ chứa chữ và khoảng trắng!";
     }
 
-    // 2.4 Email chuẩn RFC
+    // 2.4 Email chuẩn RFC + giới hạn 50 ký tự
     if (!filter_var($old['email'], FILTER_VALIDATE_EMAIL)) {
         $errors['email'] = "Email không đúng định dạng!";
+    }
+    elseif (strlen($old['email']) > 50) {
+        $errors['email'] = "Email không được vượt quá 50 ký tự!";
     }
 
     // 2.5 Birthyear: 1900 → năm hiện tại
@@ -193,12 +196,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
       <!-- Email -->
       <input
-        type="email"
-        name="email"
-        placeholder="Email"
-        value="<?= htmlspecialchars($old['email'] ?? '') ?>"
-        required
-      />
+          type="email"
+          name="email"
+          placeholder="Email"
+          value="<?= htmlspecialchars($old['email'] ?? '') ?>"
+          required
+          maxlength="50"
+          title="Email hợp lệ, tối đa 50 ký tự"
+        />
       <div class="error"><?= $errors['email'] ?? '' ?></div>
 
       <button type="submit">Đăng ký</button>
