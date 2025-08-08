@@ -461,6 +461,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       }
     });
   });
+    document.querySelector("form").addEventListener("submit", function (e) {
+      const input = document.querySelector("#transaction_time");
+      const parts = input.value.split(/[/ :]/); // [dd, mm, yyyy, HH, ii]
+      if (parts.length >= 5) {
+        const formatted = `${parts[2]}-${parts[1]}-${parts[0]} ${parts[3]}:${parts[4]}:00`;
+        input.value = formatted;
+      }
+    });
     flatpickr(".flatpickr-wrapper", {
       dateFormat: "d/m/Y",
       locale: "vi",
