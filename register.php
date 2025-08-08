@@ -18,15 +18,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $old['email']     = trim($_POST["email"]     ?? "");
 
     // 2. Server-side validation
-
-    // 2.1 Username: 1–50 ký tự, chỉ chữ và số
-    if (strlen($old['username']) < 1 || strlen($old['username']) > 50) {
-        $errors['username'] = "Tên đăng nhập phải từ 1–50 ký tự!";
+    // 2.1 Username: 1–30 ký tự, chỉ chữ và số
+    if (strlen($old['username']) < 1 || strlen($old['username']) > 30) {
+        $errors['username'] = "Tên đăng nhập phải từ 1–30 ký tự!";
     }
     elseif (!preg_match('/^[A-Za-z0-9]+$/', $old['username'])) {
         $errors['username'] = "Tên đăng nhập chỉ chứa chữ và số, không khoảng trắng!";
     }
-
+    
     // 2.2 Password & Confirm
     if (!isset($errors['username'])) {
         if ($old['password'] !== $old['confirm']) {
@@ -35,10 +34,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         elseif (!preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*\W).{6,}$/', $old['password'])) {
             $errors['password'] = "Mật khẩu ít nhất 6 ký tự, có 1 hoa, 1 số, 1 ký tự đặc biệt!";
         }
+        elseif (strlen($old['password']) > 30) {
+            $errors['password'] = "Mật khẩu không được vượt quá 30 ký tự!";
+        }
     }
-
-    // 2.3 Fullname: chỉ chữ (có dấu) và khoảng trắng
-    if (!preg_match('/^[A-Za-zÀ-ỵ\s]+$/u', $old['fullname'])) {
+    
+    // 2.3 Fullname: chỉ chữ (có dấu) và khoảng trắng, tối đa 30 ký tự
+    if (strlen($old['fullname']) > 30) {
+        $errors['fullname'] = "Họ và tên không được vượt quá 30 ký tự!";
+    }
+    elseif (!preg_match('/^[A-Za-zÀ-ỵ\s]+$/u', $old['fullname'])) {
         $errors['fullname'] = "Họ và tên chỉ chứa chữ và khoảng trắng!";
     }
 
@@ -128,26 +133,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <form method="post" novalidate>
       <!-- Username -->
       <input
-        type="text"
-        name="username"
-        placeholder="Tên đăng nhập"
-        value="<?= htmlspecialchars($old['username'] ?? '') ?>"
-        required
-        maxlength="50"
-        pattern="^[A-Za-z0-9]{1,50}$"
-        title="1–50 ký tự, chỉ chữ và số"
-      />
+          type="text"
+          name="username"
+          placeholder="Tên đăng nhập"
+          value="<?= htmlspecialchars($old['username'] ?? '') ?>"
+          required
+          maxlength="30"
+          pattern="^[A-Za-z0-9]{1,30}$"
+          title="1–30 ký tự, chỉ chữ và số"
+        />
       <div class="error"><?= $errors['username'] ?? '' ?></div>
 
       <!-- Password -->
       <input
-        type="password"
-        name="password"
-        placeholder="Mật khẩu (6+ ký tự, 1 hoa, 1 số, 1 đặc biệt)"
-        required
-        pattern="(?=.*[A-Z])(?=.*\d)(?=.*\W).{6,}"
-        title="Ít nhất 6 ký tự, 1 chữ hoa, 1 số, 1 ký tự đặc biệt"
-      />
+          type="password"
+          name="password"
+          placeholder="Mật khẩu (6–30 ký tự, 1 hoa, 1 số, 1 đặc biệt)"
+          required
+          maxlength="30"
+          pattern="(?=.*[A-Z])(?=.*\d)(?=.*\W).{6,30}"
+          title="6–30 ký tự, 1 chữ hoa, 1 số, 1 ký tự đặc biệt"
+        />
       <div class="error"><?= $errors['password'] ?? '' ?></div>
 
       <!-- Confirm Password -->
@@ -162,14 +168,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
       <!-- Fullname -->
       <input
-        type="text"
-        name="fullname"
-        placeholder="Họ và tên"
-        value="<?= htmlspecialchars($old['fullname'] ?? '') ?>"
-        required
-        pattern="^[A-Za-zÀ-ỵ\s]+$"
-        title="Chỉ chứa chữ và khoảng trắng"
-      />
+          type="text"
+          name="fullname"
+          placeholder="Họ và tên"
+          value="<?= htmlspecialchars($old['fullname'] ?? '') ?>"
+          required
+          maxlength="30"
+          pattern="^[A-Za-zÀ-ỵ\s]{1,30}$"
+          title="Tối đa 30 ký tự, chỉ chứa chữ và khoảng trắng"
+        />
       <div class="error"><?= $errors['fullname'] ?? '' ?></div>
 
       <!-- Birthyear -->
