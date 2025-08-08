@@ -269,7 +269,7 @@ $typeLabels = [
     /* ——— Module: filter form ——— */
     .filter-panel {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(6, 1fr));
       gap: var(--spacing);
       background: var(--color-card);
       padding: var(--spacing);
@@ -404,7 +404,7 @@ $typeLabels = [
     .form-group {
       display: flex;
       flex-direction: column;
-      min-width: 150px;
+      min-width: 100%;
     }
     
     .stats-inline {
