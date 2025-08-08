@@ -18,9 +18,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $old['email']     = trim($_POST["email"]     ?? "");
 
     // 2. Server-side validation
-    // 2.1 Username: 1–30 ký tự, chỉ chữ và số
-    if (strlen($old['username']) < 1 || strlen($old['username']) > 30) {
-        $errors['username'] = "Tên đăng nhập phải từ 1–30 ký tự!";
+    // 2.1 Username: 1–50 ký tự, chỉ chữ và số
+    if (strlen($old['username']) < 1 || strlen($old['username']) > 50) {
+        $errors['username'] = "Tên đăng nhập phải từ 1–50 ký tự!";
     }
     elseif (!preg_match('/^[A-Za-z0-9]+$/', $old['username'])) {
         $errors['username'] = "Tên đăng nhập chỉ chứa chữ và số, không khoảng trắng!";
@@ -34,14 +34,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         elseif (!preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*\W).{6,}$/', $old['password'])) {
             $errors['password'] = "Mật khẩu ít nhất 6 ký tự, có 1 hoa, 1 số, 1 ký tự đặc biệt!";
         }
-        elseif (strlen($old['password']) > 30) {
-            $errors['password'] = "Mật khẩu không được vượt quá 30 ký tự!";
+        elseif (strlen($old['password']) > 50) {
+            $errors['password'] = "Mật khẩu không được vượt quá 50 ký tự!";
         }
     }
     
-    // 2.3 Fullname: chỉ chữ (có dấu) và khoảng trắng, tối đa 30 ký tự
-    if (strlen($old['fullname']) > 30) {
-        $errors['fullname'] = "Họ và tên không được vượt quá 30 ký tự!";
+    // 2.3 Fullname: chỉ chữ (có dấu) và khoảng trắng, tối đa 50 ký tự
+    if (strlen($old['fullname']) > 50) {
+        $errors['fullname'] = "Họ và tên không được vượt quá 50 ký tự!";
     }
     elseif (!preg_match('/^[A-Za-zÀ-ỵ\s]+$/u', $old['fullname'])) {
         $errors['fullname'] = "Họ và tên chỉ chứa chữ và khoảng trắng!";
@@ -103,7 +103,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     * { box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background:#f1f1f1; margin:0; padding:0;
            display:flex; align-items:center; justify-content:center; min-height:100vh; }
-    .container { background:#fff; padding:30px; border-radius:12px;
+    .container { background:#fff; padding:50px; border-radius:12px;
                  box-shadow:0 0 12px rgba(0,0,0,0.08); width:100%; max-width:400px; }
     h2 { text-align:center; margin-bottom:20px; }
     input, button { width:100%; padding:12px; font-size:15px; border-radius:8px; }
@@ -138,9 +138,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           placeholder="Tên đăng nhập"
           value="<?= htmlspecialchars($old['username'] ?? '') ?>"
           required
-          maxlength="30"
-          pattern="^[A-Za-z0-9]{1,30}$"
-          title="1–30 ký tự, chỉ chữ và số"
+          maxlength="50"
+          pattern="^[A-Za-z0-9]{1,50}$"
+          title="1–50 ký tự, chỉ chữ và số"
         />
       <div class="error"><?= $errors['username'] ?? '' ?></div>
 
@@ -148,11 +148,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <input
           type="password"
           name="password"
-          placeholder="Mật khẩu (6–30 ký tự, 1 hoa, 1 số, 1 đặc biệt)"
+          placeholder="Mật khẩu (6–50 ký tự, 1 hoa, 1 số, 1 đặc biệt)"
           required
-          maxlength="30"
-          pattern="(?=.*[A-Z])(?=.*\d)(?=.*\W).{6,30}"
-          title="6–30 ký tự, 1 chữ hoa, 1 số, 1 ký tự đặc biệt"
+          maxlength="50"
+          pattern="(?=.*[A-Z])(?=.*\d)(?=.*\W).{6,50}"
+          title="6–50 ký tự, 1 chữ hoa, 1 số, 1 ký tự đặc biệt"
         />
       <div class="error"><?= $errors['password'] ?? '' ?></div>
 
@@ -173,9 +173,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           placeholder="Họ và tên"
           value="<?= htmlspecialchars($old['fullname'] ?? '') ?>"
           required
-          maxlength="30"
-          pattern="^[A-Za-zÀ-ỵ\s]{1,30}$"
-          title="Tối đa 30 ký tự, chỉ chứa chữ và khoảng trắng"
+          maxlength="50"
+          pattern="^[A-Za-zÀ-ỵ\s]{1,50}$"
+          title="Tối đa 50 ký tự, chỉ chứa chữ và khoảng trắng"
         />
       <div class="error"><?= $errors['fullname'] ?? '' ?></div>
 
