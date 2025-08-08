@@ -6,7 +6,7 @@ require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 
-function sendOTP($toEmail, $otp) {
+function sendOTP($toEmail, $otp, $type = 'register') {
     $mail = new PHPMailer(true);
 
     try {
@@ -14,28 +14,34 @@ function sendOTP($toEmail, $otp) {
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'phanthang08bn@gmail.com'; // Thay bằng email của bạn
-        $mail->Password = 'mxihfanfjmjlttlj'; // Thay bằng mật khẩu ứng dụng
-        $mail->setFrom('phanthang08bn@gmail.com', 'Quản lý thu chi');
+        $mail->Username = 'phanthang08bn@gmail.com';
+        $mail->Password = 'mxihfanfjmjlttlj';
         $mail->SMTPSecure = 'tls';
         $mail->Port = 587;
 
-        // Thiết lập người gửi & người nhận
-        $mail->setFrom('your_email@gmail.com', 'Email khôi phục tài khoản.');
+        $mail->setFrom('phanthang08bn@gmail.com', 'Email hệ thống');
         $mail->addAddress($toEmail);
-
         $mail->CharSet = 'UTF-8';
         $mail->Encoding = 'base64';
-
-        // Nội dung email
         $mail->isHTML(true);
-        $mail->Subject = 'Mã OTP đặt lại mật khẩu';
-        $mail->Body    = "Mã OTP của bạn là: <b>$otp</b>. Mã có hiệu lực trong 10 phút.";
+
+        // Nội dung email tùy theo loại
+        if ($type === 'register') {
+            $mail->Subject = 'Mã OTP đăng ký tài khoản';
+            $mail->Body    = "Xin chào,<br><br>Mã OTP để hoàn tất đăng ký tài khoản của bạn là: <b>$otp</b>.<br>Mã có hiệu lực trong 10 phút.<br><br>Trân trọng.";
+        } elseif ($type === 'reset') {
+            $mail->Subject = 'Mã OTP khôi phục mật khẩu';
+            $mail->Body    = "Xin chào,<br><br>Mã OTP để đặt lại mật khẩu của bạn là: <b>$otp</b>.<br>Mã có hiệu lực trong 10 phút.<br><br>Trân trọng.";
+        } else {
+            $mail->Subject = 'Mã OTP hệ thống';
+            $mail->Body    = "Mã OTP của bạn là: <b>$otp</b>.";
+        }
 
         $mail->send();
         return true;
     } catch (Exception $e) {
-        echo "Lỗi gửi email: " . $mail->ErrorInfo; // In ra lỗi cụ thể
+        echo "Lỗi gửi email: " . $mail->ErrorInfo;
         return false;
     }
 }
+
