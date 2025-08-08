@@ -312,6 +312,13 @@ $typeLabels = [
       align-items: center;
       gap: 12px;
     }
+      .filter-buttons button,
+    .filter-buttons .reset {
+      padding: 10px 16px;
+      border-radius: var(--border-radius);
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
     .filter-buttons button {
       background: var(--color-primary);
       color: #fff;
