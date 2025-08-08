@@ -293,13 +293,19 @@ $typeLabels = [
       border-radius: 4px;
       font-size: 0.95rem;
     }
+    .filter-summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-top: 12px;
+      padding: 0 8px;
+    }
     .stats-inline {
       display: flex;
-      justify-content: flex-start;
-      align-items: center;
       gap: 24px;
       font-size: 0.95rem;
-      flex: 1;
+      color: var(--color-text);
     }
     .stats-inline span {
       display: flex;
@@ -308,8 +314,6 @@ $typeLabels = [
     }
     .filter-buttons {
       display: flex;
-      justify-content: flex-end;
-      align-items: center;
       gap: 12px;
     }
       .filter-buttons button,
@@ -454,8 +458,12 @@ $typeLabels = [
       }
     }
     @media (max-width: 768px) {
-      .filters {
-        grid-template-columns: repeat(2, 1fr); /* chia 2 cột khi màn nhỏ */
+      .filter-summary-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .filter-buttons {
+        margin-top: 8px;
       }
     }
     @media (max-width: 600px) {
@@ -554,7 +562,7 @@ $typeLabels = [
             </div>
               
             <!-- Tổng thu/chi -->
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="filter-summary-row">
               <div class="stats-inline">
                 <span>🔼 Tổng thu: <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong></span>
                 <span>🔽 Tổng chi: <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong></span>
