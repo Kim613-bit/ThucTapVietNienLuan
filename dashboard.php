@@ -395,16 +395,15 @@ $typeLabels = [
     }
     
     .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr); /* 5 cột đều nhau */
+      gap: 16px;
+      width: 100%;
     }
     
     .form-group {
       display: flex;
       flex-direction: column;
-      min-width: 100%;
     }
     
     .stats-inline {
@@ -447,7 +446,11 @@ $typeLabels = [
         transform: translateX(0);
       }
     }
-
+    @media (max-width: 768px) {
+      .filters {
+        grid-template-columns: repeat(2, 1fr); /* chia 2 cột khi màn nhỏ */
+      }
+    }
     @media (max-width: 600px) {
       .filter-panel {
         grid-template-columns: 1fr;
