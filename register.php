@@ -81,7 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     
         // Gửi email OTP
         require 'send_mail.php'; // Đảm bảo file này có hàm send_otp_email
-        sendOTP($old['email'], $otp);
+        sendOTP($old['email'], $otp, 'register');
     
         // Chuyển hướng đến trang xác nhận OTP
         header("Location: verify_register_otp.php");
