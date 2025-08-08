@@ -19,7 +19,6 @@ function sendOTP($toEmail, $otp, $type = 'register') {
         $mail->SMTPSecure = 'tls';
         $mail->Port = 587;
 
-        $mail->setFrom('phanthang08bn@gmail.com', 'Email hệ thống');
         $mail->addAddress($toEmail);
         $mail->CharSet = 'UTF-8';
         $mail->Encoding = 'base64';
@@ -27,9 +26,11 @@ function sendOTP($toEmail, $otp, $type = 'register') {
 
         // Nội dung email tùy theo loại
         if ($type === 'register') {
+            $mail->setFrom('phanthang08bn@gmail.com', 'Email xác minh đăng ký tài khoản');
             $mail->Subject = 'Mã OTP đăng ký tài khoản';
             $mail->Body    = "Xin chào,<br><br>Mã OTP để hoàn tất đăng ký tài khoản của bạn là: <b>$otp</b>.<br>Mã có hiệu lực trong 10 phút.<br><br>Trân trọng.";
         } elseif ($type === 'reset') {
+            $mail->setFrom('phanthang08bn@gmail.com', 'Email xác minh đặt lại mật khẩu');
             $mail->Subject = 'Mã OTP khôi phục mật khẩu';
             $mail->Body    = "Xin chào,<br><br>Mã OTP để đặt lại mật khẩu của bạn là: <b>$otp</b>.<br>Mã có hiệu lực trong 10 phút.<br><br>Trân trọng.";
         } else {
