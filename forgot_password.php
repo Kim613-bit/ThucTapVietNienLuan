@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         );
 
         include "send_mail.php";
-        if (sendOTP($email, $otp)) {
+        if (sendOTP($email, $otp, 'reset')) {
             $_SESSION["reset_email"] = $email;
             header("Location: verify_otp.php");
             exit();
