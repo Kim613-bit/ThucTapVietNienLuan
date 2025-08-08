@@ -118,6 +118,84 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
         * {
             box-sizing: border-box;
         }
+        :root {
+          --color-primary: #007BFF;
+          --color-danger: #dc3545;
+          --color-bg: #f9f9f9;
+          --color-box: #ffffff;
+          --color-border: #ccc;
+          --color-text: #333;
+          --radius: 0.5rem;
+        }
+        
+        body {
+          background-color: var(--color-bg);
+          font-family: 'Segoe UI', sans-serif;
+          color: var(--color-text);
+        }
+        
+        .profile-box {
+          background: var(--color-box);
+          border: 1px solid var(--color-border);
+          border-radius: var(--radius);
+          padding: 1.5rem;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        
+        .profile-box label {
+          font-weight: bold;
+          margin-top: 0.5rem;
+          display: block;
+        }
+        
+        .profile-box input[type="text"],
+        .profile-box input[type="number"],
+        .profile-box input[type="email"],
+        .profile-box input[type="file"] {
+          width: 100%;
+          padding: 0.6rem;
+          margin-top: 0.25rem;
+          margin-bottom: 1rem;
+          border: 1px solid var(--color-border);
+          border-radius: 0.3rem;
+        }
+        
+        .profile-box button {
+          padding: 0.75rem 1rem;
+          border: none;
+          border-radius: 0.3rem;
+          font-size: 1rem;
+          cursor: pointer;
+          margin-top: 0.5rem;
+        }
+        
+        button[type="submit"] {
+          background-color: var(--color-primary);
+          color: white;
+        }
+        
+        button[type="submit"]:hover {
+          background-color: #0056b3;
+        }
+        
+        .btn-delete {
+          background-color: var(--color-danger);
+          color: white;
+        }
+        
+        .btn-delete:hover {
+          background-color: #a71d2a;
+        }
+        
+        .profile-box img {
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          object-fit: cover;
+          margin-bottom: 1rem;
+          border: 2px solid var(--color-primary);
+        }
+
         html, body {
             margin: 0;
             padding: 0;
