@@ -86,6 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Chuyển hướng đến trang xác nhận OTP
         header("Location: verify_register_otp.php");
         exit;
+    }
 }
 ?>
 <!DOCTYPE html>
