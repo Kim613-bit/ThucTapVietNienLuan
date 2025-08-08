@@ -3,6 +3,11 @@ session_start();
 include "db.php";
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
+$sql_user = "SELECT username, full_name, avatar FROM users WHERE id = $1";
+$result = pg_query_params($conn, $sql_user, [$_SESSION['user_id']]);
+$user = pg_fetch_assoc($result);
+$avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem.png');
+
 if (!function_exists('bcadd')) {
     function bcadd($left_operand, $right_operand, $scale = 2) {
         // Fallback dùng toán học thường (không hoàn toàn chính xác với số lớn)
@@ -431,7 +436,14 @@ $typeLabels = [
       flex-direction: column;
       gap: 5px;
     }
-
+    .profile-link img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-left: 10px;
+      border: 2px solid white;
+    }
     /* 6. Responsive */
     @media (max-width: 992px) {
       .dashboard-wrapper .sidebar {
