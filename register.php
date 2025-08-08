@@ -16,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $old['fullname']  = trim($_POST["fullname"]  ?? "");
     $old['birthyear'] =             $_POST["birthyear"] ?? "";
     $old['email']     = trim($_POST["email"]     ?? "");
-}
+
     // 2. Server-side validation
 
     // 2.1 Username: 1–50 ký tự, chỉ chữ và số
@@ -86,8 +86,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Chuyển hướng đến trang xác nhận OTP
         header("Location: verify_register_otp.php");
         exit;
-    }
-    }
 }
 ?>
 <!DOCTYPE html>
