@@ -66,175 +66,260 @@ $feedbacks    = $params_filter
     <meta charset="UTF-8">
     <title>📬 Phản hồi người dùng</title>
     <style>
-        body { font-family: Arial; margin: 0; }
-        .header {
-            background: #6f42c1;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        :root {
+          --color-primary: #6f42c1;
+          --color-bg: #f1f1f1;
+          --color-card: #fff;
+          --color-border: #ccc;
+          --color-text: #333;
+          --color-success: #28a745;
+          --color-warning: #ffc107;
+          --color-muted: #888;
         }
-        .header .user {
-            display: flex;
-            align-items: center;
+        
+        body {
+          margin: 0;
+          font-family: Arial, sans-serif;
+          background: var(--color-bg);
         }
-        .header .user span {
-            font-weight: bold;
+        
+        .dashboard-wrapper {
+          display: flex;
+          min-height: 100vh;
         }
-        .header .user img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-left: 10px;
-            object-fit: cover;
-            border: 2px solid #fff;
-        }
-        .main { display: flex; }
+        
         .sidebar {
-            width: 250px;
-            background: #f5f5f5;
-            padding: 20px;
-            height: 100vh;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+          width: 240px;
+          background: var(--color-card);
+          padding: 20px;
+          box-shadow: 2px 0 5px rgba(0,0,0,0.05);
         }
-        .content { flex: 1; padding: 20px; overflow-y: auto; }
+        
+        .sidebar h3 {
+          margin-top: 0;
+          font-size: 18px;
+          color: var(--color-primary);
+        }
+        
+        .sidebar ul {
+          list-style: none;
+          padding: 0;
+        }
+        
+        .sidebar li {
+          margin-bottom: 10px;
+        }
+        
+        .sidebar a {
+          text-decoration: none;
+          color: var(--color-text);
+        }
+        
+        .content {
+          flex: 1;
+          padding: 30px;
+          background: var(--color-bg);
+        }
+        
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: var(--color-primary);
+          color: white;
+          padding: 15px 30px;
+        }
+        
+        .header h2 {
+          margin: 0;
+        }
+        
+        .header .user {
+          display: flex;
+          align-items: center;
+        }
+        
+        .header .user span {
+          font-weight: bold;
+        }
+        
+        .header .user img {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          margin-left: 10px;
+          object-fit: cover;
+          border: 2px solid #fff;
+        }
+        
         table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+          width: 100%;
+          border-collapse: collapse;
+          background: var(--color-card);
+          box-shadow: 0 0 5px rgba(0,0,0,0.05);
         }
-        th, td { border: 1px solid #ccc; padding: 10px; }
-        th { background: #eee; }
-        .status-actions button { padding: 4px 8px; font-size: 13px; margin-right: 5px; }
+        
+        th, td {
+          padding: 12px;
+          border: 1px solid var(--color-border);
+          text-align: left;
+        }
+        
+        th {
+          background: #eee;
+        }
+        
+        .status-actions button {
+          padding: 6px 10px;
+          font-size: 13px;
+          margin-right: 5px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        
+        .status-actions button[value="processed"] {
+          background: var(--color-warning);
+        }
+        
+        .status-actions button[value="ignored"] {
+          background: #ddd;
+        }
+        
+        .status-actions span {
+          font-weight: bold;
+        }
+        
         #overlay {
-            position: fixed; top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.8);
-            display: none; justify-content: center; align-items: center;
-            z-index: 9999;
+          position: fixed;
+          top: 0; left: 0;
+          width: 100vw; height: 100vh;
+          background: rgba(0,0,0,0.8);
+          display: none;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
         }
+        
         #overlay img {
-            max-width: 90%; max-height: 90%;
-            border: 4px solid white;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            cursor: zoom-out;
+          max-width: 90%;
+          max-height: 90%;
+          border: 4px solid white;
+          box-shadow: 0 0 20px rgba(0,0,0,0.5);
+          cursor: zoom-out;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h2>📬 Phản hồi người dùng</h2>
-        <div class="user">
-            <span><?= htmlspecialchars($admin['username']) ?></span>
-            <img
-                src="<?= htmlspecialchars($avatarUrl) ?>"
-                alt="Avatar <?= htmlspecialchars($admin['username']) ?>"
-            >
-        </div>
+  <div class="header">
+    <h2>📬 Phản hồi người dùng</h2>
+    <div class="user">
+      <span><?= htmlspecialchars($admin['username']) ?></span>
+      <img src="<?= htmlspecialchars($avatarUrl) ?>" alt="Avatar">
+    </div>
+  </div>
+
+  <div class="dashboard-wrapper">
+    <div class="sidebar">
+      <h3>Menu quản trị</h3>
+      <ul>
+        <li><a href="dashboard.php">🏠 Trang chính</a></li>
+        <li><a href="admin_feedback.php">📬 Phản hồi</a></li>
+        <li><a href="logout.php">🚪 Đăng xuất</a></li>
+      </ul>
+
+      <?php if (pg_num_rows($pending_feedbacks) > 0): ?>
+        <h4>📌 Phản hồi chưa xử lý</h4>
+        <ul>
+          <?php while ($row = pg_fetch_assoc($pending_feedbacks)): ?>
+            <li>
+              <strong><?= htmlspecialchars($row['username']) ?></strong>: <?= htmlspecialchars(mb_strimwidth($row['message'], 0, 40, '...')) ?>
+            </li>
+          <?php endwhile; ?>
+        </ul>
+      <?php endif; ?>
     </div>
 
-    <div class="main">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <h3>Menu quản trị</h3>
-            <ul style="list-style:none;padding:0;margin-top:20px;">
-                <li><a href="logout.php">🚪 Đăng xuất</a></li>
-            </ul>
+    <div class="content">
+      <h3>Danh sách phản hồi</h3>
+      <form method="get">
+        <label for="status_filter">Lọc theo trạng thái:</label>
+        <select name="status" id="status_filter" onchange="this.form.submit()">
+          <option value="">Tất cả</option>
+          <option value="pending"   <?= $status_filter==='pending'   ? 'selected':'' ?>>Chưa xử lý</option>
+          <option value="processed" <?= $status_filter==='processed' ? 'selected':'' ?>>Đã xử lý</option>
+          <option value="ignored"   <?= $status_filter==='ignored'   ? 'selected':'' ?>>Không xử lý</option>
+        </select>
+      </form>
 
-            <?php if (pg_num_rows($pending_feedbacks) > 0): ?>
-                <h4>📌 Phản hồi chưa xử lý</h4>
-                <ul>
-                    <?php while ($row = pg_fetch_assoc($pending_feedbacks)): ?>
-                        <li>
-                            <strong><?= htmlspecialchars($row['username']) ?></strong>:
-                            <?= htmlspecialchars(mb_strimwidth($row['message'], 0, 40, '...')) ?>
-                        </li>
-                    <?php endwhile; ?>
-                </ul>
-            <?php endif; ?>
-        </div>
-
-        <!-- Content -->
-        <div class="content">
-            <h3>Danh sách phản hồi</h3>
-            <form method="get" style="margin:10px 0 20px;">
-                <label for="status_filter">Lọc theo trạng thái:</label>
-                <select name="status" id="status_filter" onchange="this.form.submit()">
-                    <option value="">Tất cả</option>
-                    <option value="pending"   <?= $status_filter==='pending'   ? 'selected':'' ?>>Chưa xử lý</option>
-                    <option value="processed" <?= $status_filter==='processed' ? 'selected':'' ?>>Đã xử lý</option>
-                    <option value="ignored"   <?= $status_filter==='ignored'   ? 'selected':'' ?>>Không xử lý</option>
-                </select>
-            </form>
-
-            <?php if (pg_num_rows($feedbacks) === 0): ?>
-                <p>Chưa có phản hồi nào từ người dùng.</p>
-            <?php else: ?>
-                <table>
-                    <tr>
-                        <th>Người gửi</th>
-                        <th>Nội dung</th>
-                        <th>Thời gian</th>
-                        <th>Trạng thái</th>
-                    </tr>
-                    <?php while ($row = pg_fetch_assoc($feedbacks)): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($row['username']) ?></td>
-                            <td>
-                                <?= nl2br(htmlspecialchars($row['message'])) ?>
-                                <?php
-                                $imagePath = UPLOAD_DIR . $row['image'];
-                                if (!empty($row['image']) && file_exists($imagePath)):
-                                ?>
-                                    <div style="margin-top:8px;">
-                                        <img
-                                            src="<?= UPLOAD_URL . htmlspecialchars($row['image']) ?>"
-                                            alt="Feedback image"
-                                            class="zoomable"
-                                            style="max-width:200px;max-height:150px;border:1px solid #ccc;cursor:zoom-in;"
-                                        >
-                                    </div>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= htmlspecialchars($row['created_at']) ?></td>
-                            <td class="status-actions">
-                                <?php if ($row['status']==='processed'): ?>
-                                    <span style="color:green;">✔ Đã xử lý</span>
-                                <?php elseif ($row['status']==='ignored'): ?>
-                                    <span style="color:gray;">🚫 Không xử lý</span>
-                                <?php else: ?>
-                                    <form method="post" action="update_feedback_status.php">
-                                        <input type="hidden" name="feedback_id" value="<?= $row['id'] ?>">
-                                        <button name="action" value="processed" style="background:#ffc107;">Đã xử lý</button>
-                                        <button name="action" value="ignored"   style="background:#ddd;">Không xử lý</button>
-                                    </form>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endwhile; ?>
-                </table>
-            <?php endif; ?>
-        </div>
+      <?php if (pg_num_rows($feedbacks) === 0): ?>
+        <p>Chưa có phản hồi nào từ người dùng.</p>
+      <?php else: ?>
+        <table>
+          <tr>
+            <th>Người gửi</th>
+            <th>Nội dung</th>
+            <th>Thời gian</th>
+            <th>Trạng thái</th>
+          </tr>
+          <?php while ($row = pg_fetch_assoc($feedbacks)): ?>
+            <tr>
+              <td><?= htmlspecialchars($row['username']) ?></td>
+              <td>
+                <?= nl2br(htmlspecialchars($row['message'])) ?>
+                <?php
+                $imagePath = UPLOAD_DIR . $row['image'];
+                if (!empty($row['image']) && file_exists($imagePath)):
+                ?>
+                  <div style="margin-top:8px;">
+                    <img
+                      src="<?= UPLOAD_URL . htmlspecialchars($row['image']) ?>"
+                      alt="Feedback image"
+                      class="zoomable"
+                      style="max-width:200px;max-height:150px;border:1px solid #ccc;cursor:zoom-in;"
+                    >
+                  </div>
+                <?php endif; ?>
+              </td>
+              <td><?= htmlspecialchars($row['created_at']) ?></td>
+              <td class="status-actions">
+                <?php if ($row['status']==='processed'): ?>
+                  <span style="color:green;">✔ Đã xử lý</span>
+                <?php elseif ($row['status']==='ignored'): ?>
+                  <span style="color:gray;">🚫 Không xử lý</span>
+                <?php else: ?>
+                  <form method="post" action="update_feedback_status.php">
+                    <input type="hidden" name="feedback_id" value="<?= $row['id'] ?>">
+                    <button name="action" value="processed">Đã xử lý</button>
+                    <button name="action" value="ignored">Không xử lý</button>
+                  </form>
+                <?php endif; ?>
+              </td>
+            </tr>
+          <?php endwhile; ?>
+        </table>
+      <?php endif; ?>
     </div>
+  </div>
 
-    <!-- Overlay phóng to ảnh -->
-    <div id="overlay" onclick="hideOverlay()">
-        <img id="overlay-img" src="" alt="Zoomed Image">
-    </div>
+  <div id="overlay" onclick="hideOverlay()">
+    <img id="overlay-img" src="" alt="Zoomed Image">
+  </div>
 
-    <script>
+  <script>
     document.querySelectorAll('.zoomable').forEach(img => {
-        img.addEventListener('click', e => {
-            e.stopPropagation();
-            document.getElementById('overlay').style.display = 'flex';
-            document.getElementById('overlay-img').src = img.src;
-        });
+      img.addEventListener('click', e => {
+        e.stopPropagation();
+        document.getElementById('overlay').style.display = 'flex';
+        document.getElementById('overlay-img').src = img.src;
+      });
     });
     function hideOverlay() {
-        document.getElementById('overlay').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
     }
-    document.addEventListener('keydown', e => { if (e.key==='Escape') hideOverlay(); });
-    </script>
+    document.addEventListener('keydown', e => {
+      if (e.key==='Escape') hideOverlay();
+    });
+  </script>
 </body>
 </html>
