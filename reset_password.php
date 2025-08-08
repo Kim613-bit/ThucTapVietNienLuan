@@ -51,57 +51,97 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <title>Đặt lại mật khẩu</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            background: #f1f1f1;
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f3f4f6;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
         }
-        .reset-container {
-            background-color: #fff;
-            padding: 30px 40px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            text-align: center;
+        
+        .container {
+            background: #ffffff;
+            padding: 30px 35px;
+            border-radius: 12px;
+            box-shadow: 0 0 14px rgba(0, 0, 0, 0.08);
             width: 100%;
             max-width: 400px;
         }
+        
         h2 {
+            text-align: center;
+            color: #111827;
             margin-bottom: 20px;
-            color: #333;
         }
+        
+        label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
         input[type="password"] {
             width: 100%;
-            padding: 10px;
-            margin-top: 6px;
-            margin-bottom: 16px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            padding: 12px 14px;
+            font-size: 15px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            margin-bottom: 18px;
         }
+        
         button {
-            background-color: #007bff;
+            width: 100%;
+            padding: 12px;
+            background-color: #2563eb;
             color: white;
-            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
         }
+        
         button:hover {
-            background-color: #0056b3;
+            background-color: #1d4ed8;
         }
-        .message {
-            margin-bottom: 15px;
+        
+        .error, .success {
+            text-align: center;
+            margin-bottom: 16px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
         }
-        .message.error {
-            color: red;
+        
+        .error {
+            background-color: #fee2e2;
+            color: #b91c1c;
         }
-        .message.success {
-            color: green;
+        
+        .success {
+            background-color: #d1fae5;
+            color: #065f46;
         }
-        a {
-            color: #007bff;
+        
+        .back-button {
+            display: block;
+            text-align: center;
+            margin-top: 12px;
+            text-decoration: none;
+            color: #2563eb;
+            font-weight: 500;
+            transition: color 0.2s ease-in-out;
+        }
+        
+        .back-button:hover {
+            color: #1d4ed8;
         }
     </style>
 </head>
