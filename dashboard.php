@@ -294,10 +294,12 @@ $typeLabels = [
       font-size: 0.95rem;
     }
     .stats-inline {
-      grid-column: 1 / -1;
       display: flex;
-      gap: 16px;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 24px;
       font-size: 0.95rem;
+      flex: 1;
     }
     .stats-inline span {
       display: flex;
@@ -305,11 +307,10 @@ $typeLabels = [
       gap: 4px;
     }
     .filter-buttons {
-      grid-column: 1 / -1;
       display: flex;
-      gap: 8px;
+      justify-content: flex-end;
       align-items: center;
-      margin-top: 8px;
+      gap: 12px;
     }
     .filter-buttons button {
       background: var(--color-primary);
@@ -388,11 +389,9 @@ $typeLabels = [
     }
     
     .filter-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      gap: 20px;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
     }
     
     .filters {
@@ -456,6 +455,11 @@ $typeLabels = [
       table th:nth-child(6),
       table td:nth-child(6) {
         display: none;
+      }
+      .stats-inline,
+      .filter-buttons {
+        flex-direction: column;
+        align-items: flex-start;
       }
     }
   </style>
@@ -537,19 +541,19 @@ $typeLabels = [
                   <!-- PHP render tài khoản -->
                 </select>
               </div>
-        
+            </div>
+              
             <!-- Tổng thu/chi -->
-            <div class="stats-inline">
-              <span>🔼 Tổng thu: <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong></span>
-              <span>🔽 Tổng chi: <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong></span>
-            </div>
-        
-            <!-- Nút lọc/làm mới -->
-            <div class="filter-buttons">
-              <button type="submit">Lọc</button>
-              <a href="dashboard.php" class="reset">🧹 Làm mới</a>
-            </div>
-           </div>   
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div class="stats-inline">
+                <span>🔼 Tổng thu: <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong></span>
+                <span>🔽 Tổng chi: <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong></span>
+              </div>
+              <div class="filter-buttons">
+                <button type="submit">🔍 Lọc</button>
+                <a href="dashboard.php" class="reset">🧹 Làm mới</a>
+              </div>
+            </div>  
           </div>
         </form>
 
