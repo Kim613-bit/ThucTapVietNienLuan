@@ -302,11 +302,11 @@ $typeLabels = [
       padding: 0 8px;
     }
     .stats-inline {
-      display: flex;
+      ddisplay: flex;
       gap: 24px;
       font-size: 0.95rem;
       color: var(--color-text);
-      margin-top: 8px;
+      align-items: center;
     }
     .stats-inline span {
       display: flex;
@@ -423,6 +423,7 @@ $typeLabels = [
       flex-direction: column;
       gap: 5px;
       min-width: 180px;
+      justify-content: center;
     }
     
     .filter-buttons {
@@ -570,7 +571,6 @@ $typeLabels = [
             <div class="filter-summary-row">
               <div class="stats-inline">
                 <span>🔼 Tổng thu: <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong></span>
-                &nbsp;&nbsp;&nbsp;
                 <span>🔽 Tổng chi: <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong></span>
               </div>
               <div class="filter-buttons">
