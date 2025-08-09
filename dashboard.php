@@ -203,6 +203,9 @@ $typeLabels = [
 
     /* 4. Header */
     .header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
       background: var(--color-primary);
       color: white;
       padding: 12px 24px;
