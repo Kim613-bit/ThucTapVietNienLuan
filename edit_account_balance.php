@@ -308,11 +308,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <?php if (!empty($error)): ?>
               <p class="error"><?= $error ?></p>
             <?php endif; ?>
-        <label>Nội dung giao dịch:</label>
-        <select id="preset-description" class="form-control" onchange="updateDescription()">
-            <option value="">-- Chọn nội dung mặc định --</option>
-        </select>
-        <textarea name="description" id="description" rows="2" maxlength="30" placeholder="Hoặc nhập nội dung khác" class="form-control"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
+            <label>Nội dung giao dịch:</label>
+            <input list="description-options" name="description" id="description" maxlength="30"
+                   placeholder="Nhập hoặc chọn nội dung" class="form-control"
+                   value="<?= htmlspecialchars($_POST['description'] ?? '') ?>">
+            <datalist id="description-options">
+                <!-- Gợi ý sẽ được thêm bằng JavaScript -->
+            </datalist>
 
         <datalist id="suggestions">
           <?php foreach ($descriptions as $desc): ?>
@@ -459,12 +461,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         const presetThu = ["Lương", "Thưởng", "Tiền lãi", "Bán hàng", "Khác"];
         const presetChi = ["Ăn uống", "Di chuyển", "Giải trí", "Mua sắm", "Khác"];
     
-        function updatePresetOptions() {
+        function updateDescriptionOptions() {
             const type = document.getElementById("transactionType").value;
-            const presetSelect = document.getElementById("preset-description");
+            const datalist = document.getElementById("description-options");
             const options = type === "thu" ? presetThu : type === "chi" ? presetChi : [];
-            presetSelect.innerHTML = `<option value="">-- Chọn nội dung mặc định --</option>` +
-                options.map(item => `<option value="${item}">${item}</option>`).join("");
+            datalist.innerHTML = options.map(item => `<option value="${item}">`).join("");
         }
     
         function updateDescription() {
@@ -473,8 +474,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 document.getElementById("description").value = selected;
             }
         }
-        document.getElementById("transactionType").addEventListener("change", updatePresetOptions);
-        document.addEventListener("DOMContentLoaded", updatePresetOptions);
+        document.getElementById("transactionType").addEventListener("change", () => {
+            toggleFields();
+            updateDescriptionOptions();
+        });
+        document.addEventListener("DOMContentLoaded", updateDescriptionOptions);
+
         flatpickr(".flatpickr-wrapper", {
       dateFormat: "d/m/Y",
       locale: "vi",
