@@ -269,8 +269,12 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
             font-size: 1.3rem;
           }
           .header .user img {
-            width: 32px;
-            height: 32px;
+            width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              margin-left: 10px;
+              object-fit: cover;
+              border: 2px solid white;
           }
         }
         @media (max-width: 500px) {
