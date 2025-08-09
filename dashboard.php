@@ -158,7 +158,6 @@ $typeLabels = [
       margin: 0; padding: 0;
     }
     body {
-      padding-top: 60px;
       font-family: 'Segoe UI', Tahoma, sans-serif;
       background: var(--color-bg);
       color: var(--color-text);
