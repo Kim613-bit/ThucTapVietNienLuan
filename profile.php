@@ -97,7 +97,6 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
           --color-danger: #e53935;
           --color-bg: #f9fafb;
           --color-card: #ffffff;
-          --color-border: #e2e8f0;
           --color-text: #2e3d49;
           --color-muted: #64748b;
           --border-radius: 8px;
