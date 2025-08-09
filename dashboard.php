@@ -574,7 +574,6 @@ $typeLabels = [
                 <label for="description">Mô tả</label>
                 <select id="description" name="description">
                   <option value="">Tất cả</option>
-                  <option value="">Tất cả</option>
                   <?php
                   $desc_q = pg_query_params($conn, "SELECT DISTINCT description FROM transactions WHERE user_id = $1 ORDER BY description", [$user_id]);
                   while ($row = pg_fetch_assoc($desc_q)) {
