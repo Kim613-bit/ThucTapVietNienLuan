@@ -659,10 +659,7 @@ $typeLabels = [
                       <td>
                         <a href="edit_transaction.php?id=<?= $row['id'] ?>">✏️ Sửa</a>
                         |
-                        <a href="delete_transaction.php?id=<?= $row['id'] ?>"
-                           onclick="return confirm('Bạn có chắc muốn xoá giao dịch này?')">
-                          🗑️ Xoá
-                        </a>
+                        <a href="delete_transaction.php?id=<?= $row['id'] ?>")">🗑️ Xoá</a>
                       </td>
                     </tr>
                   <?php endforeach; ?>
