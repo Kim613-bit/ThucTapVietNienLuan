@@ -205,18 +205,34 @@ $typeLabels = [
 
     /* 4. Header */
     .header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 60px;
       background: var(--color-primary);
-      color: #fff;
+      color: white;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header .user {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0 var(--spacing);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      z-index: 1001;
+    }  
+    .header .user a {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: white;
     }
+    .header .user span {
+      font-weight: bold;
+    }
+    .header .user img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-left: 10px;
+      object-fit: cover;
+      border: 2px solid white;
+    }  
     #sidebar-toggle { /* giữ nguyên */ }
     .brand { /* giữ nguyên */ }
     .profile-link { /* giữ nguyên */ }
@@ -503,12 +519,14 @@ $typeLabels = [
 <body>
   <!-- Header -->
   <div class="header">
-    <div class="brand">Quản lý thu chi</div>
-    <a href="profile.php" class="profile-link">
-      <span>Xin chào, <?= htmlspecialchars($user['full_name']) ?></span>
-      <img src="<?= $avatarPath ?>" alt="Avatar">
-    </a>
-  </div>
+      <h2>Quản lý thu chi</h2>
+      <div class="user">
+        <a href="profile.php" class="profile-link">
+          <span>Xin chào, <?= htmlspecialchars($user['full_name']) ?></span>
+          <img src="<?= $avatarPath ?>" alt="Avatar">
+        </a>
+      </div>
+    </div>
 
   <div class="dashboard-wrapper">  
       <!-- Sidebar -->
