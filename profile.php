@@ -90,46 +90,22 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
     <meta charset="UTF-8">
     <title>Hồ sơ cá nhân</title>
     <style>
-        /* --- Responsive --- */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                margin-bottom: 1rem;
-                box-shadow: none;
-            }
-            .header h2 {
-                font-size: 1.5rem;
-            }
-            .header .user img {
-                width: 32px;
-                height: 32px;
-            }
-        }
-        @media (max-width: 500px) {
-            input, label, button {
-                font-size: 0.9rem;
-            }
-            .profile-box {
-                padding: 0.75rem;
-            }
-        }
-
-        /* --- Base --- */
-        * {
-            box-sizing: border-box;
-        }
         :root {
-          --color-primary: #1e88e5;
+          --color-primary: #4CAF50;
           --color-danger: #e53935;
-          --color-bg: #f9fafb;
+          --color-bg: #f9f9f9;
           --color-card: #ffffff;
-          --color-border: #e2e8f0;
+          --color-border: #e0e0e0;
           --color-text: #2e3d49;
-          --color-muted: #64748b;
+          --color-muted: #757575;
           --radius: 8px;
           --spacing: 16px;
         }
         
+        /* --- Reset & Base --- */
+        * {
+          box-sizing: border-box;
+        }
         body {
           margin: 0;
           font-family: 'Segoe UI', sans-serif;
@@ -137,21 +113,89 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
           color: var(--color-text);
         }
         
-        .profile-box {
-          background: var(--color-box);
-          border: 1px solid var(--color-border);
+        /* --- Header --- */
+        .header {
+          background-color: var(--color-primary);
+          color: white;
+          padding: 16px 24px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .header h2 {
+          margin: 0;
+          font-size: 1.5rem;
+        }
+        .header .user {
+          display: flex;
+          align-items: center;
+        }
+        .header .user a {
+          text-decoration: none;
+          color: white;
+          display: flex;
+          align-items: center;
+        }
+        .header .user span {
+          font-weight: bold;
+        }
+        .header .user img {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          margin-left: 10px;
+          object-fit: cover;
+          border: 2px solid white;
+        }
+        
+        /* --- Layout --- */
+        .main {
+          display: grid;
+          grid-template-columns: 240px 1fr;
+          gap: var(--spacing);
+          padding: var(--spacing);
+        }
+        .sidebar {
+          background-color: var(--color-card);
+          padding: var(--spacing);
           border-radius: var(--radius);
-          padding: 1.5rem;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .sidebar h3 {
+          font-size: 0.95rem;
+          color: var(--color-muted);
+          margin-bottom: 12px;
+        }
+        .sidebar a {
+          display: block;
+          margin-bottom: 12px;
+          color: var(--color-text);
+          text-decoration: none;
+          font-weight: 500;
+        }
+        .sidebar a:hover {
+          color: var(--color-primary);
+        }
+        .content {
+          background-color: var(--color-card);
+          padding: var(--spacing);
+          border-radius: var(--radius);
           box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
         
+        /* --- Profile Box --- */
+        .profile-box {
+          background-color: var(--color-bg);
+          border: 1px solid var(--color-border);
+          border-radius: var(--radius);
+          padding: var(--spacing);
+        }
         .profile-box label {
           font-weight: 600;
           margin-top: 12px;
           display: block;
           font-size: 0.95rem;
         }
-        
         .profile-box input[type="text"],
         .profile-box input[type="number"],
         .profile-box input[type="email"],
@@ -163,43 +207,6 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
           border-radius: 6px;
           font-size: 0.95rem;
         }
-        
-        .profile-box button {
-          padding: 0.75rem 1rem;
-          border: none;
-          border-radius: 0.3rem;
-          font-size: 1rem;
-          cursor: pointer;
-          margin-top: 0.5rem;
-        }
-        
-        .profile-link img {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          object-fit: cover;
-          margin-left: 10px;
-          border: 2px solid white;
-        }
-        
-        button[type="submit"] {
-          background-color: var(--color-primary);
-          color: white;
-        }
-        
-        button[type="submit"]:hover {
-          background-color: #0056b3;
-        }
-        
-        .btn-delete {
-          background-color: var(--color-danger);
-          color: white;
-        }
-        
-        .btn-delete:hover {
-          background-color: #a71d2a;
-        }
-        
         .profile-box img {
           width: 100px;
           height: 100px;
@@ -208,132 +215,65 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
           margin-top: 12px;
           border: 2px solid var(--color-primary);
         }
-
-        html, body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            height: 100%;
-            background-color: #f9f9f9;
-        }
-
-        /* --- Header --- */
-        .header {
-          background: var(--color-primary);
-          color: white;
-          padding: 12px 24px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .header h2 {
-            margin: 0;
-        }
-        .header .user {
-            display: flex;
-            align-items: center;
-        }
-        .header .user a {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            color: white;
-        }
-        .header .user span {
-            font-weight: bold;
-        }
-        .header .user img {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          margin-left: 10px;
-          object-fit: cover;
-          border: 2px solid white;
-        }
-
-        /* --- Layout --- */
-        .main {
-          display: grid;
-          grid-template-columns: 280px 1fr;
-          gap: var(--spacing);
-          padding: var(--spacing);
-        }
-        .sidebar {
-          background: var(--color-card);
-          padding: var(--spacing);
-          border-radius: var(--radius);
-          height: fit-content;
-        }
-        .sidebar h3 {
-          font-size: 0.9rem;
-          color: var(--color-muted);
-          margin-bottom: 12px;
-        }
-        .sidebar a {
-          display: block;
-          margin-bottom: 12px;
-          color: var(--color-text);
-          text-decoration: none;
-          font-weight: 500;
-        }
-        .content {
-          background: var(--color-card);
-          padding: var(--spacing);
-          border-radius: var(--radius);
-        }
-        .sidebar a:hover {
-          color: var(--color-primary);
-        }
-        /* --- Profile box --- */
-        .profile-box {
-          background: var(--color-bg);
-          padding: var(--spacing);
-          border-radius: var(--radius);
-          border: 1px solid var(--color-border);
-          box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        }
-        .profile-box img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        /* --- Form elements --- */
-        input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-        }
+        
+        /* --- Buttons --- */
         button {
-            padding: 10px 16px;
-              border: none;
-              border-radius: 6px;
-              font-size: 1rem;
-              cursor: pointer;
-              margin-top: 16px;
-              width: 100%;
+          padding: 10px 16px;
+          border: none;
+          border-radius: 6px;
+          font-size: 1rem;
+          cursor: pointer;
+          margin-top: 16px;
+          width: 100%;
         }
         button[type="submit"] {
-            background-color: var(--color-primary);
-            color: white;
+          background-color: var(--color-primary);
+          color: white;
         }
         button[type="submit"]:hover {
-            background-color: #1565c0;
+          background-color: #388e3c;
         }
         .btn-delete {
-            background-color: var(--color-danger);
-            color: white;
+          background-color: var(--color-danger);
+          color: white;
         }
         .btn-delete:hover {
-            background-color: #b71c1c;
+          background-color: #b71c1c;
+        }
+        
+        /* --- Success Message --- */
+        .success {
+          color: green;
+          margin-bottom: 1rem;
+          font-weight: 500;
+        }
+        
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+          .main {
+            grid-template-columns: 1fr;
+          }
+          .sidebar {
+            width: 100%;
+            margin-bottom: 1rem;
+          }
+          .header h2 {
+            font-size: 1.3rem;
+          }
+          .header .user img {
+            width: 32px;
+            height: 32px;
+          }
+        }
+        @media (max-width: 500px) {
+          input, label, button {
+            font-size: 0.9rem;
+          }
+          .profile-box {
+            padding: 0.75rem;
+          }
         }
 
-        .success {
-            color: green;
-            margin-bottom: 1rem;
-            font-weight: 500;
-        }
     </style>
 </head>
 <body>
