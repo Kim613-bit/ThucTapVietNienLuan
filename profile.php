@@ -143,7 +143,6 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
       font-size: 1.75rem;
       font-weight: 700;
       letter-spacing: 1px;
-      text-transform: uppercase;
       color: #fff;
     }
     
