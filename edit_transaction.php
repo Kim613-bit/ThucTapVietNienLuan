@@ -38,16 +38,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    $account = $_POST['account'];
+    $account_id = intval($_POST['account_id']);
     $time = $_POST['time'];
     $datetime = $date . ' ' . $time;
 
     $query = "UPDATE transactions 
-              SET type = $1, amount = $2, description = $3, date = $4, account = $5 
+              SET type = $1, amount = $2, description = $3, date = $4, account_id = $5 
               WHERE id = $6 AND user_id = $7";
-    $result = pg_query_params($conn, $query, array($type, $amount, $description, $datetime, $account, $id, $user_id));
-
-    
+    $result = pg_query_params($conn, $query, array($type, $amount, $description, $datetime, $account_id, $id, $user_id));
+   
+    $_SESSION['message'] = "✅ Giao dịch đã được cập nhật thành công.";
     header("Location: transactions.php");
     exit();
 }
@@ -142,8 +142,9 @@ if (!$transaction) {
       <form method="post" class="form-box">
         <label for="type">Loại giao dịch:</label>
         <select name="type" id="type" required>
-          <option value="income" <?= $transaction['type'] === 'income' ? 'selected' : '' ?>>Thu</option>
-          <option value="expense" <?= $transaction['type'] === 'expense' ? 'selected' : '' ?>>Chi</option>
+          <option value="0" <?= $transaction['type'] == 0 ? 'selected' : '' ?>>Thu</option>
+          <option value="1" <?= $transaction['type'] == 1 ? 'selected' : '' ?>>Chi</option>
+          <option value="2" <?= $transaction['type'] == 2 ? 'selected' : '' ?>>Cập nhật tài khoản</option>
         </select>
     
         <label for="amount">Số tiền:</label>
@@ -151,12 +152,16 @@ if (!$transaction) {
 
         <label for="description">Nội dung giao dịch:</label>
         <input type="text" name="description" id="description" value="<?= htmlspecialchars($transaction['description']) ?>" maxlength="30">    
-        <label for="account">Khoản tiền:</label>
-        <select name="account" id="account" required>
-          <option value="Bank" <?= $transaction['account'] === 'Bank' ? 'selected' : '' ?>>Bank</option>
-          <option value="Tiền mặt" <?= $transaction['account'] === 'Tiền mặt' ? 'selected' : '' ?>>Tiền mặt</option>
-        </select>
-
+        <label for="account_id">Khoản tiền:</label>
+            <select name="account_id" id="account_id" required>
+              <?php
+              $acc_q = pg_query_params($conn, "SELECT id, name FROM accounts WHERE user_id = $1", [$user_id]);
+              while ($acc = pg_fetch_assoc($acc_q)) {
+                  $selected = ($transaction['account_id'] == $acc['id']) ? 'selected' : '';
+                  echo "<option value=\"{$acc['id']}\" $selected>{$acc['name']}</option>";
+              }
+              ?>
+            </select>
     
         <label for="date">Thời gian giao dịch:</label>
         <div class="datetime-group">
