@@ -309,14 +309,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
               <p class="error"><?= $error ?></p>
             <?php endif; ?>
         <label>Nội dung giao dịch:</label>
-        <input
-          list="suggestions"
-          name="description"
-          maxlength="30"
-          placeholder="Nhập hoặc chọn nội dung"
-          value="<?= htmlspecialchars($_POST['description'] ?? '') ?>"
-          class="form-control"
-        >
+        <select id="preset-description" class="form-control" onchange="updateDescription()">
+            <option value="">-- Chọn nội dung mặc định --</option>
+        </select>
+        <textarea name="description" id="description" rows="2" maxlength="30" placeholder="Hoặc nhập nội dung khác" class="form-control"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
+
         <datalist id="suggestions">
           <?php foreach ($descriptions as $desc): ?>
             <option value="<?= htmlspecialchars($desc) ?>">
@@ -459,7 +456,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       }
     });
   });
-    flatpickr(".flatpickr-wrapper", {
+        const presetThu = ["Lương", "Thưởng", "Tiền lãi", "Bán hàng", "Khác"];
+        const presetChi = ["Ăn uống", "Di chuyển", "Giải trí", "Mua sắm", "Khác"];
+    
+        function updatePresetOptions() {
+            const type = document.getElementById("transactionType").value;
+            const presetSelect = document.getElementById("preset-description");
+            const options = type === "thu" ? presetThu : type === "chi" ? presetChi : [];
+            presetSelect.innerHTML = `<option value="">-- Chọn nội dung mặc định --</option>` +
+                options.map(item => `<option value="${item}">${item}</option>`).join("");
+        }
+    
+        function updateDescription() {
+            const selected = document.getElementById("preset-description").value;
+            if (selected) {
+                document.getElementById("description").value = selected;
+            }
+        }
+        document.getElementById("transactionType").addEventListener("change", updatePresetOptions);
+        document.addEventListener("DOMContentLoaded", updatePresetOptions);
+        flatpickr(".flatpickr-wrapper", {
       dateFormat: "d/m/Y",
       locale: "vi",
       defaultDate: new Date(),
