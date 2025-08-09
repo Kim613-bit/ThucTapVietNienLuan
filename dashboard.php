@@ -199,7 +199,6 @@ $typeLabels = [
       padding: var(--spacing);
       border-radius: var(--border-radius);
       min-height: calc(100vh - 60px - 2 * var(--spacing));
-      overflow-y: auto;
     }
 
     /* 4. Header */
