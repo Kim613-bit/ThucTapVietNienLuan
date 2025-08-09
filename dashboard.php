@@ -574,14 +574,27 @@ $typeLabels = [
                 <label for="description">Mô tả</label>
                 <select id="description" name="description">
                   <option value="">Tất cả</option>
-                  <!-- PHP render mô tả -->
+                  <option value="">Tất cả</option>
+                  <?php
+                  $desc_q = pg_query_params($conn, "SELECT DISTINCT description FROM transactions WHERE user_id = $1 ORDER BY description", [$user_id]);
+                  while ($row = pg_fetch_assoc($desc_q)) {
+                      $desc = htmlspecialchars($row['description']);
+                      $selected = ($filter_description === $row['description']) ? 'selected' : '';
+                      echo "<option value=\"$desc\" $selected>$desc</option>";
+                  }
+                  ?>
                 </select>
               </div>
               <div class="form-group">
                 <label for="account_id">Khoản tiền</label>
                 <select id="account_id" name="account_id">
                   <option value="0" <?= $filter_account===0? 'selected':'' ?>>Tất cả</option>
-                  <!-- PHP render tài khoản -->
+                  <?php
+                  foreach ($accounts as $acc) {
+                      $selected = ($filter_account == $acc['id']) ? 'selected' : '';
+                      echo "<option value=\"{$acc['id']}\" $selected>{$acc['name']}</option>";
+                  }
+                  ?>
                 </select>
               </div>
             </div>
