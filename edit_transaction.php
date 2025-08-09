@@ -38,10 +38,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // ✅ Thực hiện truy vấn cập nhật
-    $query = "UPDATE transactions SET type = $1, amount = $2, description = $3, date = $4 
-              WHERE id = $5 AND user_id = $6";
-    $result = pg_query_params($conn, $query, array($type, $amount, $description, $date, $id, $user_id));
+    $account = $_POST['account'];
+    $time = $_POST['time'];
+    $datetime = $date . ' ' . $time;
+
+    $query = "UPDATE transactions 
+              SET type = $1, amount = $2, description = $3, date = $4, account = $5 
+              WHERE id = $6 AND user_id = $7";
+    $result = pg_query_params($conn, $query, array($type, $amount, $description, $datetime, $account, $id, $user_id));
+
     
     header("Location: transactions.php");
     exit();
@@ -67,91 +72,107 @@ if (!$transaction) {
   <title>Sửa giao dịch</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .form-panel {
-      background: var(--color-card);
-      padding: 24px;
+    .form-box {
+      background-color: var(--color-card);
+      border: 1px solid #e2e8f0;
       border-radius: var(--border-radius);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: var(--spacing);
       max-width: 600px;
-      margin: 40px auto;
+      margin: auto;
     }
-    .form-group {
-      margin-bottom: 16px;
-      display: flex;
-      flex-direction: column;
-    }
-    .form-group label {
+    .form-box label {
       font-weight: 600;
-      margin-bottom: 6px;
+      margin-top: 12px;
+      display: block;
+      font-size: 0.95rem;
     }
-    .form-group input,
-    .form-group select {
+    .form-box input,
+    .form-box select {
+      width: 100%;
       padding: 10px;
+      margin-top: 6px;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
-      font-size: 1rem;
+      font-size: 0.95rem;
     }
-    .form-actions {
+    .datetime-group {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 24px;
+      gap: 12px;
     }
-    .form-actions button {
-      background: var(--color-primary);
-      color: white;
+    .datetime-group input {
+      flex: 1;
+    }
+    .form-box button {
       padding: 10px 16px;
       border: none;
       border-radius: var(--border-radius);
+      font-size: 1rem;
       cursor: pointer;
+      margin-top: 16px;
+      width: 100%;
+      background-color: var(--color-primary);
+      color: white;
     }
-    .form-actions .delete {
-      color: var(--color-danger);
-      text-decoration: none;
-      font-weight: 500;
+    .form-box button:hover {
+      background-color: #1565c0;
+    }
+    .btn-delete {
+      background-color: var(--color-danger);
+    }
+    .btn-delete:hover {
+      background-color: #b71c1c;
+    }
+    .back-link {
+      display: block;
+      margin-top: 16px;
+      text-align: center;
+      color: var(--color-muted);
+      font-size: 0.9rem;
+    }
+    .back-link:hover {
+      color: var(--color-primary);
     }
   </style>
 </head>
 <body>
   <main class="main">
-    <h2 style="text-align:center;">✏️ Sửa giao dịch</h2>
-    <form method="post" class="form-panel">
-      <div class="form-group">
-        <label for="type">Loại giao dịch</label>
+    <div class="content">
+      <h2>✏️ Sửa giao dịch</h2>
+    
+      <form method="post" class="form-box">
+        <label for="type">Loại giao dịch:</label>
         <select name="type" id="type" required>
-          <option value="0" <?= $transaction['type'] == 0 ? 'selected' : '' ?>>Thu</option>
-          <option value="1" <?= $transaction['type'] == 1 ? 'selected' : '' ?>>Chi</option>
-          <option value="2" <?= $transaction['type'] == 2 ? 'selected' : '' ?>>Cập nhật tài khoản</option>
+          <option value="income" <?= $transaction['type'] === 'income' ? 'selected' : '' ?>>Thu</option>
+          <option value="expense" <?= $transaction['type'] === 'expense' ? 'selected' : '' ?>>Chi</option>
         </select>
-      </div>
+    
+        <label for="amount">Số tiền:</label>
+        <input type="number" name="amount" id="amount" value="<?= htmlspecialchars($transaction['amount']) ?>" maxlength="10" step="1000" required>
 
-      <div class="form-group">
-        <label for="amount">Số tiền</label>
-        <input type="number" name="amount" id="amount" min="0" required value="<?= htmlspecialchars($transaction['amount']) ?>">
-      </div>
+        <label for="description">Nội dung giao dịch:</label>
+        <input type="text" name="description" id="description" value="<?= htmlspecialchars($transaction['description']) ?>" maxlength="30">    
+        <label for="account">Khoản tiền:</label>
+        <select name="account" id="account" required>
+          <option value="Bank" <?= $transaction['account'] === 'Bank' ? 'selected' : '' ?>>Bank</option>
+          <option value="Tiền mặt" <?= $transaction['account'] === 'Tiền mặt' ? 'selected' : '' ?>>Tiền mặt</option>
+        </select>
 
-      <div class="form-group">
-        <label for="description">Mô tả</label>
-        <input type="text" name="description" id="description" maxlength="100" value="<?= htmlspecialchars($transaction['description']) ?>">
-      </div>
-
-      <div class="form-group">
-        <label for="transaction_date">Ngày giao dịch</label>
-        <input type="date" name="transaction_date" id="transaction_date" required value="<?= date('Y-m-d', strtotime($transaction['date'])) ?>">
-      </div>
-
-      <div class="form-group">
-        <label for="transaction_time">Giờ giao dịch</label>
-        <input type="time" name="transaction_time" id="transaction_time" required value="<?= date('H:i', strtotime($transaction['date'])) ?>">
-      </div>
-
-      <div class="form-actions">
+    
+        <label for="date">Thời gian giao dịch:</label>
+        <div class="datetime-group">
+          <?php
+            $datetime = strtotime($transaction['date']);
+            $dateValue = date('Y-m-d', $datetime);
+            $timeValue = date('H:i', $datetime);
+            ?>
+            <input type="date" name="date" id="date" value="<?= $dateValue ?>" required>
+            <input type="time" name="time" id="time" value="<?= $timeValue ?>" required>
+        </div>
+    
         <button type="submit">💾 Lưu thay đổi</button>
-        <a href="delete_transaction.php?id=<?= $id ?>" class="delete" onclick="return confirm('Bạn có chắc muốn xoá giao dịch này?')">🗑️ Xoá giao dịch</a>
-      </div>
-    </form>
+        <a href="dashboard.php" class="back-link">← Quay lại Dashboard</a>
+      </form>
+    </div>
   </main>
 </body>
 </html>
-
-
