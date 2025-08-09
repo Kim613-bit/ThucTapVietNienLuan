@@ -110,16 +110,19 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
           box-sizing: border-box;
         }
         body {
-          margin: 0;
-          font-family: 'Segoe UI', sans-serif;
-          background-color: var(--color-bg);
+          font-family: 'Segoe UI', Tahoma, sans-serif;
+          background: var(--color-bg);
           color: var(--color-text);
+          line-height: 1.6;
         }
-        a {
-          text-decoration: none;
-          color: inherit;
+        a { text-decoration: none; color: inherit; }
+        .brand {
+          font-size: 1.75rem;      
+          font-weight: 700;        
+          letter-spacing: 1px;     
+          text-transform: uppercase;  
+          color: #fff;         
         }
-        
         /* Header */
         .header {
           position: sticky;
@@ -135,7 +138,7 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
         .header .user {
           display: flex;
           align-items: center;
-        }
+        }  
         .header .user a {
           display: flex;
           align-items: center;
@@ -152,7 +155,7 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
           margin-left: 10px;
           object-fit: cover;
           border: 2px solid white;
-        }
+        } 
         
         /* Layout */
         .main {
