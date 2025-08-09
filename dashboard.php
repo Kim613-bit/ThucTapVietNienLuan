@@ -3,11 +3,6 @@ session_start();
 include "db.php";
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
-$sql_user = "SELECT username, full_name, avatar FROM users WHERE id = $1";
-$result = pg_query_params($conn, $sql_user, [$_SESSION['user_id']]);
-$user = pg_fetch_assoc($result);
-$avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem.png');
-
 if (!function_exists('bcadd')) {
     function bcadd($left_operand, $right_operand, $scale = 2) {
         // Fallback dùng toán học thường (không hoàn toàn chính xác với số lớn)
@@ -28,22 +23,15 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
+$sql_user = "SELECT username, full_name, avatar FROM users WHERE id = $1";
+$result = pg_query_params($conn, $sql_user, [$_SESSION['user_id']]);
+$user = pg_fetch_assoc($result);
+$avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem.png');
 $filter_account     = isset($_GET['account_id']) ? intval($_GET['account_id']) : 0;
 $filter_type        = isset($_GET['type'])       ? $_GET['type']           : 'all';
 $filter_description = isset($_GET['description'])? trim($_GET['description']) : '';
 $from_date          = $_GET['from_date'] ?? '';
 $to_date            = $_GET['to_date']   ?? '';
-
-// 3. Lấy thông tin user
-$user_result = pg_query_params(
-    $conn,
-    "SELECT username, fullname AS full_name, avatar, role 
-     FROM users 
-     WHERE id = $1",
-    [$user_id]
-);
-$user = pg_fetch_assoc($user_result);
-$avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'default-avatar.png');
 
 // 4. Lấy danh sách tài khoản và tính tổng số dư
 $accounts = [];
