@@ -67,163 +67,145 @@ if (!$transaction) {
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Sửa giao dịch</title>
+  <meta charset="UTF-8">
+  <title>Sửa giao dịch</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    function updateMaxAmount() {
+      const type = document.getElementById('type').value;
+      const balance = parseInt(document.getElementById('balance').value);
+      const amountInput = document.getElementById('amount');
+      if (type === 'thu') {
+        amountInput.max = 99999999 - balance;
+      } else {
+        amountInput.max = balance;
+      }
+    }
+  </script>
     <style>
+        /* Reset & base styles */
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f4f6f9;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+          margin: 0;
+          padding: 0;
+          font-family: 'Segoe UI', Tahoma, sans-serif;
+          background-color: #f4f6f8;
+          color: #333;
         }
-
-        .form-container {
-            background: #fff;
-            padding: 35px 40px;
-            border-radius: 12px;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
+        
+        /* Container */
+        .container {
+          max-width: 600px;
+          margin: 40px auto;
+          background-color: #fff;
+          padding: 30px 40px;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #2c3e50;
+        
+        /* Heading */
+        h1 {
+          text-align: center;
+          color: #2c3e50;
+          margin-bottom: 30px;
         }
-
+        
+        /* Labels & inputs */
         label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            color: #34495e;
+          display: block;
+          margin-top: 20px;
+          font-weight: 600;
+          color: #34495e;
         }
-
+        
         input[type="text"],
         input[type="number"],
+        input[type="date"],
+        input[type="time"],
         select,
-        textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 15px;
-            background-color: #fdfdfd;
+        input[list] {
+          width: 100%;
+          padding: 10px 12px;
+          margin-top: 8px;
+          border: 1px solid #ccc;
+          border-radius: 6px;
+          box-sizing: border-box;
+          font-size: 15px;
         }
-
-        textarea {
-            resize: vertical;
+        
+        /* Time row */
+        div[style*="display: flex"] {
+          margin-top: 8px;
         }
-
-        .button-group {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
+        
+        /* Submit button */
+        input[type="submit"] {
+          background-color: #3498db;
+          color: white;
+          padding: 12px;
+          margin-top: 30px;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 16px;
+          width: 100%;
+          transition: background-color 0.3s ease;
         }
-
-        button,
-        a.button-link {
-            padding: 10px 20px;
-            font-size: 15px;
-            font-weight: bold;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background-color 0.3s ease;
+        
+        input[type="submit"]:hover {
+          background-color: #2980b9;
         }
-
-        button {
-            background-color: #27ae60;
-            color: #fff;
+        
+        /* Back link */
+        .back-link {
+          display: block;
+          text-align: center;
+          margin-top: 20px;
+          color: #7f8c8d;
+          text-decoration: none;
+          font-size: 14px;
         }
-
-        button:hover {
-            background-color: #219150;
-        }
-
-        a.button-link {
-            background-color: #95a5a6;
-            color: #fff;
-        }
-
-        a.button-link:hover {
-            background-color: #7f8c8d;
-        }
-
-        .note {
-            font-size: 13px;
-            color: #888;
-            margin-top: -15px;
-            margin-bottom: 15px;
+        
+        .back-link:hover {
+          text-decoration: underline;
         }
     </style>
 </head>
-<body>
-    <div class="form-container">
-        <h2>✏️ Sửa giao dịch</h2>
-        <form method="post" action="edit_transaction.php?id=<?= htmlspecialchars($_GET['id']) ?>">
-            <label for="account">Tên khoản tiền:</label>
-            <input type="text" id="account" name="account" value="Tiền mặt" readonly>
+<body onload="updateMaxAmount()">
+  <div class="container">
+    <h1>Sửa giao dịch</h1>
+    <form action="update_transaction.php" method="POST">
+      <label>Tên khoản tiền</label>
+      <input type="text" name="account" value="<?= $account_name ?>" readonly>
 
-            <label for="balance">Số dư hiện tại:</label>
-            <input type="text" id="balance" name="balance" value="1.650.000 VND" readonly>
+      <label>Số dư hiện tại</label>
+      <input type="text" id="balance" value="<?= number_format($current_balance, 0, ',', '.') ?> VND" readonly>
 
-            <label for="type">Loại giao dịch:</label>
-            <select id="type" name="type">
-                <option value="1">Thu</option>
-                <option value="2">Chi</option>
-            </select>
+      <label>Loại giao dịch</label>
+      <select name="type" id="type" onchange="updateMaxAmount()">
+        <option value="thu" <?= $transaction_type === 'thu' ? 'selected' : '' ?>>Thu</option>
+        <option value="chi" <?= $transaction_type === 'chi' ? 'selected' : '' ?>>Chi</option>
+      </select>
 
-            <label for="amount">Số tiền:</label>
-            <input type="number" id="amount" name="amount" value="50000.00" required>
-            <div class="note">Tối đa 98.349.999 VND</div>
+      <label>Số tiền</label>
+      <input type="number" id="amount" name="amount" value="<?= $amount ?>" required>
 
-            <label for="preset-description">Nội dung giao dịch:</label>
-            <select id="preset-description" onchange="updateDescription()">
-                <option value="">-- Chọn nội dung --</option>
-            </select>
-            <textarea id="description" name="description" rows="2" placeholder="Nhập hoặc chọn nội dung">Hiện tại</textarea>
+      <label>Nội dung giao dịch</label>
+      <input list="content-list" name="content" value="<?= $selected_content ?>">
+      <datalist id="content-list">
+        <?php foreach ($content_options as $option): ?>
+          <option value="<?= $option ?>">
+        <?php endforeach; ?>
+      </datalist>
 
-            <label for="date">Ngày:</label>
-            <input type="text" id="date" name="date" value="09/08/2025">
+      <label>Thời gian giao dịch</label>
+      <div style="display: flex; gap: 10px;">
+        <input type="date" name="date" value="<?= $date ?>" required style="flex: 1;">
+        <input type="time" name="time" value="<?= $time ?>" required style="flex: 1;">
+      </div>
 
-            <label for="time">Giờ:</label>
-            <input type="text" id="time" name="time" value="04:33 PM">
-
-            <div class="button-group">
-                <button type="submit">💾 Lưu thay đổi</button>
-                <a class="button-link" href="dashboard.php">← Quay lại Dashboard</a>
-            </div>
-        </form>
-    </div>
-
-    <script>
-        const presetThu = ["Lương", "Thưởng", "Tiền lãi", "Bán hàng", "Khác"];
-        const presetChi = ["Ăn uống", "Di chuyển", "Giải trí", "Mua sắm", "Khác"];
-
-        function updatePresetOptions() {
-            const type = document.getElementById("type").value;
-            const presetSelect = document.getElementById("preset-description");
-            const options = type === "1" ? presetThu : presetChi;
-            presetSelect.innerHTML = `<option value="">-- Chọn nội dung --</option>` +
-                options.map(item => `<option value="${item}">${item}</option>`).join("");
-        }
-
-        function updateDescription() {
-            const selected = document.getElementById("preset-description").value;
-            if (selected) {
-                document.getElementById("description").value = selected;
-            }
-        }
-
-        document.getElementById("type").addEventListener("change", updatePresetOptions);
-        document.addEventListener("DOMContentLoaded", updatePresetOptions);
-    </script>
+      <input type="submit" value="💾 Lưu thay đổi">
+    </form>
+    <a href="dashboard.php" class="back-link">← Quay lại Dashboard</a>
+  </div>
 </body>
 </html>
