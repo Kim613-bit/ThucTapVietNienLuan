@@ -67,126 +67,121 @@ if (!$transaction) {
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sửa giao dịch</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .form-box {
-      background-color: var(--color-card);
-      border: 1px solid #e2e8f0;
-      border-radius: var(--border-radius);
-      padding: var(--spacing);
-      max-width: 600px;
-      margin: auto;
-    }
-    .form-box label {
-      font-weight: 600;
-      margin-top: 12px;
-      display: block;
-      font-size: 0.95rem;
-    }
-    .form-box input,
-    .form-box select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      font-size: 0.95rem;
-    }
-    .datetime-group {
-      display: flex;
-      gap: 12px;
-    }
-    .datetime-group input {
-      flex: 1;
-    }
-    .form-box button {
-      padding: 10px 16px;
-      border: none;
-      border-radius: var(--border-radius);
-      font-size: 1rem;
-      cursor: pointer;
-      margin-top: 16px;
-      width: 100%;
-      background-color: var(--color-primary);
-      color: white;
-    }
-    .form-box button:hover {
-      background-color: #1565c0;
-    }
-    .btn-delete {
-      background-color: var(--color-danger);
-    }
-    .btn-delete:hover {
-      background-color: #b71c1c;
-    }
-    .back-link {
-      display: block;
-      margin-top: 16px;
-      text-align: center;
-      color: var(--color-muted);
-      font-size: 0.9rem;
-    }
-    .back-link:hover {
-      color: var(--color-primary);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Sửa giao dịch</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to right, #f0f4f8, #d9e2ec);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type=\"text\"], input[type=\"number\"], select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button, a.button-link {
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        a.button-link {
+            background-color: #6c757d;
+            color: #fff;
+        }
+
+        a.button-link:hover {
+            background-color: #5a6268;
+        }
+    </style>
 </head>
 <body>
-    <?php if (isset($_SESSION['message'])): ?>
-      <p style="color: green; font-weight: bold; text-align: center;">
-        <?= $_SESSION['message'] ?>
-      </p>
-      <?php unset($_SESSION['message']); ?>
-    <?php endif; ?>
-
-  <main class="main">
-    <div class="content">
-      <h2>✏️ Sửa giao dịch</h2>
-    
-      <form method="post" class="form-box">
-        <label for="type">Loại giao dịch:</label>
-        <select name="type" id="type" required>
-          <option value="0" <?= $transaction['type'] == 0 ? 'selected' : '' ?>>Thu</option>
-          <option value="1" <?= $transaction['type'] == 1 ? 'selected' : '' ?>>Chi</option>
-          <option value="2" <?= $transaction['type'] == 2 ? 'selected' : '' ?>>Cập nhật tài khoản</option>
-        </select>
-    
-        <label for="amount">Số tiền:</label>
-        <input type="number" name="amount" id="amount"
-           value="<?= htmlspecialchars($transaction['amount']) ?>"
-           placeholder="Nhập số tiền (VND)" maxlength="10" step="1000" required>
-
-        <label for="description">Nội dung giao dịch:</label>
-        <input type="text" name="description" id="description" value="<?= htmlspecialchars($transaction['description']) ?>" maxlength="30">    
-        <label for="account_id">Khoản tiền:</label>
-            <select name="account_id" id="account_id" required>
-              <?php
-              $acc_q = pg_query_params($conn, "SELECT id, name FROM accounts WHERE user_id = $1", [$user_id]);
-              while ($acc = pg_fetch_assoc($acc_q)) {
-                  $selected = ($transaction['account_id'] == $acc['id']) ? 'selected' : '';
-                  echo "<option value=\"{$acc['id']}\" $selected>{$acc['name']}</option>";
-              }
-              ?>
+    <div class="form-container">
+        <h2>✏️ Sửa giao dịch</h2>
+        <form method="post" action="edit_transaction.php?id=<?= htmlspecialchars($_GET['id']) ?>">
+            <label for="type">Loại giao dịch:</label>
+            <select id="type" name="type">
+                <option value="1">Thu</option>
+                <option value="2" selected>Chi</option>
             </select>
-    
-        <label for="date">Thời gian giao dịch:</label>
-        <div class="datetime-group">
-          <?php
-            $datetime = strtotime($transaction['date']);
-            $dateValue = date('Y-m-d', $datetime);
-            $timeValue = date('H:i', $datetime);
-            ?>
-            <input type="date" name="date" id="date" value="<?= $dateValue ?>" required>
-            <input type="time" name="time" id="time" value="<?= $timeValue ?>" required>
-        </div>
-    
-        <button type="submit">💾 Lưu thay đổi</button>
-        <a href="dashboard.php" class="back-link">← Quay lại Dashboard</a>
-      </form>
+
+            <label for="amount">Số tiền:</label>
+            <input type="number" id="amount" name="amount" value="50000.00" required>
+
+            <label for="description">Nội dung giao dịch:</label>
+            <textarea id="description" name="description" rows="3">Ăn uống</textarea>
+
+            <label for="account">Khoản tiền:</label>
+            <select id="account" name="account">
+                <option value="1" selected>Tiền mặt</option>
+                <!-- Thêm các tài khoản khác nếu cần -->
+            </select>
+
+            <label for="datetime">Thời gian giao dịch:</label>
+            <input type="text" id="datetime" name="datetime" value="08/09/2025 04:33 PM">
+
+            <div class="button-group">
+                <button type="submit">💾 Lưu thay đổi</button>
+                <a class="button-link" href="dashboard.php">← Quay lại Dashboard</a>
+            </div>
+        </form>
     </div>
-  </main>
 </body>
 </html>
+
