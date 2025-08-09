@@ -60,32 +60,98 @@ if (!$transaction) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Sửa giao dịch</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sửa giao dịch</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .form-panel {
+      background: var(--color-card);
+      padding: 24px;
+      border-radius: var(--border-radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: 40px auto;
+    }
+    .form-group {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group select {
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+    }
+    .form-actions button {
+      background: var(--color-primary);
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+    }
+    .form-actions .delete {
+      color: var(--color-danger);
+      text-decoration: none;
+      font-weight: 500;
+    }
+  </style>
 </head>
 <body>
-    <h2>Sửa giao dịch</h2>
-    <form method="post">
-        <label>Loại:</label><br>
-        <select name="type" required>
-            <option value="1" <?= $transaction['type'] ? 'selected' : '' ?>>Thu</option>
-            <option value="0" <?= !$transaction['type'] ? 'selected' : '' ?>>Chi</option>
-        </select><br><br>
+  <main class="main">
+    <h2 style="text-align:center;">✏️ Sửa giao dịch</h2>
+    <form method="post" class="form-panel">
+      <div class="form-group">
+        <label for="type">Loại giao dịch</label>
+        <select name="type" id="type" required>
+          <option value="0" <?= $transaction['type'] == 0 ? 'selected' : '' ?>>Thu</option>
+          <option value="1" <?= $transaction['type'] == 1 ? 'selected' : '' ?>>Chi</option>
+          <option value="2" <?= $transaction['type'] == 2 ? 'selected' : '' ?>>Cập nhật tài khoản</option>
+        </select>
+      </div>
 
-        <label>Số tiền:</label><br>
-        <input type="number" name="amount" value="<?= $transaction['amount'] ?>" required><br><br>
+      <div class="form-group">
+        <label for="amount">Số tiền</label>
+        <input type="number" name="amount" id="amount" min="0" required value="<?= htmlspecialchars($transaction['amount']) ?>">
+      </div>
 
-        <label>Mô tả:</label><br>
-        <input type="text" name="description" value="<?= htmlspecialchars($transaction['description']) ?>" required><br><br>
+      <div class="form-group">
+        <label for="description">Mô tả</label>
+        <input type="text" name="description" id="description" maxlength="100" value="<?= htmlspecialchars($transaction['description']) ?>">
+      </div>
 
-        <label>Ngày:</label><br>
-        <input type="date" name="date" value="<?= $transaction['date'] ?>" required><br><br>
+      <div class="form-group">
+        <label for="transaction_date">Ngày giao dịch</label>
+        <input type="date" name="transaction_date" id="transaction_date" required value="<?= date('Y-m-d', strtotime($transaction['date'])) ?>">
+      </div>
 
-        <button type="submit">Cập nhật</button>
+      <div class="form-group">
+        <label for="transaction_time">Giờ giao dịch</label>
+        <input type="time" name="transaction_time" id="transaction_time" required value="<?= date('H:i', strtotime($transaction['date'])) ?>">
+      </div>
+
+      <div class="form-actions">
+        <button type="submit">💾 Lưu thay đổi</button>
+        <a href="delete_transaction.php?id=<?= $id ?>" class="delete" onclick="return confirm('Bạn có chắc muốn xoá giao dịch này?')">🗑️ Xoá giao dịch</a>
+      </div>
     </form>
-    <br>
-    <a href="transactions.php">← Quay lại</a>
+  </main>
 </body>
 </html>
+
+
