@@ -171,7 +171,7 @@ if (!$transaction) {
             <input type="number" id="amount" name="amount" value="<?= htmlspecialchars($transaction['amount']) ?>" required>
 
             <label for="description">Nội dung giao dịch:</label>
-            <textarea id="description" name="description" rows="3"><?= htmlspecialchars($transaction['description']) ?></textarea>
+            <select id="preset-description" onchange="updateDescription()">
 
             <label for="account_id">Khoản tiền:</label>
             <select id="account_id" name="account_id">
@@ -191,5 +191,24 @@ if (!$transaction) {
             </div>
         </form>
     </div>
+    <script>
+        const type = <?= $transaction['type'] ?>; // 1 = Thu, 2 = Chi
+        const presetThu = ["Lương", "Thưởng", "Tiền lãi", "Bán hàng", "Khác"];
+        const presetChi = ["Ăn uống", "Di chuyển", "Giải trí", "Mua sắm", "Khác"];
+    
+        const presetSelect = document.getElementById("preset-description");
+        const descriptionField = document.getElementById("description");
+    
+        const options = type === 1 ? presetThu : presetChi;
+        presetSelect.innerHTML = `<option value="">-- Chọn nội dung --</option>` +
+            options.map(item => `<option value="${item}">${item}</option>`).join("");
+    
+        function updateDescription() {
+            const selected = presetSelect.value;
+            if (selected) {
+                descriptionField.value = selected;
+            }
+        }
+    </script>
 </body>
 </html>
