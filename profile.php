@@ -91,19 +91,21 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
     <title>Hồ sơ cá nhân</title>
     <style>
         :root {
+          --sidebar-width: 280px;
           --color-primary: #1e88e5;
           --color-secondary: #66bb6a;
           --color-danger: #e53935;
           --color-bg: #f9fafb;
           --color-card: #ffffff;
-          --color-border: #e0e0e0;
+          --color-border: #e2e8f0;
           --color-text: #2e3d49;
           --color-muted: #64748b;
-          --radius: 8px;
+          --border-radius: 8px;
           --spacing: 16px;
+          --transition-speed: 0.3s;
         }
         
-        /* --- Reset & Base --- */
+        /* Reset & Base */
         * {
           box-sizing: border-box;
         }
@@ -113,29 +115,39 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
           background-color: var(--color-bg);
           color: var(--color-text);
         }
+        a {
+          text-decoration: none;
+          color: inherit;
+        }
         
-        /* --- Header --- */
+        /* Header */
         .header {
-          background-color: var(--color-primary);
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+          background: var(--color-primary);
           color: white;
-          padding: 16px 24px;
+          padding: 12px 24px;
           display: flex;
           justify-content: space-between;
           align-items: center;
         }
         .header h2 {
+          font-size: 1.75rem;
+          font-weight: 700;
+          letter-spacing: 1px;
+          text-transform: uppercase;
           margin: 0;
-          font-size: 1.5rem;
         }
         .header .user {
           display: flex;
           align-items: center;
         }
         .header .user a {
-          text-decoration: none;
-          color: white;
           display: flex;
           align-items: center;
+          text-decoration: none;
+          color: white;
         }
         .header .user span {
           font-weight: bold;
@@ -149,21 +161,21 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
           border: 2px solid white;
         }
         
-        /* --- Layout --- */
+        /* Layout */
         .main {
           display: grid;
-          grid-template-columns: 240px 1fr;
+          grid-template-columns: var(--sidebar-width) 1fr;
           gap: var(--spacing);
           padding: var(--spacing);
         }
         .sidebar {
           background-color: var(--color-card);
           padding: var(--spacing);
-          border-radius: var(--radius);
+          border-radius: var(--border-radius);
           box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
         .sidebar h3 {
-          font-size: 0.95rem;
+          font-size: 0.9rem;
           color: var(--color-muted);
           margin-bottom: 12px;
         }
@@ -180,15 +192,15 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
         .content {
           background-color: var(--color-card);
           padding: var(--spacing);
-          border-radius: var(--radius);
+          border-radius: var(--border-radius);
           box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
         
-        /* --- Profile Box --- */
+        /* Profile Box */
         .profile-box {
           background-color: var(--color-bg);
           border: 1px solid var(--color-border);
-          border-radius: var(--radius);
+          border-radius: var(--border-radius);
           padding: var(--spacing);
         }
         .profile-box label {
@@ -217,11 +229,11 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
           border: 2px solid var(--color-primary);
         }
         
-        /* --- Buttons --- */
+        /* Buttons */
         button {
           padding: 10px 16px;
           border: none;
-          border-radius: 6px;
+          border-radius: var(--border-radius);
           font-size: 1rem;
           cursor: pointer;
           margin-top: 16px;
@@ -232,7 +244,7 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
           color: white;
         }
         button[type="submit"]:hover {
-          background-color: #388e3c;
+          background-color: #1565c0;
         }
         .btn-delete {
           background-color: var(--color-danger);
@@ -242,14 +254,14 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
           background-color: #b71c1c;
         }
         
-        /* --- Success Message --- */
+        /* Success Message */
         .success {
           color: green;
           margin-bottom: 1rem;
           font-weight: 500;
         }
         
-        /* --- Responsive --- */
+        /* Responsive */
         @media (max-width: 768px) {
           .main {
             grid-template-columns: 1fr;
@@ -274,7 +286,6 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
             padding: 0.75rem;
           }
         }
-
     </style>
 </head>
 <body>
