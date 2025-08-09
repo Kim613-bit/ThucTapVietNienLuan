@@ -91,13 +91,14 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
     <title>Hồ sơ cá nhân</title>
     <style>
         :root {
-          --color-primary: #4CAF50;
+          --color-primary: #1e88e5;
+          --color-secondary: #66bb6a;
           --color-danger: #e53935;
-          --color-bg: #f9f9f9;
+          --color-bg: #f9fafb;
           --color-card: #ffffff;
           --color-border: #e0e0e0;
           --color-text: #2e3d49;
-          --color-muted: #757575;
+          --color-muted: #64748b;
           --radius: 8px;
           --spacing: 16px;
         }
