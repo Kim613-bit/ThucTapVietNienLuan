@@ -80,8 +80,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $time_input = $_POST['transaction_time'] ?? date('H:i');
                 
                 // Kiểm tra định dạng dd/mm/yyyy
-                if (!preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $date_input) || !preg_match('/^\d{2}:\d{2}$/', $time_input)) {
-                    throw new Exception("Ngày giờ không hợp lệ (dd/mm/yyyy & HH:mm).");
+                $date_valid = DateTime::createFromFormat('d/m/Y', $date_input);
+                $time_valid = preg_match('/^([01]\\d|2[0-3]):[0-5]\\d$/', $time_input);
+                
+                if (!$date_valid || !$time_valid) {
+                    throw new Exception("Ngày giờ không hợp lệ. Định dạng yêu cầu: dd/mm/yyyy và HH:mm (24 giờ).");
                 }
                 
                 // Chuyển đổi định dạng ngày sang yyyy-mm-dd
@@ -90,11 +93,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     throw new Exception("Ngày giờ không hợp lệ.");
                 }
                 $datetime = $dtObj->format('Y-m-d H:i:s');
-
-                $test = DateTime::createFromFormat('Y-m-d H:i', $datetime);
-                if (!$test) {
-                    throw new Exception("Ngày giờ không hợp lệ.");
-                }
 
                 $sanitized = preg_replace('/[^\d\.\-]/', '', $rawAmount);
                 if (!is_numeric($sanitized)) throw new Exception("Số tiền không hợp lệ.");
@@ -461,14 +459,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       }
     });
   });
-    document.querySelector("form").addEventListener("submit", function (e) {
-      const input = document.querySelector("#transaction_time");
-      const parts = input.value.split(/[/ :]/); // [dd, mm, yyyy, HH, ii]
-      if (parts.length >= 5) {
-        const formatted = `${parts[2]}-${parts[1]}-${parts[0]} ${parts[3]}:${parts[4]}:00`;
-        input.value = formatted;
-      }
-    });
     flatpickr(".flatpickr-wrapper", {
       dateFormat: "d/m/Y",
       locale: "vi",
