@@ -135,6 +135,13 @@ if (!$transaction) {
   </style>
 </head>
 <body>
+    <?php if (isset($_SESSION['message'])): ?>
+      <p style="color: green; font-weight: bold; text-align: center;">
+        <?= $_SESSION['message'] ?>
+      </p>
+      <?php unset($_SESSION['message']); ?>
+    <?php endif; ?>
+
   <main class="main">
     <div class="content">
       <h2>✏️ Sửa giao dịch</h2>
@@ -148,7 +155,9 @@ if (!$transaction) {
         </select>
     
         <label for="amount">Số tiền:</label>
-        <input type="number" name="amount" id="amount" value="<?= htmlspecialchars($transaction['amount']) ?>" maxlength="10" step="1000" required>
+        <input type="number" name="amount" id="amount"
+           value="<?= htmlspecialchars($transaction['amount']) ?>"
+           placeholder="Nhập số tiền (VND)" maxlength="10" step="1000" required>
 
         <label for="description">Nội dung giao dịch:</label>
         <input type="text" name="description" id="description" value="<?= htmlspecialchars($transaction['description']) ?>" maxlength="30">    
