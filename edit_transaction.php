@@ -72,7 +72,7 @@ if (!$transaction) {
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: #eef2f7;
+            background-color: #f4f6f9;
             margin: 0;
             padding: 0;
             display: flex;
@@ -83,8 +83,8 @@ if (!$transaction) {
 
         .form-container {
             background: #fff;
-            padding: 35px;
-            border-radius: 10px;
+            padding: 35px 40px;
+            border-radius: 12px;
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 600px;
@@ -92,7 +92,7 @@ if (!$transaction) {
 
         h2 {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             color: #2c3e50;
         }
 
@@ -109,7 +109,7 @@ if (!$transaction) {
         textarea {
             width: 100%;
             padding: 10px;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
             border-radius: 6px;
             border: 1px solid #ccc;
             font-size: 15px;
@@ -155,60 +155,75 @@ if (!$transaction) {
         a.button-link:hover {
             background-color: #7f8c8d;
         }
+
+        .note {
+            font-size: 13px;
+            color: #888;
+            margin-top: -15px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
     <div class="form-container">
         <h2>✏️ Sửa giao dịch</h2>
         <form method="post" action="edit_transaction.php?id=<?= htmlspecialchars($_GET['id']) ?>">
+            <label for="account">Tên khoản tiền:</label>
+            <input type="text" id="account" name="account" value="Tiền mặt" readonly>
+
+            <label for="balance">Số dư hiện tại:</label>
+            <input type="text" id="balance" name="balance" value="1.650.000 VND" readonly>
+
             <label for="type">Loại giao dịch:</label>
             <select id="type" name="type">
-                <option value="1" <?= $transaction['type'] == 1 ? 'selected' : '' ?>>Thu</option>
-                <option value="2" <?= $transaction['type'] == 2 ? 'selected' : '' ?>>Chi</option>
+                <option value="1">Thu</option>
+                <option value="2">Chi</option>
             </select>
 
             <label for="amount">Số tiền:</label>
-            <input type="number" id="amount" name="amount" value="<?= htmlspecialchars($transaction['amount']) ?>" required>
+            <input type="number" id="amount" name="amount" value="50000.00" required>
+            <div class="note">Tối đa 98.349.999 VND</div>
 
-            <label for="description">Nội dung giao dịch:</label>
+            <label for="preset-description">Nội dung giao dịch:</label>
             <select id="preset-description" onchange="updateDescription()">
-
-            <label for="account_id">Khoản tiền:</label>
-            <select id="account_id" name="account_id">
-                <!-- Tùy chọn tài khoản sẽ được đổ từ cơ sở dữ liệu -->
-                <option value="<?= $transaction['account_id'] ?>" selected>Hiện tại</option>
+                <option value="">-- Chọn nội dung --</option>
             </select>
+            <textarea id="description" name="description" rows="2" placeholder="Nhập hoặc chọn nội dung">Hiện tại</textarea>
 
             <label for="date">Ngày:</label>
-            <input type="text" id="date" name="date" value="<?= date('d/m/Y', strtotime($transaction['date'])) ?>">
+            <input type="text" id="date" name="date" value="09/08/2025">
 
             <label for="time">Giờ:</label>
-            <input type="text" id="time" name="time" value="<?= date('h:i A', strtotime($transaction['date'])) ?>">
+            <input type="text" id="time" name="time" value="04:33 PM">
 
             <div class="button-group">
                 <button type="submit">💾 Lưu thay đổi</button>
-                <a class="button-link" href="transactions.php">← Quay lại</a>
+                <a class="button-link" href="dashboard.php">← Quay lại Dashboard</a>
             </div>
         </form>
     </div>
+
     <script>
-        const type = <?= $transaction['type'] ?>; // 1 = Thu, 2 = Chi
         const presetThu = ["Lương", "Thưởng", "Tiền lãi", "Bán hàng", "Khác"];
         const presetChi = ["Ăn uống", "Di chuyển", "Giải trí", "Mua sắm", "Khác"];
-    
-        const presetSelect = document.getElementById("preset-description");
-        const descriptionField = document.getElementById("description");
-    
-        const options = type === 1 ? presetThu : presetChi;
-        presetSelect.innerHTML = `<option value="">-- Chọn nội dung --</option>` +
-            options.map(item => `<option value="${item}">${item}</option>`).join("");
-    
+
+        function updatePresetOptions() {
+            const type = document.getElementById("type").value;
+            const presetSelect = document.getElementById("preset-description");
+            const options = type === "1" ? presetThu : presetChi;
+            presetSelect.innerHTML = `<option value="">-- Chọn nội dung --</option>` +
+                options.map(item => `<option value="${item}">${item}</option>`).join("");
+        }
+
         function updateDescription() {
-            const selected = presetSelect.value;
+            const selected = document.getElementById("preset-description").value;
             if (selected) {
-                descriptionField.value = selected;
+                document.getElementById("description").value = selected;
             }
         }
+
+        document.getElementById("type").addEventListener("change", updatePresetOptions);
+        document.addEventListener("DOMContentLoaded", updatePresetOptions);
     </script>
 </body>
 </html>
