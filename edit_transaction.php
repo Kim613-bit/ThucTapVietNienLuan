@@ -54,7 +54,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 // 👉 Lấy thông tin giao dịch để hiển thị form
-$query = "SELECT * FROM transactions WHERE id = $1 AND user_id = $2";
+$query = "SELECT t.*, a.name AS account_name, a.balance AS current_balance
+          FROM transactions t
+          JOIN accounts a ON t.account_id = a.id
+          WHERE t.id = $1 AND t.user_id = $2";
 $result = pg_query_params($conn, $query, array($id, $user_id));
 $transaction = pg_fetch_assoc($result);
 
@@ -186,7 +189,7 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
 </head>
 <body onload="updateMaxAmount()">
   <div class="container">
-    <h1>Sửa giao dịch</h1>
+    <h1>✏️ Sửa giao dịch</h1>
     <form action="update_transaction.php" method="POST">
       <label>Tên khoản tiền</label>
       <input type="text" name="account" value="<?= $account_name ?>" readonly>
