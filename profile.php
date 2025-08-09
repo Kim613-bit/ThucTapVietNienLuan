@@ -130,7 +130,6 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
           z-index: 1000;
           background: var(--color-primary);
           color: white;
-          padding: 12px 24px;
           display: flex;
           justify-content: space-between;
           align-items: center;
