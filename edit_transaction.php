@@ -72,7 +72,7 @@ if (!$transaction) {
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(to right, #f0f4f8, #d9e2ec);
+            background: #eef2f7;
             margin: 0;
             padding: 0;
             display: flex;
@@ -83,33 +83,37 @@ if (!$transaction) {
 
         .form-container {
             background: #fff;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 35px;
+            border-radius: 10px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 600px;
         }
 
         h2 {
             text-align: center;
-            margin-bottom: 30px;
-            color: #333;
+            margin-bottom: 25px;
+            color: #2c3e50;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #34495e;
         }
 
-        input[type=\"text\"], input[type=\"number\"], select, textarea {
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
             width: 100%;
             padding: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             border-radius: 6px;
             border: 1px solid #ccc;
             font-size: 15px;
+            background-color: #fdfdfd;
         }
 
         textarea {
@@ -119,10 +123,12 @@ if (!$transaction) {
         .button-group {
             display: flex;
             justify-content: space-between;
+            margin-top: 10px;
         }
 
-        button, a.button-link {
-            padding: 12px 24px;
+        button,
+        a.button-link {
+            padding: 10px 20px;
             font-size: 15px;
             font-weight: bold;
             border-radius: 6px;
@@ -133,21 +139,21 @@ if (!$transaction) {
         }
 
         button {
-            background-color: #007bff;
+            background-color: #27ae60;
             color: #fff;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: #219150;
         }
 
         a.button-link {
-            background-color: #6c757d;
+            background-color: #95a5a6;
             color: #fff;
         }
 
         a.button-link:hover {
-            background-color: #5a6268;
+            background-color: #7f8c8d;
         }
     </style>
 </head>
@@ -157,31 +163,33 @@ if (!$transaction) {
         <form method="post" action="edit_transaction.php?id=<?= htmlspecialchars($_GET['id']) ?>">
             <label for="type">Loại giao dịch:</label>
             <select id="type" name="type">
-                <option value="1">Thu</option>
-                <option value="2" selected>Chi</option>
+                <option value="1" <?= $transaction['type'] == 1 ? 'selected' : '' ?>>Thu</option>
+                <option value="2" <?= $transaction['type'] == 2 ? 'selected' : '' ?>>Chi</option>
             </select>
 
             <label for="amount">Số tiền:</label>
-            <input type="number" id="amount" name="amount" value="50000.00" required>
+            <input type="number" id="amount" name="amount" value="<?= htmlspecialchars($transaction['amount']) ?>" required>
 
             <label for="description">Nội dung giao dịch:</label>
-            <textarea id="description" name="description" rows="3">Ăn uống</textarea>
+            <textarea id="description" name="description" rows="3"><?= htmlspecialchars($transaction['description']) ?></textarea>
 
-            <label for="account">Khoản tiền:</label>
-            <select id="account" name="account">
-                <option value="1" selected>Tiền mặt</option>
-                <!-- Thêm các tài khoản khác nếu cần -->
+            <label for="account_id">Khoản tiền:</label>
+            <select id="account_id" name="account_id">
+                <!-- Tùy chọn tài khoản sẽ được đổ từ cơ sở dữ liệu -->
+                <option value="<?= $transaction['account_id'] ?>" selected>Hiện tại</option>
             </select>
 
-            <label for="datetime">Thời gian giao dịch:</label>
-            <input type="text" id="datetime" name="datetime" value="08/09/2025 04:33 PM">
+            <label for="date">Ngày:</label>
+            <input type="text" id="date" name="date" value="<?= date('d/m/Y', strtotime($transaction['date'])) ?>">
+
+            <label for="time">Giờ:</label>
+            <input type="text" id="time" name="time" value="<?= date('h:i A', strtotime($transaction['date'])) ?>">
 
             <div class="button-group">
                 <button type="submit">💾 Lưu thay đổi</button>
-                <a class="button-link" href="dashboard.php">← Quay lại Dashboard</a>
+                <a class="button-link" href="transactions.php">← Quay lại</a>
             </div>
         </form>
     </div>
 </body>
 </html>
-
