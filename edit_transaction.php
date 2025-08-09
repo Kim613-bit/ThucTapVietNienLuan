@@ -62,6 +62,20 @@ if (!$transaction) {
     echo "Giao dịch không tồn tại hoặc không thuộc quyền truy cập.";
     exit();
 }
+
+// Gán biến để sử dụng trong HTML
+$account_name = $transaction['account_name'] ?? 'Không xác định';
+$current_balance = floatval($transaction['current_balance'] ?? 0);
+$transaction_type = $transaction['type'] ?? 'thu';
+$amount = floatval($transaction['amount'] ?? 0);
+$selected_content = $transaction['description'] ?? '';
+$datetime = $transaction['date'] ?? date('Y-m-d H:i');
+$date = date('Y-m-d', strtotime($datetime));
+$time = date('H:i', strtotime($datetime));
+$account_id = $transaction['account_id'] ?? 0;
+
+// Gán danh sách nội dung mẫu
+$content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
 ?>
 
 <!DOCTYPE html>
@@ -178,7 +192,7 @@ if (!$transaction) {
       <input type="text" name="account" value="<?= $account_name ?>" readonly>
 
       <label>Số dư hiện tại</label>
-      <input type="text" id="balance" value="<?= number_format($current_balance, 0, ',', '.') ?> VND" readonly>
+      <input type="text" id="balance" value="<?= number_format((float)$current_balance, 0, ',', '.') ?> VND" readonly>
 
       <label>Loại giao dịch</label>
       <select name="type" id="type" onchange="updateMaxAmount()">
