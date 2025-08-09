@@ -132,13 +132,6 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
           justify-content: space-between;
           align-items: center;
         }
-        .header h2 {
-          font-size: 1.75rem;
-          font-weight: 700;
-          letter-spacing: 1px;
-          text-transform: uppercase;
-          margin: 0;
-        }
         .header .user {
           display: flex;
           align-items: center;
