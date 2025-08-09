@@ -331,9 +331,9 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
     <div class="header">
         <h2>Quản lý thu chi</h2>
         <div class="user">
-            <a href="profile.php">
-                <span><?= htmlspecialchars($user['username']) ?></span>
-                <img src="<?= htmlspecialchars($avatarPath) ?>" alt="Avatar">
+            <a href="profile.php" class="profile-link">
+              <span>Xin chào, <?= htmlspecialchars($user['full_name']) ?></span>
+              <img src="<?= $avatarPath ?>" alt="Avatar">
             </a>
         </div>
     </div>
