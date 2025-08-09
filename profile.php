@@ -173,6 +173,15 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
           margin-top: 0.5rem;
         }
         
+        .profile-link img {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          object-fit: cover;
+          margin-left: 10px;
+          border: 2px solid white;
+        }
+        
         button[type="submit"] {
           background-color: var(--color-primary);
           color: white;
@@ -332,7 +341,7 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
         <h2>Quản lý thu chi</h2>
         <div class="user">
             <a href="profile.php" class="profile-link">
-              <span>Xin chào, <?= htmlspecialchars($user['full_name']) ?></span>
+              <span>Xin chào, <?= htmlspecialchars($user['fullname']) ?></span>
               <img src="<?= $avatarPath ?>" alt="Avatar">
             </a>
         </div>
