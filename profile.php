@@ -289,55 +289,59 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
 </head>
 <body>
     <div class="header">
-        <h2>Quản lý thu chi</h2>
-        <div class="user">
-            <a href="profile.php" class="profile-link">
-              <span>Xin chào, <?= htmlspecialchars($user['fullname']) ?></span>
-              <img src="<?= $avatarPath ?>" alt="Avatar">
-            </a>
-        </div>
+      <h2 class="brand">Hồ sơ người dùng</h2>
+      <div class="user">
+        <a href="profile.php" class="profile-link">
+          <span>Xin chào, <?= htmlspecialchars($user['fullname']) ?></span>
+          <img src="<?= $avatarPath ?>" alt="Avatar">
+        </a>
+      </div>
     </div>
 
-    <div class="main">
-        <div class="sidebar">
-            <h3>Menu</h3>
-            <a href="dashboard.php">🏠 Dashboard</a>
-            <a href="advanced_statistics.php">📊 Thống kê nâng cao</a>
-            <a href="logout.php">🔓 Đăng xuất</a>
+    <div class="dashboard-wrapper">
+      <nav class="sidebar">
+        <h3><a href="advanced_statistics.php">📊 Thống kê nâng cao</a></h3>
+        <h3>Chức năng</h3>
+        <a href="dashboard.php">🏠 Dashboard</a>
+        <a href="feedback.php">📩 Gửi phản hồi</a>
+        <?php if ($user['username'] === 'admin'): ?>
+          <a href="admin_feedback.php">📬 Xem phản hồi</a>
+        <?php endif; ?>
+        <a href="logout.php">🔓 Đăng xuất</a>
+      </nav>
+    
+      <div class="content">
+        <h2>👤 Hồ sơ cá nhân</h2>
+        <?php if ($success): ?>
+          <p class="success"><?= $success ?></p>
+        <?php endif; ?>
+    
+        <div class="profile-box">
+          <form method="post" enctype="multipart/form-data">
+            <label>Họ tên:</label>
+            <input type="text" name="fullname" maxlength="30" value="<?= htmlspecialchars($user['fullname']) ?>" required>
+    
+            <label>Năm sinh:</label>
+            <input type="number" name="birthyear" value="<?= htmlspecialchars($user['birthyear']) ?>" required>
+    
+            <label>Email:</label>
+            <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required>
+    
+            <label>Ảnh đại diện:</label>
+            <input type="file" name="avatar" accept=".png">
+    
+            <img src="<?= htmlspecialchars($avatarPath) ?>" alt="Avatar" style="margin-bottom: 10px;">
+    
+            <button type="submit" onclick="return confirm('✅ Bạn có chắc chắn muốn cập nhật thông tin không?');">
+              Cập nhật
+            </button>
+    
+            <button type="submit" name="delete_account" class="btn-delete" onclick="return confirm('❌ Bạn có chắc chắn muốn xóa tài khoản không? Thao tác này không thể hoàn tác!');">
+              ❌ Xóa tài khoản
+            </button>
+          </form>
         </div>
-
-        <div class="content">
-            <h2>👤 Hồ sơ cá nhân</h2>
-            <?php if ($success): ?>
-                <p class="success"><?= $success ?></p>
-            <?php endif; ?>
-
-            <div class="profile-box">
-                <form method="post" enctype="multipart/form-data">
-                    <label>Họ tên:</label>
-                    <input type="text" name="fullname" maxlength="30" value="<?= htmlspecialchars($user['fullname']) ?>" required>
-
-                    <label>Năm sinh:</label>
-                    <input type="number" name="birthyear" value="<?= htmlspecialchars($user['birthyear']) ?>" required>
-
-                    <label>Email:</label>
-                    <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required>
-
-                    <label>Ảnh đại diện:</label>
-                    <input type="file" name="avatar" accept=".png">
-
-                    <img src="<?= htmlspecialchars($avatarPath) ?>" alt="Avatar" style="margin-bottom: 10px;">
-
-                    <button type="submit" onclick="return confirm('✅ Bạn có chắc chắn muốn cập nhật thông tin không?');">
-                        Cập nhật
-                    </button>
-
-                    <button type="submit" name="delete_account" class="btn-delete" onclick="return confirm('❌ Bạn có chắc chắn muốn xóa tài khoản không? Thao tác này không thể hoàn tác!');">
-                        ❌ Xóa tài khoản
-                    </button>
-                </form>
-            </div>
-        </div>
+      </div>
     </div>
 </body>
 </html>
