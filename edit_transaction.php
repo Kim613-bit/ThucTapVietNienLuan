@@ -64,9 +64,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // 👉 Tính toán ảnh hưởng đến số dư
     $delta = 0;
-    $delta -= ($oldType === 1) ? $oldAmount : -$oldAmount;
-    $delta += ($newType === 1) ? $newAmount : -$newAmount;
+    if ($oldType === 1) {
+        $delta -= $oldAmount;
+    } else {
+        $delta += $oldAmount;
+    }
     
+    if ($newType === 1) {
+        $delta += $newAmount;
+    } else {
+        $delta -= $newAmount;
+    }    
     
     // 👉 Cập nhật số dư tài khoản
     if ($oldAccountId !== $account_id) {
