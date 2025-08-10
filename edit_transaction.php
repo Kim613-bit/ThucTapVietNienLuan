@@ -266,7 +266,7 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
       </select>
 
       <label>Số tiền</label>
-      <input type="text" id="amount" name="amount" value="<?= number_format($amount, 0, ',', ',') ?>" required>
+      <input type="text" id="amount" maxlength="10" name="amount" value="<?= number_format($amount, 0, ',', ',') ?>" required>
 
       <label>Nội dung giao dịch</label>
       <input list="content-list" name="content" value="<?= $selected_content ?>">
