@@ -97,7 +97,8 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
   <script>
     function updateMaxAmount() {
       const type = document.getElementById('type').value;
-      const balance = parseInt(document.getElementById('balance').value);
+      const balanceRaw = document.getElementById('balance').value.replace(/[^\d]/g, '');
+      const balance = parseInt(balanceRaw);
       const amountInput = document.getElementById('amount');
       if (type === 'thu') {
         amountInput.max = 99999999 - balance;
@@ -252,7 +253,7 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
       </select>
 
       <label>Số tiền</label>
-      <input type="number" id="amount" name="amount" value="<?= $amount ?>" required>
+      <input type="text" id="amount" name="amount" value="<?= number_format($amount, 0, ',', ',') ?>" required>
 
       <label>Nội dung giao dịch</label>
       <input list="content-list" name="content" value="<?= $selected_content ?>">
@@ -301,6 +302,20 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
   flatpickr("#datepicker", {
     dateFormat: "d/m/Y",
     defaultDate: "<?= date('d/m/Y', strtotime($datetime)) ?>"
+  });
+    const amountInput = document.getElementById('amount');
+
+      amountInput.addEventListener('input', function () {
+        let raw = this.value.replace(/,/g, '');
+        if (!isNaN(raw) && raw !== '') {
+          this.value = parseFloat(raw).toLocaleString('en-US');
+        } else {
+          this.value = '';
+        }
+      });
+    document.querySelector('form').addEventListener('submit', function () {
+    const raw = amountInput.value.replace(/,/g, '');
+    amountInput.value = raw;
   });
 </script>
 </body>
