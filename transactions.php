@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "db.php";
+include "db.php"; // Kết nối PostgreSQL bằng pg_connect()
 
 // Kiểm tra đăng nhập
 if (!isset($_SESSION['user_id'])) {
@@ -11,11 +11,13 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Lấy danh sách giao dịch của người dùng
-$sql = "SELECT * FROM transactions WHERE user_id = ? ORDER BY date DESC";
-$stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_bind_param($stmt, "i", $user_id);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
+$query = "SELECT * FROM transactions WHERE user_id = $1 ORDER BY date DESC";
+$result = pg_query_params($conn, $query, array($user_id));
+
+if (!$result) {
+    echo "<p style='color:red;'>❌ Lỗi truy vấn: " . pg_last_error($conn) . "</p>";
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
@@ -42,7 +44,7 @@ $result = mysqli_stmt_get_result($stmt);
 
         <?php
         $i = 1;
-        while ($row = mysqli_fetch_assoc($result)) {
+        while ($row = pg_fetch_assoc($result)) {
             echo "<tr>";
             echo "<td>" . $i++ . "</td>";
             echo "<td>" . ($row['type'] ? "Thu" : "Chi") . "</td>";
