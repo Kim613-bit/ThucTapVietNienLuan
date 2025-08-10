@@ -298,7 +298,7 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng", "Tiền �
       <input type="text" id="amount" maxlength="10" name="amount" value="<?= number_format($amount, 0, ',', ',') ?>" required>
 
       <label>Nội dung giao dịch</label>
-      <input list="content-list" name="content" value="<?= $selected_content ?>">
+      <input list="content-list" name="content" maxlength="10" value="<?= $selected_content ?>">
       <datalist id="content-list">
         <?php foreach ($content_options as $option): ?>
           <option value="<?= $option ?>">
