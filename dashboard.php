@@ -233,6 +233,16 @@ $typeLabels = [
       color: var(--color-muted);
       margin-bottom: 8px;
     }
+    .sidebar a {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--color-text);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .sidebar a:hover {
+      color: var(--color-primary);
+    }
     .account-card {
       display: block;
       background: var(--color-bg);
