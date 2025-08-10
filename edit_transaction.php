@@ -21,7 +21,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $type_code = ($type === 'thu') ? 1 : 2;
     $rawAmount   = $_POST['amount'] ?? '0';
     $description = trim($_POST['content'] ?? '');
-    $date        = $_POST['date'];
 
     // ✅ Kiểm tra & lọc số tiền
     $sanitized = preg_replace('/[^\d\.]/', '', $rawAmount);
@@ -40,8 +39,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $account_id = intval($_POST['account_id']);
-    $time = $_POST['time'];
-    $datetime = $date . ' ' . $time;
+    $date_input = $_POST['transaction_date'] ?? date('d/m/Y', strtotime($transaction['date']));
+    $time = $_POST['transaction_time'] ?? date('H:i', strtotime($transaction['date'])); 
+    
+    // Chuyển định dạng từ d/m/Y sang Y-m-d
+    $dateObj = DateTime::createFromFormat('d/m/Y', $date_input);
+    $formattedDate = $dateObj ? $dateObj->format('Y-m-d') : date('Y-m-d');
+    
+    $datetime = $formattedDate . ' ' . $time;
+
 
     $query = "UPDATE transactions 
               SET type = $1, amount = $2, description = $3, date = $4, account_id = $5 
@@ -213,8 +219,7 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
         }
         
         .btn-back:hover {
-          background-color: #dfe6e9;
-          transform: translateY(-2px);
+          text-decoration: underline;
         }
     </style>
 </head>
@@ -247,15 +252,46 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
         <?php endforeach; ?>
       </datalist>
 
-      <label>Thời gian giao dịch</label>
-      <div style="display: flex; gap: 10px;">
-        <input type="date" name="date" value="<?= $date ?>" required style="flex: 1;">
-        <input type="time" name="time" value="<?= $time ?>" required style="flex: 1;">
-      </div>
+      <label>Thời gian giao dịch:</label>
+        <div style="display: flex; gap: 12px;">
+          <div style="flex: 1; position: relative;">
+            <div class="flatpickr-wrapper">
+              <input
+                type="text"
+                id="datepicker"
+                name="transaction_date"
+                class="form-control"
+                data-input
+                placeholder="Chọn ngày"
+                value="<?= htmlspecialchars($_POST['transaction_date'] ?? date('d/m/Y', strtotime($datetime))) ?>"
+                required
+              >
+              <button type="button" class="calendar-btn" data-toggle title="Chọn ngày">📅</button>
+            </div>
+          </div>
+        
+          <div style="flex: 1;">
+            <input
+              type="time"
+              name="transaction_time"
+              class="form-control"
+              value="<?= htmlspecialchars($_POST['transaction_time'] ?? date('H:i', strtotime($datetime))) ?>"
+              required
+            >
+          </div>
+        </div>
 
       <input type="submit" value="💾 Lưu thay đổi" class="btn-save">
         <a href="dashboard.php" class="btn-back">← Quay lại Dashboard</a>
     </form>
   </div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+  flatpickr("#datepicker", {
+    dateFormat: "d/m/Y",
+    defaultDate: "<?= date('d/m/Y', strtotime($datetime)) ?>"
+  });
+</script>
 </body>
 </html>
