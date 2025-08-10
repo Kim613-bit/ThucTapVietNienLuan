@@ -222,15 +222,28 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
         .btn-back:hover {
           text-decoration: underline;
         }
+        .flatpickr-wrapper {
+          position: relative;
+          width: 100%;
+        }
+        
+        .flatpickr-wrapper input {
+          width: 100%;
+          height: 38px;
+          font-size: 15px;
+          padding-right: 40px; /* chừa chỗ cho nút 📅 */
+        }
+        
         .calendar-btn {
-            position: absolute;
-            top: 6px;
-            right: 10px;
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: #333;
-            cursor: pointer;
+          position: absolute;
+          top: 50%;
+          right: 10px;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          font-size: 20px;
+          color: #333;
+          cursor: pointer;
         }
     </style>
 </head>
@@ -299,10 +312,15 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-  flatpickr("#datepicker", {
-    dateFormat: "d/m/Y",
-    defaultDate: "<?= date('d/m/Y', strtotime($datetime)) ?>"
-  });
+    const calendarBtn = document.querySelector(".calendar-btn");
+    const datepickerInstance = flatpickr("#datepicker", {
+      dateFormat: "d/m/Y",
+      defaultDate: "<?= date('d/m/Y', strtotime($datetime)) ?>"
+    });
+    
+    calendarBtn.addEventListener("click", function () {
+      datepickerInstance.open();
+    });
     const amountInput = document.getElementById('amount');
 
       amountInput.addEventListener('input', function () {
