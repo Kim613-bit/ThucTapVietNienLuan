@@ -26,7 +26,8 @@ $user_id = $_SESSION['user_id'];
 $sql_user = "SELECT username, full_name, avatar, role FROM users WHERE id = $1";
 $result = pg_query_params($conn, $sql_user, [$_SESSION['user_id']]);
 $user = pg_fetch_assoc($result);
-$avatarPath = '/uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem.png');
+$avatarFile = $user['avatar'] ?? '';
+$avatarPath = '/uploads/' . (file_exists(__DIR__ . '/uploads/' . $avatarFile) && !empty($avatarFile) ? $avatarFile : 'avt_mem.png');
 $filter_account     = isset($_GET['account_id']) ? intval($_GET['account_id']) : 0;
 $filter_type        = isset($_GET['type'])       ? $_GET['type']           : 'all';
 $filter_description = isset($_GET['description'])? trim($_GET['description']) : '';
@@ -449,6 +450,13 @@ $typeLabels = [
       margin-left: 10px;
       border: 2px solid white;
     }
+    .avatar-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid white;
+    }
     /* 6. Responsive */
     @media (max-width: 992px) {
       .dashboard-wrapper .sidebar {
@@ -512,7 +520,7 @@ $typeLabels = [
       <div class="user">
         <a href="profile.php" class="profile-link">
           <span>Xin chào, <?= htmlspecialchars($user['full_name'] ?? '') ?></span>
-          <img src="<?= $avatarPath ?>" alt="Avatar">
+          <img src="<?= $avatarPath ?>" alt="Avatar" class="avatar-img">
         </a>
       </div>
     </div>
