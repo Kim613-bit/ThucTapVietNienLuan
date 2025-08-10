@@ -520,7 +520,6 @@ $typeLabels = [
   <div class="dashboard-wrapper">  
       <!-- Sidebar -->
       <nav class="sidebar closed">
-        <h3><a href="advanced_statistics.php">📊 Thống kê nâng cao</a></h3>
         <h3>Các khoản tiền</h3>
         <?php foreach ($accounts as $acc): ?>
           <a href="edit_account_balance.php?account_id=<?= $acc['id'] ?>" class="account-card">
@@ -536,6 +535,7 @@ $typeLabels = [
           <?= number_format($totalAccountBalance, 0, ',', '.') ?> VND
         </div>
         <hr>
+        <a href="advanced_statistics.php">📊 Thống kê nâng cao</a>
         <a href="feedback.php">📩 Gửi phản hồi</a>
         <?php if ($user['role'] === 'admin'): ?>
           <a href="admin_feedback.php">📬 Xem phản hồi</a>
