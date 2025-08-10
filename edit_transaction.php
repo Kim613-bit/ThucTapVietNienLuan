@@ -9,9 +9,9 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
-$id = $_GET['id'] ?? null;
+$id = $_POST['id'] ?? $_GET['id'] ?? null;
 if (!$id) {
-    header("Location: transactions.php");
+    header("Location: dashboard.php");
     exit();
 }
 
@@ -48,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = pg_query_params($conn, $query, array($type, $amount, $description, $datetime, $account_id, $id, $user_id));
    
     $_SESSION['message'] = "✅ Giao dịch đã được cập nhật thành công.";
-    header("Location: transactions.php");
+    header("Location: dashboard.php");
     exit();
 }
 
@@ -187,38 +187,49 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
         }
 
         .btn-save {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
+          background-color: #2ecc71;
+          color: white;
+          padding: 12px 20px;
+          border: none;
+          border-radius: 8px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          box-shadow: 0 4px 8px rgba(46, 204, 113, 0.3);
+          transition: background-color 0.3s ease, transform 0.2s ease;
         }
-    
+        
         .btn-save:hover {
-            background-color: #45a049;
+          background-color: #27ae60;
+          transform: translateY(-2px);
         }
-    
+        
         .btn-back {
-            background-color: #f0f0f0;
-            color: #333;
-            padding: 10px 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: bold;
+          display: inline-block;
+          background-color: #ecf0f1;
+          color: #2c3e50;
+          padding: 12px 20px;
+          border: 1px solid #bdc3c7;
+          border-radius: 8px;
+          font-size: 16px;
+          font-weight: 600;
+          text-decoration: none;
+          margin-top: 20px;
+          text-align: center;
+          transition: background-color 0.3s ease, transform 0.2s ease;
         }
-    
+        
         .btn-back:hover {
-            background-color: #e0e0e0;
+          background-color: #dfe6e9;
+          transform: translateY(-2px);
         }
     </style>
 </head>
 <body onload="updateMaxAmount()">
   <div class="container">
     <h1>✏️ Sửa giao dịch</h1>
-    <form action="update_transaction.php" method="POST">
+    <form action="edit_transaction.php?id=<?= $id ?>" method="POST">
+    <input type="hidden" name="id" value="<?= $id ?>">
       <label>Tên khoản tiền</label>
       <input type="text" name="account" value="<?= $account_name ?>" readonly>
         <input type="hidden" name="account_id" value="<?= $account_id ?>">
