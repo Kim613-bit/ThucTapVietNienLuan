@@ -511,11 +511,6 @@ $typeLabels = [
         flex-direction: column;
         align-items: flex-start;
       }
-      table th:nth-child(4), table td:nth-child(4), /* Mô tả */
-      table th:nth-child(5), table td:nth-child(5), /* Số dư còn lại */
-      table th:nth-child(6), table td:nth-child(6)  /* Khoản tiền */ {
-      display: none;
-      }
     }
     .action-buttons a {
       display: inline-block;
