@@ -506,7 +506,6 @@ $typeLabels = [
         
         .table-wrapper th,
         .table-wrapper td {
-          border: 1px solid #ccc;
           padding: 8px 12px;
           text-align: left;
           vertical-align: middle;
