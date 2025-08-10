@@ -105,7 +105,7 @@ $transaction = pg_fetch_assoc($result);
 // Gán biến để sử dụng trong HTML
 $account_name = $transaction['account_name'] ?? 'Không xác định';
 $current_balance = floatval($transaction['current_balance'] ?? 0);
-$transaction_type = $transaction['type'] ?? 'thu';
+$transaction_type = ($transaction['type'] == 1) ? 'thu' : 'chi';
 $amount = floatval($transaction['amount'] ?? 0);
 $selected_content = $transaction['description'] ?? '';
 $datetime = $transaction['date'] ?? date('Y-m-d H:i');
