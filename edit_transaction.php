@@ -18,7 +18,7 @@ if (!$id) {
 // 👉 Khi người dùng cập nhật giao dịch
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $type        = $_POST['type'];
-    $type_code   = ($type === 'thu') ? 1 : 2;
+    $type_code = ($type === 'thu') ? 0 : 1;
     $rawAmount   = $_POST['amount'] ?? '0';
     $description = trim($_POST['content'] ?? '');
     $account_id  = intval($_POST['account_id']);
@@ -66,7 +66,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $delta = 0;
     $delta -= ($oldType === 1) ? $oldAmount : -$oldAmount;
     $delta += ($newType === 1) ? $newAmount : -$newAmount;
-
+    
+    
     // 👉 Cập nhật số dư tài khoản
     if ($oldAccountId !== $account_id) {
         $reverseOld = ($oldType === 1) ? -$oldAmount : $oldAmount;
@@ -77,12 +78,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         pg_query_params($conn, "UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3", array($delta, $account_id, $user_id));
     }
+    // 👉 Truy vấn số dư hiện tại của tài khoản
+    $balance_q = pg_query_params($conn, "SELECT balance FROM accounts WHERE id = $1 AND user_id = $2", array($account_id, $user_id));
+    $balance_data = pg_fetch_assoc($balance_q);
+    $updated_balance = floatval($balance_data['balance'] ?? 0);
 
     // 👉 Cập nhật giao dịch
     $updateQuery = "UPDATE transactions 
-                    SET type = $1, amount = $2, description = $3, date = $4, account_id = $5 
-                    WHERE id = $6 AND user_id = $7";
-    pg_query_params($conn, $updateQuery, array($type_code, $amount, $description, $datetime, $account_id, $id, $user_id));
+                    SET type = $1, amount = $2, description = $3, date = $4, account_id = $5, remaining_balance = $6 
+                    WHERE id = $7 AND user_id = $8";
+    pg_query_params($conn, $updateQuery, array(
+        $type_code, $amount, $description, $datetime, $account_id, $updated_balance, $id, $user_id
+    ));
 
     $_SESSION['message'] = "✅ Giao dịch đã được cập nhật thành công.";
     header("Location: dashboard.php");
@@ -107,7 +114,7 @@ $time = date('H:i', strtotime($datetime));
 $account_id = $transaction['account_id'] ?? 0;
 
 // Gán danh sách nội dung mẫu
-$content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
+$content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng", "Tiền điện", "Tiền nước", "Số dư ban đầu", "Chuyển khoản"];
 ?>
 
 <!DOCTYPE html>
