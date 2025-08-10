@@ -498,6 +498,25 @@ $typeLabels = [
         width: 100%;
       }
     }
+      .table-wrapper table {
+          width: 100%;
+          border-collapse: collapse;
+          table-layout: auto;
+        }
+        
+        .table-wrapper th,
+        .table-wrapper td {
+          border: 1px solid #ccc;
+          padding: 8px 12px;
+          text-align: left;
+          vertical-align: middle;
+          white-space: nowrap;
+        }
+        
+        .table-wrapper th {
+          background-color: #f5f5f5;
+          font-weight: bold;
+        }
     @media (max-width: 600px) {
       .filter-panel {
         grid-template-columns: 1fr;
