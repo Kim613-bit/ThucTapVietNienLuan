@@ -280,7 +280,6 @@ $typeLabels = [
     /* ——— Module: filter form ——— */
     .filter-panel {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
       gap: var(--spacing);
       background: var(--color-card);
       padding: var(--spacing);
