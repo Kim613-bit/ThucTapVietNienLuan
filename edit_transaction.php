@@ -221,6 +221,16 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
         .btn-back:hover {
           text-decoration: underline;
         }
+        .calendar-btn {
+            position: absolute;
+            top: 6px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #333;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body onload="updateMaxAmount()">
