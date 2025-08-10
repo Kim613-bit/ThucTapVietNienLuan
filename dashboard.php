@@ -524,6 +524,16 @@ $typeLabels = [
       .responsive-filters .form-group {
         width: 100%;
       }
+        .date-heading {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+    
+      .date-heading span {
+        display: block;
+        width: 100%;
+      }
     }
     .action-buttons a {
       display: inline-block;
