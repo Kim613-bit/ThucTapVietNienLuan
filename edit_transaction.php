@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $amount = floatval($sanitized);
-    if ($amount <= 0) {
+    if ($amount < 0) {
         echo "<p style='color:red;'>Số tiền phải lớn hơn 0.</p>";
         exit();
     } elseif ($amount > 1000000000000) {
