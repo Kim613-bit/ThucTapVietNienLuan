@@ -18,9 +18,12 @@ if (!$id) {
 // 👉 Khi người dùng cập nhật giao dịch
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $type        = $_POST['type'];
-    $type_code = ($type === 'thu') ? 1 : 2;
+    $type_code   = ($type === 'thu') ? 1 : 2;
     $rawAmount   = $_POST['amount'] ?? '0';
     $description = trim($_POST['content'] ?? '');
+    $account_id  = intval($_POST['account_id']);
+    $date_input = $_POST['transaction_date'] ?? date('d/m/Y');
+    $time = $_POST['transaction_time'] ?? date('H:i');
 
     // ✅ Kiểm tra & lọc số tiền
     $sanitized = preg_replace('/[^\d\.]/', '', $rawAmount);
@@ -38,40 +41,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    $account_id = intval($_POST['account_id']);
-    $date_input = $_POST['transaction_date'] ?? date('d/m/Y', strtotime($transaction['date']));
-    $time = $_POST['transaction_time'] ?? date('H:i', strtotime($transaction['date'])); 
-    
-    // Chuyển định dạng từ d/m/Y sang Y-m-d
+    // 👉 Truy vấn giao dịch cũ
+    $oldQuery = "SELECT type, amount, account_id FROM transactions WHERE id = $1 AND user_id = $2";
+    $oldResult = pg_query_params($conn, $oldQuery, array($id, $user_id));
+    $oldTransaction = pg_fetch_assoc($oldResult);
+
+    if (!$oldTransaction) {
+        echo "<p style='color:red;'>Không tìm thấy giao dịch cũ.</p>";
+        exit();
+    }
+
+    $oldType       = intval($oldTransaction['type']);
+    $oldAmount     = floatval($oldTransaction['amount']);
+    $oldAccountId  = intval($oldTransaction['account_id']);
+    $newType       = $type_code;
+    $newAmount     = $amount;
+
+    // 👉 Xử lý ngày giờ
     $dateObj = DateTime::createFromFormat('d/m/Y', $date_input);
     $formattedDate = $dateObj ? $dateObj->format('Y-m-d') : date('Y-m-d');
-    
     $datetime = $formattedDate . ' ' . $time;
 
+    // 👉 Tính toán ảnh hưởng đến số dư
+    $delta = 0;
+    $delta -= ($oldType === 1) ? $oldAmount : -$oldAmount;
+    $delta += ($newType === 1) ? $newAmount : -$newAmount;
 
-    $query = "UPDATE transactions 
-              SET type = $1, amount = $2, description = $3, date = $4, account_id = $5 
-              WHERE id = $6 AND user_id = $7";
-    $result = pg_query_params($conn, $query, array($type_code, $amount, $description, $datetime, $account_id, $id, $user_id));
-   
+    // 👉 Cập nhật số dư tài khoản
+    if ($oldAccountId !== $account_id) {
+        $reverseOld = ($oldType === 1) ? -$oldAmount : $oldAmount;
+        pg_query_params($conn, "UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3", array($reverseOld, $oldAccountId, $user_id));
+
+        $applyNew = ($newType === 1) ? $newAmount : -$newAmount;
+        pg_query_params($conn, "UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3", array($applyNew, $account_id, $user_id));
+    } else {
+        pg_query_params($conn, "UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3", array($delta, $account_id, $user_id));
+    }
+
+    // 👉 Cập nhật giao dịch
+    $updateQuery = "UPDATE transactions 
+                    SET type = $1, amount = $2, description = $3, date = $4, account_id = $5 
+                    WHERE id = $6 AND user_id = $7";
+    pg_query_params($conn, $updateQuery, array($type_code, $amount, $description, $datetime, $account_id, $id, $user_id));
+
     $_SESSION['message'] = "✅ Giao dịch đã được cập nhật thành công.";
     header("Location: dashboard.php");
     exit();
 }
-
-
-// 👉 Lấy thông tin giao dịch để hiển thị form
 $query = "SELECT t.*, a.name AS account_name, a.balance AS current_balance
           FROM transactions t
           JOIN accounts a ON t.account_id = a.id
           WHERE t.id = $1 AND t.user_id = $2";
 $result = pg_query_params($conn, $query, array($id, $user_id));
 $transaction = pg_fetch_assoc($result);
-
-if (!$transaction) {
-    echo "Giao dịch không tồn tại hoặc không thuộc quyền truy cập.";
-    exit();
-}
 
 // Gán biến để sử dụng trong HTML
 $account_name = $transaction['account_name'] ?? 'Không xác định';
