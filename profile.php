@@ -276,9 +276,9 @@ $avatarPath = 'uploads/' . (!empty($user['avatar']) ? $user['avatar'] : 'avt_mem
   <div class="dashboard-wrapper">
     <!-- Sidebar -->
     <nav class="sidebar">
-      <h3><a href="advanced_statistics.php">📊 Thống kê nâng cao</a></h3>
       <h3>Chức năng</h3>
       <a href="dashboard.php">🏠 Dashboard</a>
+      <a href="advanced_statistics.php">📊 Thống kê nâng cao</a>
       <a href="feedback.php">📩 Gửi phản hồi</a>
       <?php if ($user['username'] === 'admin'): ?>
         <a href="admin_feedback.php">📬 Xem phản hồi</a>
