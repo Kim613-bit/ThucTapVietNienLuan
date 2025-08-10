@@ -525,7 +525,10 @@ $typeLabels = [
         .table-wrapper td:nth-child(2) {
           width: 90px;
         }
-
+        .table-wrapper th:nth-child(3), /* Mô tả */
+        .table-wrapper td:nth-child(3) {
+          width: 300px;
+        }
         .table-wrapper th:nth-child(4), /* Số tiền */
         .table-wrapper td:nth-child(4) {
           width: 180px;
