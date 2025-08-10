@@ -64,17 +64,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // 👉 Tính toán ảnh hưởng đến số dư
     $delta = 0;
+
     if ($oldType === 1) {
         $delta -= $oldAmount;
-    } else {
+    } elseif ($oldType === 2) {
         $delta += $oldAmount;
     }
     
     if ($newType === 1) {
         $delta += $newAmount;
-    } else {
+    } elseif ($newType === 2) {
         $delta -= $newAmount;
-    }    
+    }
+       
     
     // 👉 Cập nhật số dư tài khoản
     if ($oldAccountId !== $account_id) {
@@ -113,7 +115,7 @@ $transaction = pg_fetch_assoc($result);
 // Gán biến để sử dụng trong HTML
 $account_name = $transaction['account_name'] ?? 'Không xác định';
 $current_balance = floatval($transaction['current_balance'] ?? 0);
-$transaction_type = ($transaction['type'] == 1) ? 'thu' : 'chi';
+$transaction_type = ($transaction['type'] == 1) ? 'thu' : (($transaction['type'] == 2) ? 'chi' : 'capnhat');
 $amount = floatval($transaction['amount'] ?? 0);
 $selected_content = $transaction['description'] ?? '';
 $datetime = $transaction['date'] ?? date('Y-m-d H:i');
