@@ -518,17 +518,32 @@ $typeLabels = [
         }
         .table-wrapper th:nth-child(1), /* Giờ */
         .table-wrapper td:nth-child(1) {
-          width: 80px;
+          width: 95px;
         }
         
         .table-wrapper th:nth-child(2), /* Loại */
         .table-wrapper td:nth-child(2) {
           width: 100px;
         }
-        
-        .table-wrapper th:nth-child(4), /* Mô tả */
-        .table-wrapper td:nth-child(4) {
+        .table-wrapper th:nth-child(3), /* Mô tả */
+        .table-wrapper td:nth-child(3) {
           width: 250px;
+        }
+        .table-wrapper th:nth-child(4), /* Số tiền */
+        .table-wrapper td:nth-child(4) {
+          width: 180px;
+        }
+        .table-wrapper th:nth-child(5), /* Số dư còn lại */
+        .table-wrapper td:nth-child(5) {
+          width: 180px;
+        }
+        .table-wrapper th:nth-child(6), /* Khoản tiền  */
+        .table-wrapper td:nth-child(6) {
+          width: 145px;
+        }
+        .table-wrapper th:nth-child(7), /* Thao tác */
+        .table-wrapper td:nth-child(7) {
+          width: 200px;
         }
     @media (max-width: 600px) {
       .filter-panel {
