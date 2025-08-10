@@ -501,7 +501,7 @@ $typeLabels = [
       .table-wrapper table {
           width: 100%;
           border-collapse: collapse;
-          table-layout: auto;
+          table-layout: fixed;
         }
         
         .table-wrapper th,
@@ -509,12 +509,26 @@ $typeLabels = [
           padding: 8px 12px;
           text-align: left;
           vertical-align: middle;
-          white-space: nowrap;
+          word-break: break-word;
         }
         
         .table-wrapper th {
           background-color: #f5f5f5;
           font-weight: bold;
+        }
+        .table-wrapper th:nth-child(1), /* Giờ */
+        .table-wrapper td:nth-child(1) {
+          width: 80px;
+        }
+        
+        .table-wrapper th:nth-child(2), /* Loại */
+        .table-wrapper td:nth-child(2) {
+          width: 100px;
+        }
+        
+        .table-wrapper th:nth-child(4), /* Mô tả */
+        .table-wrapper td:nth-child(4) {
+          width: 250px;
         }
     @media (max-width: 600px) {
       .filter-panel {
