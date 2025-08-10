@@ -149,15 +149,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <style>
       @media (max-width: 480px) {
           .form-control,
-          .flatpickr-wrapper,
           .container > div {
             width: 100%;
             margin-bottom: 14px;
           }
-          .datetime-row {
-            flex-direction: column;
+        
+          .flatpickr-wrapper {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+          }
+        
+          #transaction-time {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
           }
         }
+
     body {
       font-family: Arial, sans-serif;
       background: #f2f2f2;
@@ -226,7 +235,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     .back:hover {
       text-decoration: underline;
     }
-    
+    .flatpickr-wrapper {
+      position: relative;
+    }
     
     .calendar-btn {
       position: absolute;
@@ -242,46 +253,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       font-weight: bold;
       margin-bottom: 6px;
       display: inline-block;
-    }
-    .datetime-row {
-      display: flex;
-      gap: 12px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-    
-    .flatpickr-wrapper {
-      position: relative;
-      flex: 1;
-    }
-    
-    .flatpickr-wrapper input {
-      width: 100%;
-      padding-right: 40px;
-      height: 38px;
-      font-size: 15px;
-    }
-    
-    .flatpickr-wrapper button {
-      position: absolute;
-      top: 50%;
-      right: 10px;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      font-size: 20px;
-      color: #333;
-      cursor: pointer;
-    }
-    
-    .time-wrapper {
-      flex: 1;
-    }
-    
-    .time-wrapper input {
-      width: 100%;
-      height: 38px;
-      font-size: 15px;
     }
   </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -363,15 +334,32 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           <?php endforeach; ?>
         </datalist>
           <label>Thời gian giao dịch:</label>
-            <div class="datetime-row">
-              <div class="flatpickr-wrapper" data-toggle>
-                <input type="text" id="datepicker" data-input placeholder="Chọn ngày">
-                <button type="button" title="Chọn ngày" data-toggle>📅</button>
+            <div style="display: flex; gap: 12px;">
+              <div style="flex: 1; position: relative;">
+                <div class="flatpickr-wrapper">
+                  <input
+                    type="text"
+                    id="datepicker"
+                    name="transaction_date"
+                    class="form-control"
+                    data-input
+                    placeholder="Chọn ngày"
+                    required
+                  >
+                  <button type="button" class="calendar-btn" data-toggle title="Chọn ngày">📅</button>
+                </div>
               </div>
-              <div class="time-wrapper">
-                <input type="time" id="transaction-time" required>
+            
+              <div style="flex: 1;">
+                <input
+                  type="time"
+                  name="transaction_time"
+                  class="form-control"
+                  value="<?= htmlspecialchars($_POST['transaction_time'] ?? date('H:i')) ?>"
+                  required
+                >
               </div>
-            </div>
+      </div>
     
     </div>
       <button type="submit" class="form-control">💾 Lưu thay đổi</button>
