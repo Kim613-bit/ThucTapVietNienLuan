@@ -368,6 +368,7 @@ $typeLabels = [
       border-radius: var(--border-radius);
       overflow: hidden;
       box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      min-width: 700px;
     }
     th, td {
       padding: 12px 8px;
@@ -510,6 +511,29 @@ $typeLabels = [
         flex-direction: column;
         align-items: flex-start;
       }
+      table th:nth-child(4), table td:nth-child(4), /* Mô tả */
+      table th:nth-child(5), table td:nth-child(5), /* Số dư còn lại */
+      table th:nth-child(6), table td:nth-child(6)  /* Khoản tiền */ {
+      display: none;
+      }
+    }
+    .action-buttons a {
+      display: inline-block;
+      margin-right: 8px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+      text-decoration: none;
+    }
+    
+    .btn-edit {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+    
+    .btn-delete {
+      background: #ffebee;
+      color: #c62828;
     }
   </style>
 </head>
@@ -677,11 +701,10 @@ $typeLabels = [
                       <td><?= htmlspecialchars($d ?: '-') ?></td>
                       <td><?= number_format($row['remaining_balance']??0,0,',','.') ?> VND</td>
                       <td><?= htmlspecialchars($row['account_name']) ?></td>
-                      <td>
-                        <a href="edit_transaction.php?id=<?= $row['id'] ?>">✏️ Sửa</a>
-                        |
-                        <a href="delete_transaction.php?id=<?= $row['id'] ?>")">🗑️ Xoá</a>
-                      </td>
+                      <td class="action-buttons">
+                          <a href="edit_transaction.php?id=<?= $row['id'] ?>" class="btn-edit">✏️ Sửa</a>
+                          <a href="delete_transaction.php?id=<?= $row['id'] ?>" class="btn-delete">🗑️ Xoá</a>
+                        </td>
                     </tr>
                   <?php endforeach; ?>
                 </tbody>
