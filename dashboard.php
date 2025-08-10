@@ -23,7 +23,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
-$sql_user = "SELECT username, full_name, avatar, role FROM users WHERE id = $1";
+$sql_user = "SELECT username, fullname, avatar, role FROM users WHERE id = $1";
 $result = pg_query_params($conn, $sql_user, [$_SESSION['user_id']]);
 $user = pg_fetch_assoc($result);
 $avatarFile = $user['avatar'] ?? '';
@@ -519,7 +519,7 @@ $typeLabels = [
       <h2>Quản lý thu chi</h2>
       <div class="user">
         <a href="profile.php" class="profile-link">
-          <span>Xin chào, <?= htmlspecialchars($user['full_name'] ?? '') ?></span>
+          <span>Xin chào, <?= htmlspecialchars($user['fullname'] ?? '') ?></span>
           <img src="<?= $avatarPath ?>" alt="Avatar" class="avatar-img">
         </a>
       </div>
