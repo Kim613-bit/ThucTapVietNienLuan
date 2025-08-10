@@ -157,7 +157,7 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
         
         /* Submit button */
         input[type="submit"] {
-          background-color: #3498db;
+          background-color: #007BFF;;
           color: white;
           padding: 12px;
           margin-top: 30px;
@@ -196,7 +196,6 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
           font-size: 16px;
           font-weight: 600;
           cursor: pointer;
-          box-shadow: 0 4px 8px rgba(46, 204, 113, 0.3);
           transition: background-color 0.3s ease, transform 0.2s ease;
         }
         
