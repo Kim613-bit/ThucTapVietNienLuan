@@ -185,6 +185,34 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
         .back-link:hover {
           text-decoration: underline;
         }
+
+        .btn-save {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    
+        .btn-save:hover {
+            background-color: #45a049;
+        }
+    
+        .btn-back {
+            background-color: #f0f0f0;
+            color: #333;
+            padding: 10px 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    
+        .btn-back:hover {
+            background-color: #e0e0e0;
+        }
     </style>
 </head>
 <body onload="updateMaxAmount()">
@@ -193,6 +221,7 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
     <form action="update_transaction.php" method="POST">
       <label>Tên khoản tiền</label>
       <input type="text" name="account" value="<?= $account_name ?>" readonly>
+        <input type="hidden" name="account_id" value="<?= $account_id ?>">
 
       <label>Số dư hiện tại</label>
       <input type="text" id="balance" value="<?= number_format((float)$current_balance, 0, ',', '.') ?> VND" readonly>
@@ -220,9 +249,9 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
         <input type="time" name="time" value="<?= $time ?>" required style="flex: 1;">
       </div>
 
-      <input type="submit" value="💾 Lưu thay đổi">
+      <input type="submit" value="💾 Lưu thay đổi" class="btn-save">
     </form>
-    <a href="dashboard.php" class="back-link">← Quay lại Dashboard</a>
+    <a href="dashboard.php" class="btn-back">← Quay lại Dashboard</a>
   </div>
 </body>
 </html>
