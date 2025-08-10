@@ -18,8 +18,9 @@ if (!$id) {
 // 👉 Khi người dùng cập nhật giao dịch
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $type        = $_POST['type'];
+    $type_code = ($type === 'thu') ? 1 : 2;
     $rawAmount   = $_POST['amount'] ?? '0';
-    $description = trim($_POST['description']);
+    $description = trim($_POST['content'] ?? '');
     $date        = $_POST['date'];
 
     // ✅ Kiểm tra & lọc số tiền
@@ -45,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $query = "UPDATE transactions 
               SET type = $1, amount = $2, description = $3, date = $4, account_id = $5 
               WHERE id = $6 AND user_id = $7";
-    $result = pg_query_params($conn, $query, array($type, $amount, $description, $datetime, $account_id, $id, $user_id));
+    $result = pg_query_params($conn, $query, array($type_code, $amount, $description, $datetime, $account_id, $id, $user_id));
    
     $_SESSION['message'] = "✅ Giao dịch đã được cập nhật thành công.";
     header("Location: dashboard.php");
@@ -261,8 +262,8 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
       </div>
 
       <input type="submit" value="💾 Lưu thay đổi" class="btn-save">
+        <a href="dashboard.php" class="btn-back">← Quay lại Dashboard</a>
     </form>
-    <a href="dashboard.php" class="btn-back">← Quay lại Dashboard</a>
   </div>
 </body>
 </html>
