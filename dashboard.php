@@ -711,15 +711,15 @@ $typeLabels = [
             <div class="table-wrapper">
               <table>
                 <thead>
-                  <tr>
-                    <th>Giờ</th>
-                    <th>Loại</th>
-                    <th>Số tiền</th>
-                    <th>Mô tả</th>
-                    <th>Số dư còn lại</th>
-                    <th>Khoản tiền</th>
-                    <th>Thao tác</th>
-                  </tr>
+                    <tr>
+                      <th>Giờ</th>
+                      <th>Loại</th>
+                      <th>Mô tả</th>
+                      <th>Số tiền</th>
+                      <th>Số dư còn lại</th>
+                      <th>Khoản tiền</th>
+                      <th>Thao tác</th>
+                    </tr>
                 </thead>
                 <tbody>
                   <?php foreach ($entries as $row): ?>
@@ -734,18 +734,16 @@ $typeLabels = [
                     <tr>
                       <td><?= date('H:i:s', strtotime($row['date'])) ?></td>
                       <td><?= $typeLabels[$row['type']] ?? '-' ?></td>
-                      <td class="<?= $row['type']==0? 'amount-income':
-                                    ($row['type']==1? 'amount-expense':'') ?>">
-                        <?= $row['type']==2? '0': number_format($row['amount']??0,0,',','.') ?>
-                        VND
-                      </td>
                       <td><?= htmlspecialchars($d ?: '-') ?></td>
+                      <td class="<?= $row['type']==0? 'amount-income': ($row['type']==1? 'amount-expense':'') ?>">
+                        <?= $row['type']==2? '0': number_format($row['amount']??0,0,',','.') ?> VND
+                      </td>
                       <td><?= number_format($row['remaining_balance']??0,0,',','.') ?> VND</td>
                       <td><?= htmlspecialchars($row['account_name']) ?></td>
                       <td class="action-buttons">
-                          <a href="edit_transaction.php?id=<?= $row['id'] ?>" class="btn-edit">✏️ Sửa</a>
-                          <a href="delete_transaction.php?id=<?= $row['id'] ?>" class="btn-delete">🗑️ Xoá</a>
-                        </td>
+                        <a href="edit_transaction.php?id=<?= $row['id'] ?>" class="btn-edit">✏️ Sửa</a>
+                        <a href="delete_transaction.php?id=<?= $row['id'] ?>" class="btn-delete">🗑️ Xoá</a>
+                      </td>
                     </tr>
                   <?php endforeach; ?>
                 </tbody>
