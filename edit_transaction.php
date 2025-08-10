@@ -201,23 +201,16 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng"];
         }
         
         .btn-save:hover {
-          background-color: #27ae60;
+          background-color: #0056b3;
           transform: translateY(-2px);
         }
         
         .btn-back {
-          display: inline-block;
-          background-color: #ecf0f1;
-          color: #2c3e50;
-          padding: 12px 20px;
-          border: 1px solid #bdc3c7;
-          border-radius: 8px;
-          font-size: 16px;
-          font-weight: 600;
-          text-decoration: none;
-          margin-top: 20px;
+          display: block;
           text-align: center;
-          transition: background-color 0.3s ease, transform 0.2s ease;
+          margin-top: 22px;
+          color: #007BFF;
+          text-decoration: none;
         }
         
         .btn-back:hover {
