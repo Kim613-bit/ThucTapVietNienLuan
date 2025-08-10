@@ -280,7 +280,7 @@ $typeLabels = [
     /* ——— Module: filter form ——— */
     .filter-panel {
       display: grid;
-      grid-template-columns: repeat(6, 1fr));
+      grid-template-columns: repeat(6, 1fr);
       gap: var(--spacing);
       background: var(--color-card);
       padding: var(--spacing);
@@ -313,11 +313,9 @@ $typeLabels = [
       padding: 0 8px;
     }
     .stats-inline {
-      ddisplay: flex;
-      gap: 24px;
-      font-size: 0.95rem;
-      color: var(--color-text);
-      align-items: center;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
     .stats-inline span {
       display: flex;
@@ -490,17 +488,26 @@ $typeLabels = [
         flex-direction: column;
         align-items: flex-start;
       }
-      .filter-buttons {
-        margin-top: 8px;
-      }
-        .stats-inline {
+      .stats-inline {
         flex-direction: column;
         gap: 4px;
+      }
+    
+      .filter-buttons {
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
       }
     }
     @media (max-width: 600px) {
       .filter-panel {
         grid-template-columns: 1fr;
+      }
+      .filters {
+        grid-template-columns: 1fr;
+      }
+      .filters .form-group {
+        width: 100%;
       }
       table th:nth-child(6),
       table td:nth-child(6) {
@@ -510,6 +517,13 @@ $typeLabels = [
       .filter-buttons {
         flex-direction: column;
         align-items: flex-start;
+      }
+        .responsive-filters {
+            grid-template-columns: 1fr;
+          }
+
+      .responsive-filters .form-group {
+        width: 100%;
       }
     }
     .action-buttons a {
@@ -529,6 +543,11 @@ $typeLabels = [
     .btn-delete {
       background: #ffebee;
       color: #c62828;
+    }
+    .responsive-filters {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
     }
   </style>
 </head>
