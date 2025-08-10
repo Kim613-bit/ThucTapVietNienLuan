@@ -18,12 +18,18 @@ if (!$id) {
 // 👉 Khi người dùng cập nhật giao dịch
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $type        = $_POST['type'];
-    $type_code = ($type === 'thu') ? 1 : 2;
     $rawAmount   = $_POST['amount'] ?? '0';
     $description = trim($_POST['content'] ?? '');
     $account_id  = intval($_POST['account_id']);
     $date_input = $_POST['transaction_date'] ?? date('d/m/Y');
     $time = $_POST['transaction_time'] ?? date('H:i');
+
+    $type = $_POST['type'] ?? '';
+    if (!in_array($type, ['thu', 'chi'])) {
+        echo "<p style='color:red;'>Loại giao dịch không hợp lệ. Vui lòng chọn lại.</p>";
+        exit();
+    }
+    $type_code = ($type === 'thu') ? 1 : 2;
 
     // ✅ Kiểm tra & lọc số tiền
     $sanitized = preg_replace('/[^\d\.]/', '', $rawAmount);
@@ -115,7 +121,7 @@ $transaction = pg_fetch_assoc($result);
 // Gán biến để sử dụng trong HTML
 $account_name = $transaction['account_name'] ?? 'Không xác định';
 $current_balance = floatval($transaction['current_balance'] ?? 0);
-$transaction_type = ($transaction['type'] == 1) ? 'thu' : (($transaction['type'] == 2) ? 'chi' : 'capnhat');
+$transaction_type = ($transaction['type'] == 1) ? 'thu' : (($transaction['type'] == 2) ? 'chi' : 'thu');
 $amount = floatval($transaction['amount'] ?? 0);
 $selected_content = $transaction['description'] ?? '';
 $datetime = $transaction['date'] ?? date('Y-m-d H:i');
