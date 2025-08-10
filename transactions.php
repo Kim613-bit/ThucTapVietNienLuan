@@ -10,6 +10,11 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
+if (isset($_SESSION['message'])) {
+    echo '<p style="color: green; font-weight: bold; text-align: center;">' . $_SESSION['message'] . '</p>';
+    unset($_SESSION['message']);
+}
+
 // Lấy danh sách giao dịch của người dùng
 $query = "SELECT * FROM transactions WHERE user_id = $1 ORDER BY date DESC";
 $result = pg_query_params($conn, $query, array($user_id));
