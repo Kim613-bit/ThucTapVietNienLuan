@@ -18,7 +18,7 @@ if (!$id) {
 // 👉 Khi người dùng cập nhật giao dịch
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $type        = $_POST['type'];
-    $type_code = ($type === 'thu') ? 0 : 1;
+    $type_code = ($type === 'thu') ? 1 : 2;
     $rawAmount   = $_POST['amount'] ?? '0';
     $description = trim($_POST['content'] ?? '');
     $account_id  = intval($_POST['account_id']);
