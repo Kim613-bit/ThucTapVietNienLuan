@@ -223,8 +223,6 @@ $feedbacks    = $params_filter
     <div class="sidebar">
       <h3>Menu quản trị</h3>
       <ul>
-        <li><a href="dashboard.php">🏠 Trang chính</a></li>
-        <li><a href="admin_feedback.php">📬 Phản hồi</a></li>
         <li><a href="logout.php">🚪 Đăng xuất</a></li>
       </ul>
 
