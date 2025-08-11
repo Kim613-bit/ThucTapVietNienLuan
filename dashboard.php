@@ -346,9 +346,9 @@ $typeLabels = [
       gap: 4px;
     }
     .stats-inline span {
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      display: inline-block;
+      min-width: 180px;
+      white-space: nowrap;
     }
     .filter-buttons {
       display: flex;
@@ -434,9 +434,6 @@ $typeLabels = [
       font-weight: 600;
       border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
-    .filter-panel {
-      margin-bottom: 20px;
-    }
     
     .filter-row {
       display: grid;
@@ -446,7 +443,7 @@ $typeLabels = [
     
     .filters {
       display: grid;
-      grid-template-columns: repeat(5, 1fr); /* 5 cột đều nhau */
+      grid-template-columns: repeat(5, 1fr);
       gap: 16px;
       width: 100%;
     }
@@ -518,7 +515,7 @@ $typeLabels = [
       }
       .stats-inline {
         flex-direction: column;
-        gap: 4px;
+        align-items: flex-start;
       }
     
       .filter-buttons {
@@ -527,6 +524,9 @@ $typeLabels = [
         width: 100%;
       }
     }
+          .stats-inline span {
+        width: 100%;
+      }
       .table-wrapper table {
           width: 100%;
           border-collapse: collapse;
