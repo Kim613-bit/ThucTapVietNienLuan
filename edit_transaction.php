@@ -31,12 +31,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $date_input = $_POST['transaction_date'] ?? date('d/m/Y');
     $time = $_POST['transaction_time'] ?? date('H:i');
 
-    $type = $_POST['type'] ?? '';
-    if (!in_array($type, ['thu', 'chi'])) {
+    $type_code = isset($_POST['type']) ? intval($_POST['type']) : -1;
+    if (!in_array($type_code, [0, 1])) {
         echo "<p style='color:red;'>Loại giao dịch không hợp lệ. Vui lòng chọn lại.</p>";
         exit();
     }
-    $type_code = ($type === 'thu') ? 1 : 2;
 
     // ✅ Kiểm tra & lọc số tiền
     $sanitized = preg_replace('/[^\d\.]/', '', $rawAmount);
@@ -150,7 +149,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 // Gán biến để sử dụng trong HTML
 $account_name = $transaction['account_name'] ?? 'Không xác định';
 $current_balance = floatval($transaction['current_balance'] ?? 0);
-$transaction_type = $_POST['type'] ?? (($transaction['type'] == 1) ? 'thu' : 'chi');
+$transaction_type = $_POST['type'] ?? (($transaction['type'] == 0) ? 'thu' : 'chi');
 $amount = floatval($transaction['amount'] ?? 0);
 $selected_content = $transaction['description'] ?? '';
 $datetime = $transaction['date'] ?? date('Y-m-d H:i');
@@ -335,9 +334,9 @@ $content_options = ["Ăn uống", "Đi lại", "Lương", "Thưởng", "Tiền �
 
       <label>Loại giao dịch</label>
       <select name="type" id="type" onchange="updateMaxAmount()">
-        <option value="thu" <?= $transaction_type === 'thu' ? 'selected' : '' ?>>Thu</option>
-        <option value="chi" <?= $transaction_type === 'chi' ? 'selected' : '' ?>>Chi</option>
-      </select>
+          <option value="0" <?= $transaction['type'] == 0 ? 'selected' : '' ?>>Thu</option>
+          <option value="1" <?= $transaction['type'] == 1 ? 'selected' : '' ?>>Chi</option>
+        </select>
 
       <label>Số tiền</label>
       <input type="text" id="amount" maxlength="10" name="amount" value="<?= number_format($amount, 0, ',', ',') ?>" required>
