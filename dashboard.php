@@ -761,7 +761,6 @@ $typeLabels = [
             </div>  
           </div>
         </form>
-
         <!-- Grouped Transactions -->
         <?php if (empty($grouped)): ?>
           <p>Không có giao dịch nào.</p>
@@ -843,6 +842,7 @@ $typeLabels = [
                     </div>
                 </div>
             <?php endforeach; ?>
+        <?php endif; ?>
       </main>
     </div>
   </div>
