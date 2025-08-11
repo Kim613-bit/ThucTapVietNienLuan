@@ -782,9 +782,13 @@ $typeLabels = [
                       <td><?= number_format($row['remaining_balance']??0,0,',','.') ?> VND</td>
                       <td><?= htmlspecialchars($row['account_name']) ?></td>
                       <td class="action-buttons">
-                        <a href="edit_transaction.php?id=<?= $row['id'] ?>" class="btn-edit">✏️ Sửa</a>
-                        <a href="delete_transaction.php?id=<?= $row['id'] ?>" class="btn-delete">🗑️ Xoá</a>
-                      </td>
+                          <?php if ($row['type'] != 2): ?>
+                            <a href="edit_transaction.php?id=<?= $row['id'] ?>" class="btn-edit">✏️ Sửa</a>
+                            <a href="delete_transaction.php?id=<?= $row['id'] ?>" class="btn-delete">🗑️ Xoá</a>
+                          <?php else: ?>
+                            <span style="opacity: 0.5; color: gray;">🚫 Không thể chỉnh sửa</span>
+                          <?php endif; ?>
+                        </td>
                     </tr>
                   <?php endforeach; ?>
                 </tbody>
