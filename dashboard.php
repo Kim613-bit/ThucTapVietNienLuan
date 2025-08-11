@@ -72,9 +72,13 @@ if ($filter_type !== 'all') {
     $idx++;
 }
 if ($filter_description !== '') {
-    $sql    .= " AND t.description ILIKE \${$idx}";
+  if ($filter_description === 'Tạo khoản tiền mới') {
+    $sql .= " AND t.description ILIKE 'Tạo tài khoản mới:%'";
+  } else {
+    $sql .= " AND t.description ILIKE \${$idx}";
     $params[] = "%{$filter_description}%";
     $idx++;
+  }
 }
 if ($from_date) {
     $sql    .= " AND DATE(t.date) >= \${$idx}";
@@ -691,12 +695,13 @@ $typeLabels = [
                   <option value="">Tất cả</option>
                   <?php
                   $desc_q = pg_query_params($conn, "SELECT DISTINCT description FROM transactions WHERE user_id = $1 ORDER BY description", [$user_id]);
-                  while ($row = pg_fetch_assoc($desc_q)) {
-                      $desc = htmlspecialchars($row['description']);
-                      $selected = ($filter_description === $row['description']) ? 'selected' : '';
+                    while ($row = pg_fetch_assoc($desc_q)) {
+                      $rawDesc = $row['description'];
+                      $desc = (strpos($rawDesc, 'Tạo tài khoản mới:') === 0) ? 'Tạo khoản tiền mới' : htmlspecialchars($rawDesc);
+                      $selected = ($filter_description === $rawDesc || $filter_description === 'Tạo khoản tiền mới') ? 'selected' : '';
                       echo "<option value=\"$desc\" $selected>$desc</option>";
-                  }
-                  ?>
+                    }
+                    ?>
                 </select>
               </div>
               <div class="form-group">
