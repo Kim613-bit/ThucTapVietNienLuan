@@ -77,15 +77,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // 👉 Tính toán ảnh hưởng đến số dư
     $delta = 0;
 
-    if ($oldType === 1) {
+    if ($oldType === 0) {
         $delta -= $oldAmount;
-    } elseif ($oldType === 2) {
+    } elseif ($oldType === 1) {
         $delta += $oldAmount;
     }
     
-    if ($newType === 1) {
+    if ($newType === 0) {
         $delta += $newAmount;
-    } elseif ($newType === 2) {
+    } elseif ($newType === 1) {
         $delta -= $newAmount;
     }
        
@@ -95,7 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $updated_balance = floatval($balance_data['balance'] ?? 0);
 
     $balanceQuery = "
-        SELECT SUM(CASE WHEN type = 1 THEN amount ELSE -amount END) AS balance
+        SELECT SUM(CASE WHEN type = 0 THEN amount ELSE -amount END) AS balance
         FROM transactions
         WHERE account_id = $1 AND user_id = $2 AND date <= $3 AND id != $4
     ";
