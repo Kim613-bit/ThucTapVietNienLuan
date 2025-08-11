@@ -88,8 +88,8 @@ if ($to_date) {
 }
 
 $sql .= " ORDER BY DATE(t.date) DESC, 
-          CASE WHEN t.description ILIKE 'Tạo khoản tiền mới%' THEN 1 ELSE 0 END,
-          t.date ASC";
+          CASE WHEN t.type = 2 THEN 1 ELSE 0 END, 
+          t.date DESC";
 $resTrans = pg_query_params($conn, $sql, $params);
 
 $transactions = [];
