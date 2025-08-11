@@ -83,30 +83,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $delta -= $newAmount;
     }
        
-    
-    // 👉 Cập nhật số dư tài khoản
-    if ($oldAccountId !== $account_id) {
-        $reverseOld = ($oldType === 1) ? -$oldAmount : $oldAmount;
-        pg_query_params($conn, "UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3", array($reverseOld, $oldAccountId, $user_id));
-
-        $applyNew = ($newType === 1) ? $newAmount : -$newAmount;
-        pg_query_params($conn, "UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3", array($applyNew, $account_id, $user_id));
-    } else {
-        pg_query_params($conn, "UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3", array($delta, $account_id, $user_id));
-    }
     // 👉 Truy vấn số dư hiện tại của tài khoản
     $balance_q = pg_query_params($conn, "SELECT balance FROM accounts WHERE id = $1 AND user_id = $2", array($account_id, $user_id));
     $balance_data = pg_fetch_assoc($balance_q);
     $updated_balance = floatval($balance_data['balance'] ?? 0);
 
+    $balanceQuery = "
+        SELECT SUM(CASE WHEN type = 1 THEN amount ELSE -amount END) AS balance
+        FROM transactions
+        WHERE account_id = $1 AND user_id = $2 AND date <= $3 AND id != $4
+    ";
+    $balanceResult = pg_query_params($conn, $balanceQuery, array($account_id, $user_id, $datetime, $id));
+    $balanceRow = pg_fetch_assoc($balanceResult);
+    $balanceAtTransaction = floatval($balanceRow['balance'] ?? 0);
+    
+    // Cộng thêm giao dịch đang sửa
+    $balanceAtTransaction += ($type_code === 1) ? $amount : -$amount;
+
+    function updateBalance($conn, $user_id, $account_id, $amount, $type) {
+        $adjustment = ($type === 1) ? $amount : -$amount;
+        pg_query_params($conn,
+            "UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3",
+            array($adjustment, $account_id, $user_id)
+        );
+    }
+
+    if ($oldType === $newType && $oldAmount === $newAmount && $oldAccountId === $account_id && $datetime === $transaction['date']) {
+        $_SESSION['message'] = "⚠️ Không có thay đổi nào được thực hiện.";
+        header("Location: dashboard.php");
+        exit();
+    }
+
+    updateBalance($conn, $user_id, $oldAccountId, $oldAmount, $oldType);
+    updateBalance($conn, $user_id, $account_id, $newAmount, $newType);
+    
     // 👉 Cập nhật giao dịch
     $updateQuery = "UPDATE transactions 
-                    SET type = $1, amount = $2, description = $3, date = $4, account_id = $5, remaining_balance = $6 
-                    WHERE id = $7 AND user_id = $8";
+                    SET type = $1, amount = $2, description = $3, date = $4, account_id = $5 
+                    WHERE id = $6 AND user_id = $7";
     pg_query_params($conn, $updateQuery, array(
-        $type_code, $amount, $description, $datetime, $account_id, $updated_balance, $id, $user_id
+        $type_code, $amount, $description, $datetime, $account_id, $id, $user_id
     ));
-
+    
     $_SESSION['message'] = "✅ Giao dịch đã được cập nhật thành công.";
     header("Location: dashboard.php");
     exit();
