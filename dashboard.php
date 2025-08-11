@@ -115,6 +115,16 @@ foreach ($transactions as $t) {
     $dateKey = date('d/m/Y', strtotime($t['date']));
     $grouped[$dateKey][] = $t;
 }
+$groupedByWeek = [];
+$groupedByMonth = [];
+foreach ($transactions as $t) {
+    $weekKey = date('o-W', strtotime($t['date']));
+    $groupedByWeek[$weekKey][] = $t;
+
+    $monthKey = date('Y-m', strtotime($t['date']));
+    $groupedByMonth[$monthKey][] = $t;
+}
+
 
 // Nhãn cho type
 $typeLabels = [
@@ -672,6 +682,14 @@ $typeLabels = [
           <div class="filter-row">
             <!-- Các bộ lọc -->
             <div class="filters">
+                <div class="form-group">
+                  <label for="group_by">Nhóm theo</label>
+                  <select id="group_by" name="group_by">
+                    <option value="day" <?= ($_GET['group_by'] ?? '') === 'day' ? 'selected' : '' ?>>Ngày</option>
+                    <option value="week" <?= ($_GET['group_by'] ?? '') === 'week' ? 'selected' : '' ?>>Tuần</option>
+                    <option value="month" <?= ($_GET['group_by'] ?? '') === 'month' ? 'selected' : '' ?>>Tháng</option>
+                  </select>
+                </div>
               <div class="form-group">
                 <label for="from_date">Từ ngày</label>
                 <input type="date" id="from_date" name="from_date" value="<?= htmlspecialchars($from_date) ?>">
@@ -736,7 +754,30 @@ $typeLabels = [
         <?php if (empty($grouped)): ?>
           <p>Không có giao dịch nào.</p>
         <?php else: ?>
-          <?php foreach ($grouped as $date => $entries): ?>
+          <?php
+                $groupBy = $_GET['group_by'] ?? 'day';
+                $groupedData = match($groupBy) {
+                    'week' => $groupedByWeek,
+                    'month' => $groupedByMonth,
+                    default => $grouped,
+                };
+                
+                foreach ($groupedData as $label => $entries):
+                    $totalThu = 0;
+                    $totalChi = 0;
+                    foreach ($entries as $row) {
+                        if ($row['type']==0) $totalThu += $row['amount'];
+                        elseif ($row['type']==1) $totalChi += $row['amount'];
+                    }
+                ?>
+                <div class="date-group">
+                  <div class="date-heading">
+                    <span><?= htmlspecialchars($label) ?></span>
+                    <span> 🔼 Tổng thu: <?= number_format($totalThu,0,',','.') ?> VND &nbsp;&nbsp; 🔽 Tổng chi: <?= number_format($totalChi,0,',','.') ?> VND </span>
+                  </div>
+                </div>
+                <div class="table-wrapper">
+            <?php endforeach; ?>
             <?php
               $totalThu = 0; $totalChi = 0;
               foreach ($entries as $row) {
