@@ -107,7 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $balanceAtTransaction += ($type_code === 1) ? $amount : -$amount;
 
     function updateBalance($conn, $user_id, $account_id, $amount, $type) {
-        $adjustment = ($type === 1) ? $amount : -$amount;
+        $adjustment = ($type === 0) ? $amount : -$amount;
         pg_query_params($conn,
             "UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3",
             array($adjustment, $account_id, $user_id)
