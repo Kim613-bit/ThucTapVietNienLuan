@@ -115,17 +115,20 @@ foreach ($transactions as $t) {
     $dateKey = date('d/m/Y', strtotime($t['date']));
     $grouped[$dateKey][] = $t;
 }
+// Nhóm theo tuần
 $groupedByWeek = [];
-$groupedByMonth = [];
 foreach ($transactions as $t) {
-    $weekKey = date('o-W', strtotime($t['date']));
+    $weekStart = date('d/m/Y', strtotime("Monday this week", strtotime($t['date'])));
+    $weekKey = "Tuần bắt đầu: $weekStart";
     $groupedByWeek[$weekKey][] = $t;
-
-    $monthKey = date('Y-m', strtotime($t['date']));
-    $groupedByMonth[$monthKey][] = $t;
 }
 
-
+// Nhóm theo tháng
+$groupedByMonth = [];
+foreach ($transactions as $t) {
+    $monthKey = date('m/Y', strtotime($t['date']));
+    $groupedByMonth[$monthKey][] = $t;
+}
 // Nhãn cho type
 $typeLabels = [
     0 => 'Thu',
@@ -626,6 +629,15 @@ $typeLabels = [
       background: #ffebee;
       color: #c62828;
     }
+    .toggle-btn {
+        margin-left: 12px;
+        padding: 4px 8px;
+        font-size: 14px;
+        cursor: pointer;
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
     .responsive-filters {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -769,79 +781,68 @@ $typeLabels = [
                         if ($row['type']==0) $totalThu += $row['amount'];
                         elseif ($row['type']==1) $totalChi += $row['amount'];
                     }
+                    $groupId = 'group_' . md5($label);
                 ?>
                 <div class="date-group">
                   <div class="date-heading">
                     <span><?= htmlspecialchars($label) ?></span>
-                    <span> 🔼 Tổng thu: <?= number_format($totalThu,0,',','.') ?> VND &nbsp;&nbsp; 🔽 Tổng chi: <?= number_format($totalChi,0,',','.') ?> VND </span>
+                    <span>
+                      🔼 Tổng thu: <?= number_format($totalThu,0,',','.') ?> VND
+                      &nbsp;&nbsp;
+                      🔽 Tổng chi: <?= number_format($totalChi,0,',','.') ?> VND
+                    </span>
+                    <button onclick="toggleGroup('<?= $groupId ?>')" class="toggle-btn">👁️ Xem chi tiết</button>
                   </div>
                 </div>
-                <div class="table-wrapper">
+          
+                <div id="<?= $groupId ?>" style="display: none;">
+                    <div class="table-wrapper">
+                      <table>
+                        <thead>
+                            <tr>
+                              <th>Giờ</th>
+                              <th>Loại</th>
+                              <th>Mô tả</th>
+                              <th>Số tiền</th>
+                              <th>Số dư còn lại</th>
+                              <th>Khoản tiền</th>
+                              <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                          <?php foreach ($entries as $row): ?>
+                            <?php if (!is_array($row)) continue; ?>
+                            <?php
+                              // fix mô tả khởi tạo
+                              $d = $row['description'];
+                              if (strpos($d, 'Tạo tài khoản mới:')===0) {
+                                $d = 'Tạo khoản tiền mới';
+                              }
+                            ?>
+                            <tr>
+                              <td><?= date('H:i:s', strtotime($row['date'])) ?></td>
+                              <td><?= $typeLabels[$row['type']] ?? '-' ?></td>
+                              <td><?= htmlspecialchars($d ?: '-') ?></td>
+                              <td class="<?= $row['type']==0? 'amount-income': ($row['type']==1? 'amount-expense':'') ?>">
+                                <?= $row['type']==2? '0': number_format($row['amount']??0,0,',','.') ?> VND
+                              </td>
+                              <td><?= number_format($row['remaining_balance']??0,0,',','.') ?> VND</td>
+                              <td><?= htmlspecialchars($row['account_name']) ?></td>
+                              <td class="action-buttons">
+                                  <?php if ($row['type'] != 2): ?>
+                                    <a href="edit_transaction.php?id=<?= $row['id'] ?>" class="btn-edit">✏️ Sửa</a>
+                                    <a href="delete_transaction.php?id=<?= $row['id'] ?>" class="btn-delete">🗑️ Xoá</a>
+                                  <?php else: ?>
+                                    <span style="opacity: 0.5; color: gray;">🚫 Không thể chỉnh sửa</span>
+                                  <?php endif; ?>
+                                </td>
+                            </tr>
+                          <?php endforeach; ?>
+                        </tbody>
+                      </table>
+                    </div>
+                </div>
             <?php endforeach; ?>
-            <?php
-              $totalThu = 0; $totalChi = 0;
-              foreach ($entries as $row) {
-                if ($row['type']==0) $totalThu += $row['amount'];
-                elseif ($row['type']==1) $totalChi += $row['amount'];
-              }
-            ?>
-            <div class="date-group">
-              <div class="date-heading">
-                <span><?= $date ?></span>
-                <span>
-                  🔼 Tổng thu: <?= number_format($totalThu,0,',','.') ?> VND
-                  &nbsp;&nbsp;
-                  🔽 Tổng chi: <?= number_format($totalChi,0,',','.') ?> VND
-                </span>
-              </div>
-            </div>
-            <div class="table-wrapper">
-              <table>
-                <thead>
-                    <tr>
-                      <th>Giờ</th>
-                      <th>Loại</th>
-                      <th>Mô tả</th>
-                      <th>Số tiền</th>
-                      <th>Số dư còn lại</th>
-                      <th>Khoản tiền</th>
-                      <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                  <?php foreach ($entries as $row): ?>
-                    <?php if (!is_array($row)) continue; ?>
-                    <?php
-                      // fix mô tả khởi tạo
-                      $d = $row['description'];
-                      if (strpos($d, 'Tạo tài khoản mới:')===0) {
-                        $d = 'Tạo khoản tiền mới';
-                      }
-                    ?>
-                    <tr>
-                      <td><?= date('H:i:s', strtotime($row['date'])) ?></td>
-                      <td><?= $typeLabels[$row['type']] ?? '-' ?></td>
-                      <td><?= htmlspecialchars($d ?: '-') ?></td>
-                      <td class="<?= $row['type']==0? 'amount-income': ($row['type']==1? 'amount-expense':'') ?>">
-                        <?= $row['type']==2? '0': number_format($row['amount']??0,0,',','.') ?> VND
-                      </td>
-                      <td><?= number_format($row['remaining_balance']??0,0,',','.') ?> VND</td>
-                      <td><?= htmlspecialchars($row['account_name']) ?></td>
-                      <td class="action-buttons">
-                          <?php if ($row['type'] != 2): ?>
-                            <a href="edit_transaction.php?id=<?= $row['id'] ?>" class="btn-edit">✏️ Sửa</a>
-                            <a href="delete_transaction.php?id=<?= $row['id'] ?>" class="btn-delete">🗑️ Xoá</a>
-                          <?php else: ?>
-                            <span style="opacity: 0.5; color: gray;">🚫 Không thể chỉnh sửa</span>
-                          <?php endif; ?>
-                        </td>
-                    </tr>
-                  <?php endforeach; ?>
-                </tbody>
-              </table>
-            </div>
-          <?php endforeach; ?>
-        <?php endif; ?>
       </main>
     </div>
   </div>
@@ -853,6 +854,10 @@ $typeLabels = [
       sb.classList.toggle('open');
       sb.classList.toggle('closed');
       mn.classList.toggle('full');
+    function toggleGroup(id) {
+        const el = document.getElementById(id);
+        el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+    }
     });
   </script>
 </body>
