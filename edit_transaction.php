@@ -53,6 +53,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
+    // 👉 Kiểm tra nếu là giao dịch Chi thì số tiền không được vượt quá số dư
+    if ($type_code === 1) { // Chi
+        $balance_q = pg_query_params($conn, "SELECT balance FROM accounts WHERE id = $1 AND user_id = $2", array($account_id, $user_id));
+        $balance_data = pg_fetch_assoc($balance_q);
+        $current_balance = floatval($balance_data['balance'] ?? 0);
+    
+        // Nếu số tiền chi lớn hơn số dư hiện tại thì báo lỗi
+        if ($amount > $current_balance) {
+            echo "<p style='color:red;'>❌ Số tiền chi vượt quá số dư hiện tại của khoản tiền. Vui lòng nhập lại.</p>";
+            exit();
+        }
+    }
+    
     // 👉 Truy vấn giao dịch cũ
     $oldQuery = "SELECT type, amount, account_id FROM transactions WHERE id = $1 AND user_id = $2";
     $oldResult = pg_query_params($conn, $oldQuery, array($id, $user_id));
