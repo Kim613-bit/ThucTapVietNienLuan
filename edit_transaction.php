@@ -143,8 +143,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    updateBalance($conn, $user_id, $oldAccountId, $oldAmount, $oldType);
-    updateBalance($conn, $user_id, $account_id, $newAmount, $newType);
+    $adjustment = 0;
+
+    // Trừ giao dịch cũ
+    if ($oldType === 0) { // Thu
+        $adjustment -= $oldAmount;
+    } else { // Chi
+        $adjustment += $oldAmount;
+    }
+    
+    // Cộng giao dịch mới
+    if ($newType === 0) {
+        $adjustment += $newAmount;
+    } else {
+        $adjustment -= $newAmount;
+    }
+
+    pg_query_params($conn,
+        "UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3",
+        array($adjustment, $account_id, $user_id)
+    );
+
     
     // 👉 Cập nhật giao dịch
     $updateQuery = "UPDATE transactions 
