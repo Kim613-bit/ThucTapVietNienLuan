@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $row = pg_fetch_assoc($insert);
                 $account_id = $row['id'];
             
-                $now = date('Y-m-d H:i:s');
+                $now = date('Y-m-d H:i');
             
                 // Giao dịch “thu” ban đầu
                 $trans1 = pg_query_params($conn,
