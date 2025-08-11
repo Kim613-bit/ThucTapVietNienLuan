@@ -847,18 +847,20 @@ $typeLabels = [
     </div>
   </div>
   <script>
-    const btn = document.getElementById('sidebar-toggle'),
-          sb  = document.querySelector('.sidebar'),
-          mn  = document.querySelector('.main');
-      btn.addEventListener('click', () => {
-      sb.classList.toggle('open');
-      sb.classList.toggle('closed');
-      mn.classList.toggle('full');
-    function toggleGroup(id) {
-        const el = document.getElementById(id);
-        el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
-    }
-    });
-  </script>
+  const btn = document.getElementById('sidebar-toggle'),
+        sb  = document.querySelector('.sidebar'),
+        mn  = document.querySelector('.main');
+
+  btn.addEventListener('click', () => {
+    sb.classList.toggle('open');
+    sb.classList.toggle('closed');
+    mn.classList.toggle('full');
+  });
+
+  function toggleGroup(id) {
+    const el = document.getElementById(id);
+    el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+  }
+</script>
 </body>
 </html>
