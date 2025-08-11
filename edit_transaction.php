@@ -15,6 +15,13 @@ if (!$id) {
     exit();
 }
 
+$query = "SELECT t.*, a.name AS account_name, a.balance AS current_balance
+          FROM transactions t
+          JOIN accounts a ON t.account_id = a.id
+          WHERE t.id = $1 AND t.user_id = $2";
+$result = pg_query_params($conn, $query, array($id, $user_id));
+$transaction = pg_fetch_assoc($result);
+
 // 👉 Khi người dùng cập nhật giao dịch
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $type        = $_POST['type'];
@@ -108,7 +115,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         );
     }
 
-    $oldDateTime = new DateTime($transaction['date']);
+    if (!empty($transaction['date'])) {
+        $oldDateTime = new DateTime($transaction['date']);
+    } else {
+        $oldDateTime = new DateTime(); // hoặc gán mặc định
+    }
     $newDateTime = new DateTime($datetime);
     
     $sameDateTime = $oldDateTime == $newDateTime;
@@ -135,12 +146,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header("Location: dashboard.php");
     exit();
 }
-$query = "SELECT t.*, a.name AS account_name, a.balance AS current_balance
-          FROM transactions t
-          JOIN accounts a ON t.account_id = a.id
-          WHERE t.id = $1 AND t.user_id = $2";
-$result = pg_query_params($conn, $query, array($id, $user_id));
-$transaction = pg_fetch_assoc($result);
 
 // Gán biến để sử dụng trong HTML
 $account_name = $transaction['account_name'] ?? 'Không xác định';
