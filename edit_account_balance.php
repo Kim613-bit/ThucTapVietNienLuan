@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
     else {
         // 🔸 Cập nhật tên và giao dịch
-        $new_name    = trim($_POST['name']);
+        $new_name = isset($_POST['name']) ? trim($_POST['name']) : '';
         $type        = $_POST['type'] ?? '';
         $rawAmount   = $_POST['amount'] ?? '';
         $description = trim($_POST['description'] ?? '');
