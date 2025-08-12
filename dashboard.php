@@ -480,6 +480,15 @@ $typeLabels = [
       object-fit: cover;
       border: 2px solid white;
     }
+    .add-transaction-btn {
+      background-color: var(--color-primary);
+      color: white;
+      padding: 8px 16px;
+      border-radius: var(--border-radius);
+      text-decoration: none;
+      font-weight: bold;
+      margin-left: auto;
+    }
     /* 6. Responsive */
     @media (max-width: 992px) {
       .dashboard-wrapper .sidebar {
@@ -745,6 +754,9 @@ $typeLabels = [
                 <span>🔼 Tổng thu: <strong><?= number_format($totalThuAll ?? 0,0,',','.') ?> VND</strong></span>
                 <span>🔽 Tổng chi: <strong><?= number_format($totalChiAll ?? 0,0,',','.') ?> VND</strong></span>
               </div>
+                <a href="add_transaction.php" class="btn btn-primary add-transaction-btn">
+                ➕ Thêm giao dịch
+              </a>
               <div class="filter-buttons">
                 <button type="submit">🔍 Lọc</button>
                 <a href="dashboard.php" class="reset">🧹 Làm mới</a>
