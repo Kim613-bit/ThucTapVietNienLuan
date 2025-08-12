@@ -26,6 +26,7 @@ $success = "";
 $error   = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    
     // 🔸 Xóa tài khoản
     if (isset($_POST['delete_account']) && $_POST['delete_account'] === 'yes') {
         pg_query($conn, 'BEGIN');
@@ -74,8 +75,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 );
             }
 
-            // 🔸 Giao dịch thu/chi nếu có
-            if ($type === 'thu' || $type === 'chi') {
+            // 🔸 Giao dịch thu/chi nếu có và người dùng nhấn nút "Lưu thay đổi"
+                if (isset($_POST['save_transaction']) && $_POST['save_transaction'] === 'yes' && ($type === 'thu' || $type === 'chi')) {
                 $date_input = $_POST['transaction_date'] ?? '';
                 $time_input = $_POST['transaction_time'] ?? date('H:i');
                 
@@ -277,6 +278,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <input
         type="text"
         name="name"
+        id="accountName"
         maxlength="30"
         value="<?= htmlspecialchars($account['name']) ?>"
         required
@@ -362,7 +364,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       </div>
     
     </div>
-      <button type="submit" class="form-control">💾 Lưu thay đổi</button>
+      <button type="submit" name="save_transaction" value="yes" class="form-control">💾 Lưu thay đổi</button>
     </form>
 
     <form method="post"
@@ -385,23 +387,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       const fields = document.getElementById("transactionFields");
       const amt    = document.getElementById("amount");
       const desc   = document.querySelector('input[name="description"]');
+      const nameField = document.getElementById("accountName");
     
-      if (type === "thu" || type === "chi") {
-        fields.style.display = "block";
-        amt.required  = true;
-        desc.required = true;
+      const isTransaction = type === "thu" || type === "chi";
     
-        // ✅ Cập nhật placeholder tùy theo loại giao dịch
+      fields.style.display = isTransaction ? "block" : "none";
+      amt.required         = isTransaction;
+      desc.required        = isTransaction;
+      nameField.disabled   = isTransaction;
+    
+      if (isTransaction) {
         const maxLimit = (type === "thu")
           ? 99999999 - currentBalance
           : currentBalance;
     
         amt.placeholder = "Tối đa " + maxLimit.toLocaleString("vi-VN") + " VND";
       } else {
-        fields.style.display = "none";
-        amt.required  = false;
-        desc.required = false;
-        amt.placeholder = ""; // Ẩn placeholder nếu không chọn loại
+        amt.placeholder = "";
       }
     }
 
