@@ -139,7 +139,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     .back {
       display: block;
       text-align: center;
-      margin-top: 22px;
       color: #007BFF;
       text-decoration: none;
     }
