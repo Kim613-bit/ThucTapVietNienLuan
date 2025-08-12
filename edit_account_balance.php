@@ -58,8 +58,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($new_name !== '' && $new_name !== $account['name']) {
             try {
                 pg_query_params($conn,
-                    "UPDATE accounts SET name = $1 WHERE id = $2 AND user_id = $3",
-                    [ $new_name, $account_id, $user_id ]
+                  "INSERT INTO transactions (user_id, account_id, type, description, amount, created_at)
+                   VALUES ($1, $2, $3, $4, $5, NOW())",
+                  [ $user_id, $account_id, 'update', 'Đổi tên khoản tiền thành: ' . $new_name, 0 ]
                 );
                 $account['name'] = $new_name;
                 $success = "✅ Đã đổi tên khoản tiền!";
