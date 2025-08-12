@@ -7,6 +7,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 $user_id = $_SESSION['user_id'];
 $success = "";
+$errors = [];
 
 // Xử lý cập nhật thông tin
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -21,18 +22,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   $fullname = trim($_POST['fullname']);
+  if ($fullname === '') {
+    $errors[] = "❌ Họ tên không được để trống hoặc chỉ chứa khoảng trắng!";
+  }
   $birthyear = $_POST['birthyear'];
+  $currentYear = date("Y");
+  if ($birthyear < 1930 || $birthyear > $currentYear) {
+    $errors[] = "❌ Năm sinh phải từ 1930 đến $currentYear!";
+  }
   $email = $_POST['email'];
   $avatar = '';
 
   if (strlen($fullname) > 30) {
-    $success = "❌ Tên không được vượt quá 30 ký tự!";
+    $errors[] = "❌ Tên không được vượt quá 30 ký tự!";
   } else {
     if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
       $type = mime_content_type($_FILES['avatar']['tmp_name']);
       $ext = strtolower(pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION));
       if ($type !== 'image/png' || $ext !== 'png') {
-        $success = "❌ Avatar phải là file .png!";
+        $errors[] = "❌ Avatar phải là file .png!";
       } else {
         $filename = time() . "_" . basename($_FILES['avatar']['name']);
         $upload_path = "uploads/" . $filename;
@@ -44,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-      $success = "❌ Email không hợp lệ!";
+      $errors[] = "❌ Email không hợp lệ!";
     }
 
     if (!$avatar) {
@@ -53,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $avatar = $old['avatar'];
     }
 
+    if (empty($errors)) {
     pg_query_params($conn,
       "UPDATE users SET fullname = $1, birthyear = $2, email = $3, avatar = $4 WHERE id = $5",
       [$fullname, $birthyear, $email, $avatar, $user_id]
@@ -291,8 +300,8 @@ $avatarPath = 'uploads/' . (file_exists(__DIR__ . '/uploads/' . $avatarFile) && 
     <!-- Content -->
     <div class="content">
       <h2>👤 Hồ sơ cá nhân</h2>
-      <?php if ($success): ?>
-        <p class="success"><?= $success ?></p>
+      <?php if (!empty($success)): ?>
+        <p class="success"><?= htmlspecialchars($success) ?></p>
       <?php endif; ?>
 
       <form method="post" enctype="multipart/form-data" class="profile-box">
@@ -314,5 +323,12 @@ $avatarPath = 'uploads/' . (file_exists(__DIR__ . '/uploads/' . $avatarFile) && 
       </form>
     </div>
   </div>
+    <?php if (!empty($errors)): ?>
+    <ul style="color: red;">
+      <?php foreach ($errors as $error): ?>
+        <li><?= htmlspecialchars($error) ?></li>
+      <?php endforeach; ?>
+    </ul>
+  <?php endif; ?>
 </body>
 </html>
