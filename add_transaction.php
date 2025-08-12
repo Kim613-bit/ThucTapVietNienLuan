@@ -207,7 +207,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <input type="text" name="amount" id="amount" class="form-control" placeholder="VD: 500000" required>
 
       <label for="description">Mô tả:</label>
-      <input type="text" name="description" id="description" class="form-control" maxlength="255" placeholder="Nhập mô tả">
+      <input type="text" name="description" id="description" class="form-control" maxlength="30" placeholder="Nhập mô tả">
 
       <label>Thời gian giao dịch:</label>
       <div style="display: flex; gap: 12px;">
@@ -235,6 +235,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       wrap: true,
       allowInput: true
     });
+    const accountSelect = document.querySelector("select[name='account_id']");
+    const typeSelect = document.getElementById("type");
+    
+    function updateAmountPlaceholder() {
+      const selectedOption = accountSelect.options[accountSelect.selectedIndex];
+      const balanceText = selectedOption.textContent.match(/([\d,.]+) VND/);
+      if (!balanceText) return;
+    
+      const balance = parseInt(balanceText[1].replace(/,/g, ''));
+      const type = typeSelect.value;
+    
+      let suggested = type === "thu"
+        ? 99999999 - balance
+        : balance;
+    
+      // Format với dấu "," và giới hạn 10 ký tự kể cả dấu
+      let formatted = suggested.toLocaleString("vi-VN");
+      if (formatted.length > 10) {
+        formatted = formatted.slice(0, 10);
+        formatted = formatted.replace(/,$/, ''); // tránh kết thúc bằng dấu ","
+      }
+    
+      amountInput.value = formatted;
+    }
+    
+    accountSelect.addEventListener("change", updateAmountPlaceholder);
+    typeSelect.addEventListener("change", updateAmountPlaceholder);
+
     const amountInput = document.getElementById("amount");
 
     amountInput.addEventListener("input", function() {
