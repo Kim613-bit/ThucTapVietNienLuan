@@ -268,8 +268,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       }
     
       function closeModal() {
-        document.getElementById("passwordModal").style.display = "none";
-      }
+          document.getElementById("passwordModal").style.display = "none";
+        
+          // ✅ Reset lại nút submit nếu đang xử lý
+          const submitBtn = document.querySelector('#balanceForm button[type="submit"]');
+          if (submitBtn.disabled) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "💾 Lưu thay đổi";
+          }
+        }
     
       function submitAction() {
         const password = document.getElementById("modalPassword").value;
