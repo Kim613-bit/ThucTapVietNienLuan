@@ -234,41 +234,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       wrap: true,
       allowInput: true
     });
+  
     const accountSelect = document.querySelector("select[name='account_id']");
     const typeSelect = document.getElementById("type");
     const amountInput = document.getElementById("amount");
+  
     function updateAmountPlaceholder() {
       const selectedOption = accountSelect.options[accountSelect.selectedIndex];
-      const balanceText = selectedOption.textContent.match(/([\d,.]+) VND/);
-      if (!balanceText) {
-        amountInput.placeholder = "Nhập số tiền";
-        return;
-      }
-    
-      const balance = parseInt(balanceText[1].replace(/,/g, ''));
+      const balance = parseInt(selectedOption.dataset.balance || '0');
       const type = typeSelect.value;
-    
+  
       let suggested = type === "thu"
         ? 99999999 - balance
         : balance;
-    
+  
       let formatted = suggested.toLocaleString("vi-VN");
       if (formatted.length > 10) {
         formatted = formatted.slice(0, 10).replace(/,$/, '');
       }
-    
+  
       amountInput.placeholder = "Tối đa " + formatted + " VND";
     }
-    document.addEventListener("DOMContentLoaded", function() {
-      updateAmountPlaceholder(); // ✅ Gọi khi trang vừa tải
-    });
+  
+    document.addEventListener("DOMContentLoaded", updateAmountPlaceholder);
     accountSelect.addEventListener("change", updateAmountPlaceholder);
     typeSelect.addEventListener("change", updateAmountPlaceholder);
-
-    amountInput.addEventListener("input", function() {
+  
+    amountInput.addEventListener("input", function () {
       let raw = this.value.replace(/,/g, '').replace(/[^\d.]/g, '');
-      if (raw.length > 10) raw = raw.slice(0, 10); // 🔒 Giới hạn 10 ký tự
-    
+      if (raw.length > 10) raw = raw.slice(0, 10);
+  
       const [intPart, decPart] = raw.split('.');
       let formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
       if (decPart !== undefined) {
@@ -276,7 +271,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       }
       this.value = formatted;
     });
-    document.querySelector("[data-toggle]").addEventListener("click", function() {
+  
+    document.querySelector("[data-toggle]").addEventListener("click", function () {
       document.querySelector("[name='transaction_date']")._flatpickr.open();
     });
   </script>
