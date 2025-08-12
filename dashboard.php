@@ -91,9 +91,7 @@ if ($to_date) {
     $idx++;
 }
 
-$sql .= " ORDER BY DATE(t.date) DESC, 
-          CASE WHEN t.type = 2 THEN 1 ELSE 0 END, 
-          t.date DESC";
+$sql .= " ORDER BY t.date DESC, t.id DESC";
 $resTrans = pg_query_params($conn, $sql, $params);
 
 $transactions = [];
