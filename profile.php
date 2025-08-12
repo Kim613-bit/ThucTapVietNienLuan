@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $old = pg_fetch_assoc($res_old);
       $avatar = $old['avatar'];
     }
-
+    }
     if (empty($errors)) {
     pg_query_params($conn,
       "UPDATE users SET fullname = $1, birthyear = $2, email = $3, avatar = $4 WHERE id = $5",
