@@ -434,6 +434,12 @@ $typeLabels = [
       justify-content: flex-end;
       text-align: right;
     }
+    .date-summary span {
+      display: inline-block;
+      width: 180px;             /* bề ngang cố định */
+      text-align: center;
+      white-space: nowrap;
+    }
     .filter-row {
       display: grid;
       grid-template-columns: 1fr;
@@ -454,7 +460,7 @@ $typeLabels = [
     
     .stats-inline {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       gap: 5px;
       min-width: 180px;
       justify-content: center;
