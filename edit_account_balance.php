@@ -276,17 +276,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <form method="post" id="balanceForm"
           onsubmit="return confirm('Bạn có chắc chắn muốn lưu thay đổi không?');">
-      <!-- Tên tài khoản -->
-      <label>Tên khoản tiền:</label>
-      <input
-        type="text"
-        name="name"
-        id="accountName"
-        maxlength="30"
-        value="<?= htmlspecialchars($account['name']) ?>"
-        required
-        class="form-control"
-      >
+
+      <!-- Tên khoản tiền -->
+        <label>Tên khoản tiền:</label>
+        <input type="text" name="name" id="accountName" maxlength="30"
+               value="<?= htmlspecialchars($account['name']) ?>"
+               required class="form-control" readonly>
+        
+        <!-- Hidden input để gửi giá trị -->
+        <input type="hidden" name="name" id="hiddenName"
+               value="<?= htmlspecialchars($account['name']) ?>">
 
       <!-- Số dư hiện tại -->
       <label>Số dư hiện tại:</label>
@@ -386,37 +385,42 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     const currentBalance = <?= $currentBalance ?>;
 
     function toggleFields() {
-      const type   = document.getElementById("transactionType").value;
-      const fields = document.getElementById("transactionFields");
-      const amt    = document.getElementById("amount");
-      const desc   = document.querySelector('input[name="description"]');
-      const nameField = document.getElementById("accountName");
+        const type        = document.getElementById("transactionType").value;
+        const fields      = document.getElementById("transactionFields");
+        const amt         = document.getElementById("amount");
+        const desc        = document.querySelector('input[name="description"]');
+        const nameField   = document.getElementById("accountName");
+        const hiddenName  = document.getElementById("hiddenName");
     
-      const isTransaction = type === "thu" || type === "chi";
+        const isTransaction = type === "thu" || type === "chi";
     
-      fields.style.display = isTransaction ? "block" : "none";
-      amt.required         = isTransaction;
-      desc.required        = isTransaction;
-      nameField.disabled   = isTransaction;
+        fields.style.display = isTransaction ? "block" : "none";
+        amt.required         = isTransaction;
+        desc.required        = isTransaction;
     
-      if (isTransaction) {
-        const maxLimit = (type === "thu")
-          ? 99999999 - currentBalance
-          : currentBalance;
+        // ✅ Không cho chỉnh sửa nhưng vẫn gửi giá trị
+        nameField.readOnly   = isTransaction;
+        hiddenName.value     = nameField.value;
     
-        amt.placeholder = "Tối đa " + maxLimit.toLocaleString("vi-VN") + " VND";
-      } else {
-        amt.placeholder = "";
-      }
+        if (isTransaction) {
+            const maxLimit = (type === "thu")
+                ? 99999999 - currentBalance
+                : currentBalance;
+    
+            amt.placeholder = "Tối đa " + maxLimit.toLocaleString("vi-VN") + " VND";
+        } else {
+            amt.placeholder = "";
+        }
     }
-
-  function formatWithCommas(value) {
-    const parts = value.split('.');
-    parts[0] = parts[0]
-      .replace(/^0+(?=\d)|\D/g, '')
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    return parts.join('.');
-  }
+    
+    
+      function formatWithCommas(value) {
+        const parts = value.split('.');
+        parts[0] = parts[0]
+          .replace(/^0+(?=\d)|\D/g, '')
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return parts.join('.');
+      }
 
   document.addEventListener("DOMContentLoaded", function() {
     toggleFields();
