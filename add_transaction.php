@@ -203,7 +203,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       </select>
 
       <label for="amount">Số tiền:</label>
-      <input type="text" name="amount" id="amount" class="form-control" required>
+      <input type="text" name="amount" id="amount" maxlength="10" class="form-control" required>
 
       <label>Nội dung giao dịch:</label>
       <input list="description-options" name="description" id="description" maxlength="30"
