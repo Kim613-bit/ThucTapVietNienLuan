@@ -537,9 +537,6 @@ $typeLabels = [
         width: 100%;
       }
     }
-          .stats-inline span {
-        width: 100%;
-      }
       .table-wrapper table {
           width: 100%;
           border-collapse: collapse;
