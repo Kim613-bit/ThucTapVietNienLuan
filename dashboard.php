@@ -329,8 +329,11 @@ $typeLabels = [
     }
     .stats-inline {
       display: flex;
-      flex-direction: column;
-      gap: 4px;
+      flex-direction: row;
+      gap: 24px;
+      min-width: 320px;
+      justify-content: flex-start;
+      align-items: center;
     }
     .stats-inline span {
       display: inline-block;
