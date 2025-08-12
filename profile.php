@@ -307,28 +307,36 @@ $avatarPath = 'uploads/' . (file_exists(__DIR__ . '/uploads/' . $avatarFile) && 
       <form method="post" enctype="multipart/form-data" class="profile-box">
         <label>Họ tên:</label>
         <input type="text" name="fullname" maxlength="30" value="<?= htmlspecialchars($user['fullname']) ?>" required>
-
+        <?php if (in_array("❌ Họ tên không được để trống hoặc chỉ chứa khoảng trắng!", $errors)): ?>
+          <span style="color: red;">❌ Họ tên không được để trống hoặc chỉ chứa khoảng trắng!</span>
+        <?php endif; ?>
+        <?php if (in_array("❌ Tên không được vượt quá 30 ký tự!", $errors)): ?>
+          <span style="color: red;">❌ Tên không được vượt quá 30 ký tự!</span>
+        <?php endif; ?>
+      
         <label>Năm sinh:</label>
         <input type="number" name="birthyear" value="<?= htmlspecialchars($user['birthyear']) ?>" required>
-
+        <?php if (preg_grep('/❌ Năm sinh/', $errors)): ?>
+          <span style="color: red;">❌ Năm sinh phải từ 1930 đến <?= date("Y") ?>!</span>
+        <?php endif; ?>
+      
         <label>Email:</label>
         <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required>
-
+        <?php if (in_array("❌ Email không hợp lệ!", $errors)): ?>
+          <span style="color: red;">❌ Email không hợp lệ!</span>
+        <?php endif; ?>
+      
         <label>Ảnh đại diện (.png):</label>
         <input type="file" name="avatar" accept=".png">
+        <?php if (in_array("❌ Avatar phải là file .png!", $errors)): ?>
+          <span style="color: red;">❌ Avatar phải là file .png!</span>
+        <?php endif; ?>
         <img src="<?= htmlspecialchars($avatarPath) ?>" alt="Avatar">
-
+      
         <button type="submit" onclick="return confirm('✅ Bạn có chắc chắn muốn cập nhật thông tin không?');">Cập nhật</button>
         <button type="submit" name="delete_account" class="btn-delete" onclick="return confirm('❌ Bạn có chắc chắn muốn xóa tài khoản không?');">❌ Xóa tài khoản</button>
       </form>
     </div>
   </div>
-    <?php if (!empty($errors)): ?>
-    <ul style="color: red;">
-      <?php foreach ($errors as $error): ?>
-        <li><?= htmlspecialchars($error) ?></li>
-      <?php endforeach; ?>
-    </ul>
-  <?php endif; ?>
 </body>
 </html>
