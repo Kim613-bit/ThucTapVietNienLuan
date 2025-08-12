@@ -241,7 +241,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     function updateAmountPlaceholder() {
       const selectedOption = accountSelect.options[accountSelect.selectedIndex];
       const balanceText = selectedOption.textContent.match(/([\d,.]+) VND/);
-      if (!balanceText) return;
+      if (!balanceText) {
+        amountInput.placeholder = "Nhập số tiền";
+        return;
+      }
     
       const balance = parseInt(balanceText[1].replace(/,/g, ''));
       const type = typeSelect.value;
@@ -250,14 +253,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         ? 99999999 - balance
         : balance;
     
-      // Format với dấu "," và giới hạn 10 ký tự kể cả dấu
       let formatted = suggested.toLocaleString("vi-VN");
       if (formatted.length > 10) {
-        formatted = formatted.slice(0, 10);
-        formatted = formatted.replace(/,$/, ''); // tránh kết thúc bằng dấu ","
+        formatted = formatted.slice(0, 10).replace(/,$/, '');
       }
     
-      amountInput.value = formatted;
+      amountInput.placeholder = "Tối đa " + formatted + " VND";
     }
     
     accountSelect.addEventListener("change", updateAmountPlaceholder);
