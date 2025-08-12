@@ -205,9 +205,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <label for="amount">Số tiền:</label>
       <input type="text" name="amount" id="amount" class="form-control" required>
 
-      <label for="description">Mô tả:</label>
-      <input type="text" name="description" id="description" class="form-control" maxlength="30" placeholder="Nhập mô tả">
-
+      <label>Nội dung giao dịch:</label>
+      <input list="description-options" name="description" id="description" maxlength="30"
+             placeholder="Nhập hoặc chọn nội dung" class="form-control"
+             value="<?= htmlspecialchars($_POST['description'] ?? '') ?>">
+      <datalist id="description-options">
+        <!-- Gợi ý sẽ được thêm bằng JavaScript -->
+      </datalist>
+      
       <label>Thời gian giao dịch:</label>
       <div style="display: flex; gap: 12px;">
         <div style="flex: 1; position: relative;">
@@ -255,7 +260,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   
       amountInput.placeholder = "Tối đa " + formatted + " VND";
     }
-  
+
+    const presetThu = ["Lương", "Thưởng", "Tiền lãi", "Bán hàng", "Khác"];
+    const presetChi = ["Ăn uống", "Di chuyển", "Giải trí", "Mua sắm", "Khác"];
+    
+    function updateDescriptionOptions() {
+      const type = typeSelect.value;
+      const datalist = document.getElementById("description-options");
+      const options = type === "thu" ? presetThu : type === "chi" ? presetChi : [];
+      datalist.innerHTML = options.map(item => `<option value="${item}">`).join("");
+    }
+    
+    typeSelect.addEventListener("change", updateDescriptionOptions);
+    document.addEventListener("DOMContentLoaded", updateDescriptionOptions);
+
     document.addEventListener("DOMContentLoaded", updateAmountPlaceholder);
     accountSelect.addEventListener("change", updateAmountPlaceholder);
     typeSelect.addEventListener("change", updateAmountPlaceholder);
