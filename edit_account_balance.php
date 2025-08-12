@@ -1,7 +1,6 @@
 <?php
 session_start();
 include "db.php";
-define('MAX_BALANCE', 100000000);
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 if (!isset($_SESSION['user_id'])) {
@@ -26,119 +25,47 @@ $success = "";
 $error   = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    
-    // 🔸 Xóa tài khoản
     if (isset($_POST['delete_account']) && $_POST['delete_account'] === 'yes') {
-        pg_query($conn, 'BEGIN');
-        try {
-            pg_query_params($conn,
-                "DELETE FROM transactions WHERE account_id = $1 AND user_id = $2",
-                [ $account_id, $user_id ]
-            );
-            pg_query_params($conn,
-                "DELETE FROM accounts WHERE id = $1 AND user_id = $2",
-                [ $account_id, $user_id ]
-            );
-            pg_query($conn, 'COMMIT');
-            header("Location: dashboard.php?deleted=1");
-            exit();
-        } catch (Exception $e) {
-            pg_query($conn, 'ROLLBACK');
-            $error = "❌ Lỗi xoá: " . $e->getMessage();
-        }
-    }
-    else {
-        // 🔸 Cập nhật tên và giao dịch
-        $type = $_POST['type'] ?? '';
-        $is_transaction = in_array($type, ['thu', 'chi']);
-        
-        $new_name = $is_transaction ? $account['name'] : (isset($_POST['name']) ? trim($_POST['name']) : '');
-        $rawAmount = $_POST['amount'] ?? '';
-        $description = trim($_POST['description'] ?? '');
-        $name_changed = !$is_transaction && $new_name !== $account['name'];
+        $input_password = $_POST['confirm_password'] ?? '';
 
-                
-        try {
+        $sql = "SELECT password FROM users WHERE id = $1";
+        $res = pg_query_params($conn, $sql, [ $user_id ]);
+        $user = pg_fetch_assoc($res);
+
+        if (! $user || !password_verify($input_password, $user['password'])) {
+            $error = "❌ Mật khẩu không đúng. Không thể xóa khoản tiền.";
+        } else {
             pg_query($conn, 'BEGIN');
-
-            // 🔸 Đổi tên nếu cần
-            if ($name_changed) {
+            try {
+                pg_query_params($conn,
+                    "DELETE FROM transactions WHERE account_id = $1 AND user_id = $2",
+                    [ $account_id, $user_id ]
+                );
+                pg_query_params($conn,
+                    "DELETE FROM accounts WHERE id = $1 AND user_id = $2",
+                    [ $account_id, $user_id ]
+                );
+                pg_query($conn, 'COMMIT');
+                header("Location: dashboard.php?deleted=1");
+                exit();
+            } catch (Exception $e) {
+                pg_query($conn, 'ROLLBACK');
+                $error = "❌ Lỗi xoá: " . $e->getMessage();
+            }
+        }
+    } elseif (isset($_POST['name'])) {
+        $new_name = trim($_POST['name']);
+        if ($new_name !== '' && $new_name !== $account['name']) {
+            try {
                 pg_query_params($conn,
                     "UPDATE accounts SET name = $1 WHERE id = $2 AND user_id = $3",
                     [ $new_name, $account_id, $user_id ]
                 );
-                $now = date('Y-m-d H:i:s'); 
-                pg_query_params($conn,
-                    "INSERT INTO transactions
-                     (account_id, user_id, type, amount, description, remaining_balance, date)
-                     VALUES ($1, $2, 2, 0, $3, $4, $5)",
-                    [ $account_id, $user_id,
-                      "Đổi tên từ '{$account['name']}' thành '{$new_name}'",
-                      $account['balance'], $now ]
-                );
+                $account['name'] = $new_name;
+                $success = "✅ Đã đổi tên khoản tiền!";
+            } catch (Exception $e) {
+                $error = "❌ Lỗi cập nhật: " . htmlspecialchars($e->getMessage());
             }
-
-            // 🔸 Giao dịch thu/chi nếu có và người dùng nhấn nút "Lưu thay đổi"
-                if (isset($_POST['save_transaction']) && $_POST['save_transaction'] === 'yes' && ($type === 'thu' || $type === 'chi')) {
-                $date_input = $_POST['transaction_date'] ?? '';
-                $time_input = $_POST['transaction_time'] ?? date('H:i');
-                
-                // Kiểm tra định dạng dd/mm/yyyy
-                $date_valid = DateTime::createFromFormat('d/m/Y', $date_input);
-                $time_valid = preg_match('/^([01]\\d|2[0-3]):[0-5]\\d$/', $time_input);
-                
-                if (!$date_valid || !$time_valid) {
-                    throw new Exception("Ngày giờ không hợp lệ. Định dạng yêu cầu: dd/mm/yyyy và HH:mm (24 giờ).");
-                }
-                
-                // Chuyển đổi định dạng ngày sang yyyy-mm-dd
-                $dtObj = DateTime::createFromFormat('d/m/Y H:i', "$date_input $time_input");
-                if (!$dtObj) {
-                    throw new Exception("Ngày giờ không hợp lệ.");
-                }
-                $datetime = $dtObj->format('Y-m-d H:i:s');
-
-                $sanitized = preg_replace('/[^\d\.\-]/', '', $rawAmount);
-                if (!is_numeric($sanitized)) throw new Exception("Số tiền không hợp lệ.");
-
-                $amount = floatval($sanitized);
-                if ($amount <= 0) throw new Exception("Số tiền phải > 0.");
-                if ($amount > MAX_BALANCE) throw new Exception("Số tiền vượt giới hạn.");
-
-                $type_value = ($type === 'chi') ? 1 : 0;
-                $new_balance = ($type_value === 0)
-                             ? $account['balance'] + $amount
-                             : $account['balance'] - $amount;
-
-                if ($new_balance < 0 || $new_balance > MAX_BALANCE) {
-                    throw new Exception("Số dư sau giao dịch >99,999,999 .");
-                }
-
-                pg_query_params($conn,
-                    "UPDATE accounts SET balance = $1 WHERE id = $2 AND user_id = $3",
-                    [ $new_balance, $account_id, $user_id ]
-                );
-
-                if ($description === '') {
-                    $description = $type_value === 0 ? 'Giao dịch thu' : 'Giao dịch chi';
-                }
-
-                pg_query_params($conn,
-                    "INSERT INTO transactions
-                     (account_id, user_id, type, amount, description, remaining_balance, date)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7)",
-                    [ $account_id, $user_id, $type_value, $amount, $description, $new_balance, $datetime ]
-                );
-
-                $account['balance'] = $new_balance;
-            }
-
-            pg_query($conn, 'COMMIT');
-            $account['name'] = $new_name;
-            $success = "✅ Cập nhật thành công!";
-        } catch (Exception $e) {
-            pg_query($conn, 'ROLLBACK');
-            $error = "❌ Lỗi cập nhật: " . htmlspecialchars($e->getMessage());
         }
     }
 }
@@ -264,7 +191,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 <body>
   <div class="container">
-    <h2>✏️ Sửa khoản tiền</h2>
+    <h2>✏️ Đổi tên khoản tiền</h2>
 
     <?php if ($success): ?>
       <p class="success"><?= $success ?></p>
@@ -278,249 +205,51 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           onsubmit="return confirm('Bạn có chắc chắn muốn lưu thay đổi không?');">
 
       <!-- Tên khoản tiền -->
-        <label>Tên khoản tiền:</label>
-        <input type="text" name="name" id="accountName" maxlength="30"
-               value="<?= htmlspecialchars($account['name']) ?>"
-               required class="form-control" readonly>
-        
-        <!-- Hidden input để gửi giá trị -->
-        <input type="hidden" name="name" id="hiddenName"
-               value="<?= htmlspecialchars($account['name']) ?>">
+      <label>Tên khoản tiền:</label>
+      <input type="text" name="name" id="accountName" maxlength="30"
+             value="<?= htmlspecialchars($account['name']) ?>"
+             required class="form-control">
 
       <!-- Số dư hiện tại -->
       <label>Số dư hiện tại:</label>
-      <input
-        type="text"
-        readonly
-        value="<?= number_format($account['balance'], 0, ',', '.') ?> VND"
-        class="form-control"
-      >
+      <input type="text" readonly
+             value="<?= number_format($account['balance'], 0, ',', '.') ?> VND"
+             class="form-control">
 
-      <!-- Loại giao dịch -->
-      <label>Loại giao dịch:</label>
-      <select
-        name="type"
-        id="transactionType"
-        onchange="toggleFields()"
-        class="form-control"
-      >
-        <option value="">-- Đổi tên khoản tiền --</option>
-        <option value="thu">Thu</option>
-        <option value="chi">Chi</option>
-      </select>
-
-      <!-- Nhóm trường giao dịch (ẩn/hiện) -->
-      <div id="transactionFields" style="display: none;">
-        <label>Số tiền:</label>
-        <input
-          type="text"
-          id="amount"
-          name="amount"
-          maxlength="10"
-          class="form-control"
-          value="<?= htmlspecialchars($_POST['amount'] ?? '') ?>"
-        >
-
-        <?php if (!empty($error)): ?>
-              <p class="error"><?= $error ?></p>
-            <?php endif; ?>
-            <label>Nội dung giao dịch:</label>
-            <input list="description-options" name="description" id="description" maxlength="30"
-                   placeholder="Nhập hoặc chọn nội dung" class="form-control"
-                   value="<?= htmlspecialchars($_POST['description'] ?? '') ?>">
-            <datalist id="description-options">
-                <!-- Gợi ý sẽ được thêm bằng JavaScript -->
-            </datalist>
-
-        <datalist id="suggestions">
-          <?php foreach ($descriptions as $desc): ?>
-            <option value="<?= htmlspecialchars($desc) ?>">
-          <?php endforeach; ?>
-        </datalist>
-          <label>Thời gian giao dịch:</label>
-            <div style="display: flex; gap: 12px;">
-              <div style="flex: 1; position: relative;">
-                <div class="flatpickr-wrapper">
-                  <input
-                    type="text"
-                    id="datepicker"
-                    name="transaction_date"
-                    class="form-control"
-                    data-input
-                    placeholder="Chọn ngày"
-                    required
-                  >
-                  <button type="button" class="calendar-btn" data-toggle title="Chọn ngày">📅</button>
-                </div>
-              </div>
-            
-              <div style="flex: 1;">
-                <input
-                  type="time"
-                  name="transaction_time"
-                  class="form-control"
-                  value="<?= htmlspecialchars($_POST['transaction_time'] ?? date('H:i')) ?>"
-                  required
-                >
-              </div>
-      </div>
-    
-    </div>
-      <button type="submit" name="save_transaction" value="yes" class="form-control">💾 Lưu thay đổi</button>
+      <button type="submit" class="form-control">💾 Lưu thay đổi</button>
     </form>
 
     <form method="post"
           onsubmit="return confirm('Bạn có chắc chắn muốn xóa khoản tiền này không?');">
       <input type="hidden" name="delete_account" value="yes">
-      <button type="submit" class="form-control danger">
-        🗑️ Xóa khoản tiền
-      </button>
+    
+      <label>🔐 Nhập mật khẩu để xác nhận:</label>
+      <input type="password" name="confirm_password" id="confirmPassword" class="form-control" required>
+        <button type="button" onclick="togglePassword()">👁️ Hiện mật khẩu</button>
+        <script>
+          function togglePassword() {
+            const input = document.getElementById("confirmPassword");
+            input.type = input.type === "password" ? "text" : "password";
+          }
+        </script>
+    
+      <button type="submit" class="form-control danger">🗑️ Xóa khoản tiền</button>
     </form>
+
 
     <a href="dashboard.php" class="back">← Quay lại Dashboard</a>
   </div>
-  <?php $currentBalance = $account['balance']; ?>
-
     <script>
-    const currentBalance = <?= $currentBalance ?>;
-
-    function toggleFields() {
-        const type        = document.getElementById("transactionType").value;
-        const fields      = document.getElementById("transactionFields");
-        const amt         = document.getElementById("amount");
-        const desc        = document.querySelector('input[name="description"]');
-        const nameField   = document.getElementById("accountName");
-        const hiddenName  = document.getElementById("hiddenName");
+      document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById("balanceForm");
+        const submitBtn = document.querySelector('button[type="submit"]');
     
-        const isTransaction = type === "thu" || type === "chi";
-    
-        fields.style.display = isTransaction ? "block" : "none";
-        amt.required         = isTransaction;
-        desc.required        = isTransaction;
-    
-        // ✅ Không cho chỉnh sửa nhưng vẫn gửi giá trị
-        nameField.readOnly   = isTransaction;
-        hiddenName.value     = nameField.value;
-    
-        if (isTransaction) {
-            const maxLimit = (type === "thu")
-                ? 99999999 - currentBalance
-                : currentBalance;
-    
-            amt.placeholder = "Tối đa " + maxLimit.toLocaleString("vi-VN") + " VND";
-        } else {
-            amt.placeholder = "";
-        }
-    }
-    
-    
-      function formatWithCommas(value) {
-        const parts = value.split('.');
-        parts[0] = parts[0]
-          .replace(/^0+(?=\d)|\D/g, '')
-          .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        return parts.join('.');
-      }
-
-  document.addEventListener("DOMContentLoaded", function() {
-    toggleFields();
-    
-    const form       = document.getElementById("balanceForm");
-    const amt        = document.getElementById("amount");
-    const type       = document.getElementById("transactionType");
-    const submitBtn  = document.querySelector('button[type="submit"]');
-    const warning    = document.getElementById("amountWarning") || document.createElement('small');
-
-    submitBtn.disabled = false;
-    submitBtn.textContent = "💾 Lưu thay đổi";
-      
-    // 💵 Tự động format số tiền khi nhập
-    amt.addEventListener("input", function() {
-      const oldPos = this.selectionStart;
-      let raw = this.value.replace(/,/g, '');
-      if (raw === '' || raw === '.') {
-        this.value = raw;
-        return;
-      }
-      const [intPart, decPart] = raw.split('.');
-      let formatted = formatWithCommas(intPart);
-      if (decPart !== undefined) {
-        formatted += '.' + decPart.replace(/\D/g, '');
-      }
-      this.value = formatted;
-      const newPos = oldPos + (this.value.length - raw.length);
-      setTimeout(() => this.setSelectionRange(newPos, newPos), 0);
-    });
-
-    // ✅ Xử lý kiểm tra trước khi submit
-    form.addEventListener("submit", function(e) {
-      const raw = amt.value.replace(/,/g, '');
-      const number = parseFloat(raw);
-      const selectedType = type.value;
-      const maxLimit = (selectedType === "thu")
-        ? 99999999 - currentBalance
-        : currentBalance; // 👈 điều kiện cho "chi"
-
-      if ((selectedType === "thu" || selectedType === "chi") &&
-          (!raw || isNaN(number) || number <= 0 || number > maxLimit)) {
-        e.preventDefault();
-        warning.textContent = "⚠️ Số tiền không hợp lệ. Vui lòng nhập ≤ " + maxLimit.toLocaleString("vi-VN") + " VND.";
-        warning.classList.add("error");
-        warning.style.display = "block";
-        amt.style.borderColor = "red";
-
-        if (!document.getElementById("amountWarning")) {
-          warning.id = "amountWarning";
-          amt.parentNode.insertBefore(warning, amt.nextSibling);
-        }
-        amt.focus();
-      } else {
-        warning.style.display = "none";
-        amt.style.borderColor = "#ccc";
-        if (!raw || isNaN(number) || number <= 0 || number > maxLimit) {
-        } else {
-          warning.style.display = "none";
-          amt.style.borderColor = "#ccc";
-        
+        // ✅ Xử lý nút submit
+        form.addEventListener("submit", function() {
           submitBtn.disabled = true;
           submitBtn.textContent = "⏳ Đang xử lý...";
-        }
-      }
-    });
-  });
-        const presetThu = ["Lương", "Thưởng", "Tiền lãi", "Bán hàng", "Khác"];
-        const presetChi = ["Ăn uống", "Di chuyển", "Giải trí", "Mua sắm", "Khác"];
-    
-        function updateDescriptionOptions() {
-            const type = document.getElementById("transactionType").value;
-            const datalist = document.getElementById("description-options");
-            const options = type === "thu" ? presetThu : type === "chi" ? presetChi : [];
-            datalist.innerHTML = options.map(item => `<option value="${item}">`).join("");
-        }
-    
-        function updateDescription() {
-            const selected = document.getElementById("preset-description").value;
-            if (selected) {
-                document.getElementById("description").value = selected;
-            }
-        }
-        document.getElementById("transactionType").addEventListener("change", () => {
-            toggleFields();
-            updateDescriptionOptions();
         });
-        document.addEventListener("DOMContentLoaded", updateDescriptionOptions);
-
-        flatpickr(".flatpickr-wrapper", {
-      dateFormat: "d/m/Y",
-      locale: "vi",
-      defaultDate: new Date(),
-      wrap: true,
-      allowInput: true
-    });
-    document.querySelector("[data-toggle]").addEventListener("click", function() {
-      document.querySelector("#datepicker")._flatpickr.open();
-    });
-</script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vi.js"></script>
+      });
+    </script>
 </body>
 </html>
