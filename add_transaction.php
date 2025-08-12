@@ -190,7 +190,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <select name="account_id" class="form-control" required>
         <option value="">-- Chọn tài khoản --</option>
         <?php foreach ($accounts as $acc): ?>
-          <option value="<?= $acc['id'] ?>">
+          <option value="<?= $acc['id'] ?>" data-balance="<?= $acc['balance'] ?>">
             <?= htmlspecialchars($acc['name']) ?> — <?= number_format($acc['balance'], 0, ',', '.') ?> VND
           </option>
         <?php endforeach; ?>
