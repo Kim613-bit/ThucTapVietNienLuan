@@ -429,14 +429,13 @@ $typeLabels = [
     }
     .date-summary {
       display: flex;
+      justify-content: center;
       gap: 24px;
-      min-width: 320px;
-      justify-content: flex-end;
-      text-align: right;
+      margin: 8px 0;
     }
     .date-summary span {
       display: inline-block;
-      width: 180px;             /* bề ngang cố định */
+      width: 270px;         /* bề ngang cố định như bạn yêu cầu */
       text-align: center;
       white-space: nowrap;
     }
