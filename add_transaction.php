@@ -204,7 +204,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       </select>
 
       <label for="amount">Số tiền:</label>
-      <input type="text" name="amount" id="amount" class="form-control" placeholder="VD: 500000" required>
+      <input type="text" name="amount" id="amount" class="form-control" required>
 
       <label for="description">Mô tả:</label>
       <input type="text" name="description" id="description" class="form-control" maxlength="30" placeholder="Nhập mô tả">
@@ -237,7 +237,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     });
     const accountSelect = document.querySelector("select[name='account_id']");
     const typeSelect = document.getElementById("type");
-    
+    const amountInput = document.getElementById("amount");
     function updateAmountPlaceholder() {
       const selectedOption = accountSelect.options[accountSelect.selectedIndex];
       const balanceText = selectedOption.textContent.match(/([\d,.]+) VND/);
@@ -260,11 +260,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     
       amountInput.placeholder = "Tối đa " + formatted + " VND";
     }
-    
+    document.addEventListener("DOMContentLoaded", function() {
+      updateAmountPlaceholder(); // ✅ Gọi khi trang vừa tải
+    });
     accountSelect.addEventListener("change", updateAmountPlaceholder);
     typeSelect.addEventListener("change", updateAmountPlaceholder);
-
-    const amountInput = document.getElementById("amount");
 
     amountInput.addEventListener("input", function() {
       let raw = this.value.replace(/,/g, '').replace(/[^\d.]/g, '');
