@@ -30,7 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if ($birthyear < 1930 || $birthyear > $currentYear) {
     $errors[] = "❌ Năm sinh phải từ 1930 đến $currentYear!";
   }
-  $email = $_POST['email'];
+  $email = trim($_POST['email']);
+  if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $errors[] = "❌ Email không hợp lệ!";
+  }
   $avatar = '';
 
   if (strlen($fullname) > 30) {
