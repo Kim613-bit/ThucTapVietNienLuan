@@ -188,8 +188,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <?php endif; ?>
     <form method="post" action="add_transaction.php">
       <label for="account_id">Khoản tiền:</label>
-      <select name="account_id" id="account_id" class="form-control" required>
-        <!-- PHP render danh sách tài khoản -->
+      <select name="account_id" class="form-control" required>
+        <option value="">-- Chọn tài khoản --</option>
+        <?php foreach ($accounts as $acc): ?>
+          <option value="<?= $acc['id'] ?>">
+            <?= htmlspecialchars($acc['name']) ?> — <?= number_format($acc['balance'], 0, ',', '.') ?> VND
+          </option>
+        <?php endforeach; ?>
       </select>
 
       <label for="type">Loại giao dịch:</label>
@@ -229,6 +234,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       defaultDate: new Date(),
       wrap: true,
       allowInput: true
+    });
+    const amountInput = document.getElementById("amount");
+
+    amountInput.addEventListener("input", function() {
+      let raw = this.value.replace(/,/g, '').replace(/[^\d.]/g, '');
+      if (raw.length > 10) raw = raw.slice(0, 10); // 🔒 Giới hạn 10 ký tự
+    
+      const [intPart, decPart] = raw.split('.');
+      let formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      if (decPart !== undefined) {
+        formatted += '.' + decPart.replace(/\D/g, '');
+      }
+      this.value = formatted;
     });
     document.querySelector("[data-toggle]").addEventListener("click", function() {
       document.querySelector("[name='transaction_date']")._flatpickr.open();
