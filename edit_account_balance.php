@@ -417,13 +417,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
   document.addEventListener("DOMContentLoaded", function() {
     toggleFields();
-
+    
     const form       = document.getElementById("balanceForm");
     const amt        = document.getElementById("amount");
     const type       = document.getElementById("transactionType");
     const submitBtn  = document.querySelector('button[type="submit"]');
     const warning    = document.getElementById("amountWarning") || document.createElement('small');
 
+    submitBtn.disabled = false;
+    submitBtn.textContent = "💾 Lưu thay đổi";
+      
     // 💵 Tự động format số tiền khi nhập
     amt.addEventListener("input", function() {
       const oldPos = this.selectionStart;
@@ -467,8 +470,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       } else {
         warning.style.display = "none";
         amt.style.borderColor = "#ccc";
-        submitBtn.disabled = true;
-        submitBtn.textContent = "⏳ Đang xử lý...";
+        if (!raw || isNaN(number) || number <= 0 || number > maxLimit) {
+        } else {
+          warning.style.display = "none";
+          amt.style.borderColor = "#ccc";
+        
+          submitBtn.disabled = true;
+          submitBtn.textContent = "⏳ Đang xử lý...";
+        }
       }
     });
   });
