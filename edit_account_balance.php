@@ -49,11 +49,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
     else {
         // 🔸 Cập nhật tên và giao dịch
-        $new_name = isset($_POST['name']) ? trim($_POST['name']) : '';
-        $type        = $_POST['type'] ?? '';
-        $rawAmount   = $_POST['amount'] ?? '';
+        $type = $_POST['type'] ?? '';
+        $is_transaction = in_array($type, ['thu', 'chi']);
+        
+        $new_name = $is_transaction ? $account['name'] : (isset($_POST['name']) ? trim($_POST['name']) : '');
+        $rawAmount = $_POST['amount'] ?? '';
         $description = trim($_POST['description'] ?? '');
-        $name_changed = $new_name !== $account['name'];
+        $name_changed = !$is_transaction && $new_name !== $account['name'];
+
                 
         try {
             pg_query($conn, 'BEGIN');
