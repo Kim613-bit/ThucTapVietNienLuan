@@ -201,9 +201,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <p class="error"><?= $error ?></p>
     <?php endif; ?>
 
-    <form method="post" id="balanceForm"
-          onsubmit="return confirm('Bạn có chắc chắn muốn lưu thay đổi không?');">
-
+    <form method="post" id="balanceForm" onsubmit="return confirm('Bạn có chắc chắn muốn lưu thay đổi không?');">
       <!-- Tên khoản tiền -->
       <label>Tên khoản tiền:</label>
       <input type="text" name="name" id="accountName" maxlength="30"
@@ -219,13 +217,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <button type="submit" class="form-control">💾 Lưu thay đổi</button>
     </form>
 
-    <form method="post"
-          onsubmit="return confirm('Bạn có chắc chắn muốn xóa khoản tiền này không?');">
+    <form method="post" id="deleteForm" onsubmit="return confirm('Bạn có chắc chắn muốn xóa khoản tiền này không?');">
       <input type="hidden" name="delete_account" value="yes">
     
-      <label>🔐 Nhập mật khẩu để xác nhận:</label>
-      <input type="password" name="confirm_password" id="confirmPassword" class="form-control" required>
-        <button type="button" onclick="togglePassword()">👁️ Hiện mật khẩu</button>
         <script>
           function togglePassword() {
             const input = document.getElementById("confirmPassword");
@@ -248,6 +242,61 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         form.addEventListener("submit", function() {
           submitBtn.disabled = true;
           submitBtn.textContent = "⏳ Đang xử lý...";
+        });
+      });
+    </script>
+    <div id="passwordModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+         background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
+      <div style="background:#fff; padding:24px; border-radius:8px; max-width:400px; width:90%;">
+        <h3>🔐 Xác nhận mật khẩu</h3>
+        <p>Vui lòng nhập mật khẩu để tiếp tục:</p>
+        <input type="password" id="modalPassword" class="form-control" required>
+        <div style="margin-top:12px; display:flex; gap:12px;">
+          <button onclick="submitAction()" class="form-control">✅ Xác nhận</button>
+          <button onclick="closeModal()" class="form-control danger">❌ Hủy</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      let actionType = "";
+    
+      function openModal(type) {
+        actionType = type;
+        document.getElementById("passwordModal").style.display = "flex";
+        document.getElementById("modalPassword").value = "";
+        document.getElementById("modalPassword").focus();
+      }
+    
+      function closeModal() {
+        document.getElementById("passwordModal").style.display = "none";
+      }
+    
+      function submitAction() {
+        const password = document.getElementById("modalPassword").value;
+        if (!password) return alert("Vui lòng nhập mật khẩu.");
+    
+        const form = (actionType === "save")
+          ? document.getElementById("balanceForm")
+          : document.getElementById("deleteForm");
+    
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "confirm_password";
+        input.value = password;
+        form.appendChild(input);
+    
+        form.submit();
+      }
+    
+      document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("balanceForm").addEventListener("submit", function(e) {
+          e.preventDefault();
+          openModal("save");
+        });
+    
+        document.getElementById("deleteForm").addEventListener("submit", function(e) {
+          e.preventDefault();
+          openModal("delete");
         });
       });
     </script>
