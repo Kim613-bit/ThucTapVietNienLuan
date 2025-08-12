@@ -421,7 +421,16 @@ $typeLabels = [
       font-weight: 600;
       border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
-    
+    .date-label {
+      flex: 1;
+    }
+    .date-summary {
+      display: flex;
+      gap: 24px;
+      min-width: 320px;
+      justify-content: flex-end;
+      text-align: right;
+    }
     .filter-row {
       display: grid;
       grid-template-columns: 1fr;
@@ -757,14 +766,13 @@ $typeLabels = [
                 ?>
                 <div class="date-group">
                   <div class="date-heading">
-                    <span><?= htmlspecialchars($label) ?></span>
-                    <span>
-                      🔼 Tổng thu: <?= number_format($totalThu,0,',','.') ?> VND
-                      &nbsp;&nbsp;
-                      🔽 Tổng chi: <?= number_format($totalChi,0,',','.') ?> VND
-                    </span>
-                    <button onclick="toggleGroup('<?= $groupId ?>')" class="toggle-btn">👁️ Xem chi tiết</button>
-                  </div>
+                      <div class="date-label"><?= htmlspecialchars($label) ?></div>
+                      <div class="date-summary">
+                        <span>🔼 Tổng thu: <?= number_format($totalThu,0,',','.') ?> VND</span>
+                        <span>🔽 Tổng chi: <?= number_format($totalChi,0,',','.') ?> VND</span>
+                      </div>
+                      <button onclick="toggleGroup('<?= $groupId ?>')" class="toggle-btn">👁️ Xem chi tiết</button>
+                    </div>
                 </div>
           
                 <div id="<?= $groupId ?>" style="display: none;">
