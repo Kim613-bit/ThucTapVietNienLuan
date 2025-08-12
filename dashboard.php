@@ -115,20 +115,7 @@ foreach ($transactions as $t) {
     $dateKey = date('d/m/Y', strtotime($t['date']));
     $grouped[$dateKey][] = $t;
 }
-// Nhóm theo tuần
-$groupedByWeek = [];
-foreach ($transactions as $t) {
-    $weekStart = date('d/m/Y', strtotime("Monday this week", strtotime($t['date'])));
-    $weekKey = "Tuần bắt đầu: $weekStart";
-    $groupedByWeek[$weekKey][] = $t;
-}
 
-// Nhóm theo tháng
-$groupedByMonth = [];
-foreach ($transactions as $t) {
-    $monthKey = date('m/Y', strtotime($t['date']));
-    $groupedByMonth[$monthKey][] = $t;
-}
 // Nhãn cho type
 $typeLabels = [
     0 => 'Thu',
@@ -694,14 +681,6 @@ $typeLabels = [
           <div class="filter-row">
             <!-- Các bộ lọc -->
             <div class="filters">
-                <div class="form-group">
-                  <label for="group_by">Nhóm theo</label>
-                  <select id="group_by" name="group_by">
-                    <option value="day" <?= ($_GET['group_by'] ?? '') === 'day' ? 'selected' : '' ?>>Ngày</option>
-                    <option value="week" <?= ($_GET['group_by'] ?? '') === 'week' ? 'selected' : '' ?>>Tuần</option>
-                    <option value="month" <?= ($_GET['group_by'] ?? '') === 'month' ? 'selected' : '' ?>>Tháng</option>
-                  </select>
-                </div>
               <div class="form-group">
                 <label for="from_date">Từ ngày</label>
                 <input type="date" id="from_date" name="from_date" value="<?= htmlspecialchars($from_date) ?>">
@@ -766,13 +745,7 @@ $typeLabels = [
           <p>Không có giao dịch nào.</p>
         <?php else: ?>
           <?php
-                $groupBy = $_GET['group_by'] ?? 'day';
-                $groupedData = match($groupBy) {
-                    'week' => $groupedByWeek,
-                    'month' => $groupedByMonth,
-                    default => $grouped,
-                };
-                
+                $groupedData = $grouped;               
                 foreach ($groupedData as $label => $entries):
                     $totalThu = 0;
                     $totalChi = 0;
