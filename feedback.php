@@ -156,7 +156,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <form method="post" enctype="multipart/form-data" onsubmit="return confirmSubmit()">
                 <label for="message">Nội dung phản hồi:</label>
-                <textarea name="message" id="message" placeholder="Nhập nội dung tại đây..." required><?= isset($_POST['message']) ? htmlspecialchars($_POST['message']) : '' ?></textarea>
+                <textarea name="message" id="message" placeholder="Nhập nội dung tại đây..." required maxlength="200"><?= isset($_POST['message']) ? htmlspecialchars($_POST['message']) : '' ?></textarea>
 
                 <label for="image">🖼️ Đính kèm ảnh (nếu có):</label>
                 <input type="file" name="image" id="image" accept="image/*">
