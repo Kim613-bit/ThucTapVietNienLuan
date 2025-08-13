@@ -3,6 +3,10 @@ session_start();
 include "db.php";
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
+if (isset($_POST['hide_feedback'])) {
+    $_SESSION['feedback_hidden'] = true;
+}
+
 if (!function_exists('bcadd')) {
     function bcadd($left_operand, $right_operand, $scale = 2) {
         // Fallback dùng toán học thường (không hoàn toàn chính xác với số lớn)
@@ -23,6 +27,12 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
+$sql_feedback = "SELECT message, status, admin_reply FROM feedbacks 
+                 WHERE user_id = $1 AND status != 'pending' 
+                 ORDER BY created_at DESC LIMIT 3";
+$res_feedback = pg_query_params($conn, $sql_feedback, [$user_id]);
+$feedback_popup = pg_fetch_assoc($res_feedback);
+
 $sql_user = "SELECT username, fullname, avatar, role FROM users WHERE id = $1";
 $result = pg_query_params($conn, $sql_user, [$_SESSION['user_id']]);
 $user = pg_fetch_assoc($result);
@@ -33,6 +43,30 @@ $filter_type        = isset($_GET['type'])       ? $_GET['type']           : 'al
 $filter_description = isset($_GET['description'])? trim($_GET['description']) : '';
 $from_date          = $_GET['from_date'] ?? '';
 $to_date            = $_GET['to_date']   ?? '';
+
+
+if (pg_num_rows($res_feedback) > 0 && empty($_SESSION['feedback_hidden'])) {
+    echo "<div style='margin: 16px 0; padding: 12px; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 8px;'>";
+    echo "<h3 style='margin-bottom: 8px;'>📬 Phản hồi từ hệ thống</h3>";
+
+    while ($row = pg_fetch_assoc($res_feedback)) {
+        echo "<div style='margin-bottom: 12px;'>";
+        echo "<strong>Bạn đã gửi:</strong> " . nl2br(htmlspecialchars($row['message'])) . "<br>";
+        echo "<strong>Trạng thái:</strong> " . htmlspecialchars($row['status']) . "<br>";
+        if (!empty($row['admin_reply'])) {
+            echo "<strong>Phản hồi từ Admin:</strong> " . nl2br(htmlspecialchars($row['admin_reply'])) . "<br>";
+        }
+        echo "<small>Gửi lúc: " . htmlspecialchars($row['created_at']) . "</small>";
+        echo "</div><hr>";
+    }
+
+    // Nút "Đã đọc" nằm ngoài vòng while
+    echo "<form method='post' style='margin-top: 8px;'>";
+    echo "<button type='submit' name='hide_feedback' style='padding: 6px 12px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;'>✅ Đã đọc</button>";
+    echo "</form>";
+
+    echo "</div>"; // đóng khối phản hồi
+}
 
 // 4. Lấy danh sách tài khoản và tính tổng số dư
 $accounts = [];
@@ -652,6 +686,40 @@ $typeLabels = [
       gap: 16px;
     }
   </style>
+    <?php if ($feedback_popup): ?>
+<script>
+window.onload = function() {
+    const msg = `
+        📬 <strong>Phản hồi từ hệ thống</strong><br>
+        <strong>Bạn đã gửi:</strong> <?= htmlspecialchars($feedback_popup['message']) ?><br>
+        <strong>Trạng thái:</strong> <?= htmlspecialchars($feedback_popup['status']) ?><br>
+        <?php if (!empty($feedback_popup['admin_reply'])): ?>
+        <strong>Phản hồi từ Admin:</strong> <?= nl2br(htmlspecialchars($feedback_popup['admin_reply'])) ?><br>
+        <?php endif; ?>
+    `;
+
+    const toast = document.createElement('div');
+    toast.innerHTML = msg;
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.right = '20px';
+    toast.style.background = '#fff3cd';
+    toast.style.border = '1px solid #ffeeba';
+    toast.style.padding = '16px';
+    toast.style.borderRadius = '8px';
+    toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+    toast.style.zIndex = '9999';
+    toast.style.maxWidth = '300px';
+    toast.style.fontSize = '14px';
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 10000); // Tự động ẩn sau 10 giây
+};
+</script>
+<?php endif; ?>
 </head>
 <body>
   <!-- Header -->
