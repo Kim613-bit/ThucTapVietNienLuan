@@ -15,46 +15,54 @@ if (!$transaction_id) {
     echo "Không tìm thấy giao dịch.";
     exit();
 }
+
 // Truy vấn thông tin giao dịch
 $info_query = "SELECT amount, type, account_id FROM transactions WHERE id = $1 AND user_id = $2";
 $info_result = pg_query_params($conn, $info_query, array($transaction_id, $user_id));
 $info = pg_fetch_assoc($info_result);
 
-if ($info) {
-    $amount = floatval($info['amount']);
-    $type = intval($info['type']);
-    $account_id = intval($info['account_id']);
-
-    $account_name_query = "SELECT name FROM accounts WHERE id = $1 AND user_id = $2";
-    $account_name_result = pg_query_params($conn, $account_name_query, array($account_id, $user_id));
-    $account_name = pg_fetch_result($account_name_result, 0, 0);
-    if ($account_name === false) {
-        echo "Tài khoản không tồn tại hoặc không thuộc quyền truy cập.";
-        exit();
-    }
-    // Cập nhật lại số dư tài khoản
-    $adjust_query = ($type == 1)
-        ? "UPDATE accounts SET balance = balance - $1 WHERE id = $2 AND user_id = $3"
-        : "UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3";
-    pg_query_params($conn, $adjust_query, array($amount, $account_id, $user_id));
+if (!$info) {
+    echo "Giao dịch không tồn tại hoặc không thuộc quyền truy cập.";
+    exit();
 }
 
+// Truy vấn tên tài khoản để hiển thị
+$account_id = intval($info['account_id']);
+$account_name_query = "SELECT name FROM accounts WHERE id = $1 AND user_id = $2";
+$account_name_result = pg_query_params($conn, $account_name_query, array($account_id, $user_id));
+$account_name = pg_fetch_result($account_name_result, 0, 0);
+
+if ($account_name === false) {
+    echo "Tài khoản không tồn tại hoặc không thuộc quyền truy cập.";
+    exit();
+}
+
+// Xử lý khi người dùng xác nhận xóa
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['confirm']) && $_POST['confirm'] === "yes") {
-        // ✅ XÓA giao dịch
+        $amount = floatval($info['amount']);
+        $type = intval($info['type']);
+
+        // Cập nhật lại số dư tài khoản
+        $adjust_query = ($type == 1)
+            ? "UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3"
+            : "UPDATE accounts SET balance = balance - $1 WHERE id = $2 AND user_id = $3";
+        pg_query_params($conn, $adjust_query, array($amount, $account_id, $user_id));
+
+        // Xóa giao dịch
         $result = pg_query_params($conn,
             "DELETE FROM transactions WHERE id = $1 AND user_id = $2",
             array($transaction_id, $user_id)
         );
-    if ($result) {
-    // Xoá thành công
-        } else {
+
+        if (!$result) {
             echo "<p style='color:red;'>Lỗi khi xoá giao dịch. Vui lòng thử lại.</p>";
             exit();
         }
+
+        header("Location: dashboard.php");
+        exit();
     }
-    header("Location: dashboard.php");
-    exit();
 }
 ?>
 
@@ -110,11 +118,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <form method="post">
         <p>Bạn có chắc chắn muốn xóa giao dịch này?</p>
         <p><strong>Tài khoản:</strong> <?= htmlspecialchars($account_name) ?></p>
-        <p><strong>Loại:</strong> <?= $info['type'] == 1 ? 'Thu' : 'Chi' ?></p>
+        <p><strong>Loại:</strong> <?= $info['type'] == 0 ? 'Thu' : 'Chi' ?></p>
         <p><strong>Số tiền:</strong> <?= number_format($info['amount'], 2) ?> VND</p>
         <input type="hidden" name="confirm" value="yes">
         <button type="submit">✅ Đồng ý</button>
         <a href="dashboard.php">❌ Hủy</a>
+        <p><strong>Mô tả:</strong> <?= htmlspecialchars($info['description'] ?? 'Không có') ?></p>
     </form>
 </body>
 </html>
