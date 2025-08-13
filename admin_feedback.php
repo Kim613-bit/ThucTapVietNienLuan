@@ -287,10 +287,11 @@ $feedbacks    = $params_filter
                   <span style="color:gray;">🚫 Không xử lý</span>
                 <?php else: ?>
                   <form method="post" action="update_feedback_status.php">
-                    <input type="hidden" name="feedback_id" value="<?= $row['id'] ?>">
-                    <button name="action" value="processed">Đã xử lý</button>
-                    <button name="action" value="ignored">Không xử lý</button>
-                  </form>
+                      <input type="hidden" name="feedback_id" value="<?= $row['id'] ?>">
+                      <textarea name="admin_reply" placeholder="Nhập phản hồi gửi đến người dùng..." rows="2" style="width:100%;margin-bottom:8px;"></textarea>
+                      <button name="action" value="processed">✔ Đã xử lý</button>
+                      <button name="action" value="ignored">🚫 Không xử lý</button>
+                    </form>
                 <?php endif; ?>
               </td>
             </tr>
