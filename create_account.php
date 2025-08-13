@@ -52,11 +52,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 );
             
                 // Ghi chú hành động tạo tài khoản
-                $trans2 = pg_query_params($conn,
-                    "INSERT INTO transactions
-                     (user_id, account_id, type, amount, description, remaining_balance, date)
+                $trans2 = pg_query_params(
+                    $conn,
+                    "INSERT INTO transactions (user_id, account_id, type, amount, description, remaining_balance, date)
                      VALUES ($1, $2, 2, 0, $3, $4, $5)",
-                    [$user_id, $account_id, "Tạo tài khoản mới: {$name}", $balance, $now]
+                    [ $user_id, $account_id, "Tạo khoản tiền mới", $balance, $now ]
                 );
             
                 if ($trans1 && $trans2) {
@@ -91,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>➕ Tạo tài khoản mới</title>
+    <title>➕ Tạo khoản tiền mới</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -161,7 +161,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 <body>
     <div class="container">
-        <h2>Tạo tài khoản mới</h2>
+        <h2>Tạo khoản tiền mới</h2>
 
         <?php if ($error): ?>
             <p class="error"><?= htmlspecialchars($error) ?></p>
