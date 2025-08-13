@@ -730,7 +730,7 @@ window.onload = function() {
 
   <div class="dashboard-wrapper">  
       <!-- Sidebar -->
-      <nav class="sidebar closed">
+      <nav class="sidebar">
         <h3>Các khoản tiền</h3>
         <?php foreach ($accounts as $acc): ?>
           <a href="edit_account_balance.php?account_id=<?= $acc['id'] ?>" class="account-card">
@@ -905,15 +905,6 @@ window.onload = function() {
     </div>
   </div>
   <script>
-  const btn = document.getElementById('sidebar-toggle'),
-        sb  = document.querySelector('.sidebar'),
-        mn  = document.querySelector('.main');
-
-  btn.addEventListener('click', () => {
-    sb.classList.toggle('open');
-    sb.classList.toggle('closed');
-    mn.classList.toggle('full');
-  });
 
   function toggleGroup(id) {
     const el = document.getElementById(id);
