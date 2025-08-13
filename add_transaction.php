@@ -78,7 +78,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       $account_id, $user_id, $type_value, $amount, $description, $new_balance, $datetime
     ]);
     pg_query($conn, 'COMMIT');
-    $success = "✅ Giao dịch đã được thêm!";
+    
+    // Hiển thị thông báo và chuyển hướng bằng JavaScript
+    echo "<script>
+        alert('✅ Giao dịch đã được thêm!');
+        window.location.href = 'dashboard.php';
+    </script>";
+    exit();    
   } catch (Exception $e) {
     pg_query($conn, 'ROLLBACK');
     $error = "❌ Lỗi: " . htmlspecialchars($e->getMessage());
