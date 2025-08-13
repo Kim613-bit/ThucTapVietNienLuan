@@ -8,6 +8,16 @@ $old     = [];          // Lưu lại giá trị đã nhập
 $errors  = [];          // Mảng lỗi chi tiết
 $avatar = 'uploads/avt_mem.png';
 
+$email = $_POST['email'];
+
+// 2.3 Email: kiểm tra trùng
+$check_query = "SELECT COUNT(*) FROM users WHERE email = $1";
+$check_result = pg_query_params($conn, $check_query, array($old['email']));
+$count = pg_fetch_result($check_result, 0, 0);
+
+$check_result = pg_query_params($conn, $check_query, array($email));
+$count = pg_fetch_result($check_result, 0, 0);
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // 1. Sanitize & giữ lại giá trị cũ
     $old['username']  = trim($_POST["username"]  ?? "");
@@ -36,6 +46,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         elseif (strlen($old['password']) > 50) {
             $errors['password'] = "Mật khẩu không được vượt quá 50 ký tự!";
+        }
+        elseif ($count > 0) {
+            $errors['email'] = "Email đã được sử dụng. Vui lòng nhập email khác!";
         }
     }
     
@@ -195,16 +208,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <div class="error"><?= $errors['birthyear'] ?? '' ?></div>
 
       <!-- Email -->
-      <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value="<?= htmlspecialchars($old['email'] ?? '') ?>"
-          required
-          maxlength="50"
-          title="Email hợp lệ, tối đa 50 ký tự"
-        />
-      <div class="error"><?= $errors['email'] ?? '' ?></div>
+      <input type="email" name="email" value="<?= htmlspecialchars($old['email'] ?? '') ?>" required>
+        <?php if (isset($errors['email'])): ?>
+            <div class="error"><?= $errors['email'] ?></div>
+        <?php endif; ?>
 
       <button type="submit">Đăng ký</button>
     </form>
