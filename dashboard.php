@@ -44,22 +44,6 @@ $filter_description = isset($_GET['description'])? trim($_GET['description']) : 
 $from_date          = $_GET['from_date'] ?? '';
 $to_date            = $_GET['to_date']   ?? '';
 
-
-if (pg_num_rows($res_feedback) > 0 && empty($_SESSION['feedback_hidden'])) {
-    echo "<div style='margin: 16px 0; padding: 12px; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 8px;'>";
-    echo "<h3 style='margin-bottom: 8px;'>📬 Phản hồi từ hệ thống</h3>";
-
-    while ($row = pg_fetch_assoc($res_feedback)) {
-        echo "<div style='margin-bottom: 12px;'>";
-        echo "<strong>Bạn đã gửi:</strong> " . nl2br(htmlspecialchars($row['message'])) . "<br>";
-        echo "<strong>Trạng thái:</strong> " . htmlspecialchars($row['status']) . "<br>";
-        if (!empty($row['admin_reply'])) {
-            echo "<strong>Phản hồi từ Admin:</strong> " . nl2br(htmlspecialchars($row['admin_reply'])) . "<br>";
-        }
-        echo "<small>Gửi lúc: " . htmlspecialchars($row['created_at']) . "</small>";
-        echo "</div><hr>";
-    }
-
     // Nút "Đã đọc" nằm ngoài vòng while
     echo "<form method='post' style='margin-top: 8px;'>";
     echo "<button type='submit' name='hide_feedback' style='padding: 6px 12px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;'>✅ Đã đọc</button>";
@@ -323,8 +307,19 @@ $typeLabels = [
       height: 1px;
       background: #e2e8f0;
     }
-    
-    
+    .popup-feedback {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 9999;
+      max-width: 300px;
+      font-size: 14px;
+    }
     /* ——— Module: filter form ——— */
     .filter-panel {
       display: grid;
@@ -924,6 +919,21 @@ window.onload = function() {
     const el = document.getElementById(id);
     el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
   }
+    function closeAdminFeedback() {
+      const popup = document.getElementById('adminFeedbackPopup');
+      if (popup) popup.style.display = 'none';
+    }
 </script>
+    <?php if (!empty($feedback_popup['admin_reply'])): ?>
+      <div class="popup-feedback" id="adminFeedbackPopup">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>📬 Phản hồi từ admin:</strong>
+          <button onclick="closeAdminFeedback()" style="background: none; border: none; font-size: 16px; cursor: pointer;">✖</button>
+        </div>
+        <div style="margin-top: 8px;">
+          <?= htmlspecialchars($feedback_popup['admin_reply']) ?>
+        </div>
+      </div>
+    <?php endif; ?>
 </body>
 </html>
