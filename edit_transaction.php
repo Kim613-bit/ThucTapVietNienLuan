@@ -119,34 +119,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Cộng thêm giao dịch đang sửa
     $balanceAtTransaction += ($type_code === 1) ? $amount : -$amount;
 
-    function recalculateRemainingBalance($conn, $user_id, $account_id) {
-        $query = "
-            SELECT id, type, amount, date
-            FROM transactions
-            WHERE user_id = $1 AND account_id = $2
-            ORDER BY date ASC
-        ";
-        $result = pg_query_params($conn, $query, array($user_id, $account_id));
-    
-        $running_balance = 0;
-    
-        while ($row = pg_fetch_assoc($result)) {
-            $amount = floatval($row['amount']);
-            $type = intval($row['type']);
-    
-            if ($type === 0) { // Thu
-                $running_balance += $amount;
-            } else { // Chi
-                $running_balance -= $amount;
-            }
-    
-            // Cập nhật lại số dư còn lại
-            pg_query_params($conn,
-                "UPDATE transactions SET remaining_balance = $1 WHERE id = $2 AND user_id = $3",
-                array($running_balance, $row['id'], $user_id)
-            );
+function recalculateRemainingBalance($conn, $user_id, $account_id) {
+    $query = "
+        SELECT id, type, amount, date
+        FROM transactions
+        WHERE user_id = $1 AND account_id = $2
+        ORDER BY date ASC
+    ";
+    $result = pg_query_params($conn, $query, array($user_id, $account_id));
+
+    $running_balance = 0;
+    $last_transaction_id = null;
+
+    while ($row = pg_fetch_assoc($result)) {
+        $amount = floatval($row['amount']);
+        $type = intval($row['type']);
+
+        if ($type === 0) { // Thu
+            $running_balance += $amount;
+        } else { // Chi
+            $running_balance -= $amount;
         }
+
+        // Cập nhật lại số dư còn lại cho từng giao dịch
+        pg_query_params($conn,
+            "UPDATE transactions SET remaining_balance = $1 WHERE id = $2 AND user_id = $3",
+            array($running_balance, $row['id'], $user_id)
+        );
+
+        $last_transaction_id = $row['id'];
     }
+
+    // Sau khi xử lý xong, cập nhật lại số dư tài khoản
+    pg_query_params($conn,
+        "UPDATE accounts SET balance = $1 WHERE id = $2 AND user_id = $3",
+        array($running_balance, $account_id, $user_id)
+    );
+}
+
     
     function updateBalance($conn, $user_id, $account_id, $amount, $type) {
         $adjustment = ($type === 0) ? $amount : -$amount;
