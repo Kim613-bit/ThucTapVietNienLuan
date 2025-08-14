@@ -3,10 +3,6 @@ session_start();
 include "db.php";
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
-if (isset($_POST['hide_feedback'])) {
-    $_SESSION['feedback_hidden'] = true;
-}
-
 if (!function_exists('bcadd')) {
     function bcadd($left_operand, $right_operand, $scale = 2) {
         // Fallback dùng toán học thường (không hoàn toàn chính xác với số lớn)
@@ -14,6 +10,9 @@ if (!function_exists('bcadd')) {
     }
 }
 
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['hide_feedback'])) {
+    $_SESSION['feedback_hidden'] = true;
+}
 // 1. Chuyển admin nếu user_id = 1
 if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == 1) {
     header("Location: admin_feedback.php");
@@ -679,40 +678,19 @@ $typeLabels = [
       gap: 16px;
     }
   </style>
-    <?php if ($feedback_popup): ?>
-<script>
-window.onload = function() {
-    const msg = `
-        📬 <strong>Phản hồi từ hệ thống</strong><br>
-        <strong>Bạn đã gửi:</strong> <?= htmlspecialchars($feedback_popup['message']) ?><br>
-        <strong>Trạng thái:</strong> <?= htmlspecialchars($feedback_popup['status']) ?><br>
+    <?php if (!isset($_SESSION['feedback_hidden']) && $feedback_popup): ?>
+      <div class="popup-feedback">
+        <p><strong>📬 Phản hồi từ hệ thống</strong></p>
+        <p><strong>Bạn đã gửi:</strong> <?= htmlspecialchars($feedback_popup['message']) ?></p>
+        <p><strong>Trạng thái:</strong> <?= htmlspecialchars($feedback_popup['status']) ?></p>
         <?php if (!empty($feedback_popup['admin_reply'])): ?>
-        <strong>Phản hồi từ Admin:</strong> <?= nl2br(htmlspecialchars($feedback_popup['admin_reply'])) ?><br>
+          <p><strong>Phản hồi từ Admin:</strong><br><?= nl2br(htmlspecialchars($feedback_popup['admin_reply'])) ?></p>
         <?php endif; ?>
-    `;
-
-    const toast = document.createElement('div');
-    toast.innerHTML = msg;
-    toast.style.position = 'fixed';
-    toast.style.bottom = '20px';
-    toast.style.right = '20px';
-    toast.style.background = '#fff3cd';
-    toast.style.border = '1px solid #ffeeba';
-    toast.style.padding = '16px';
-    toast.style.borderRadius = '8px';
-    toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
-    toast.style.zIndex = '9999';
-    toast.style.maxWidth = '300px';
-    toast.style.fontSize = '14px';
-
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-        toast.remove();
-    }, 10000); // Tự động ẩn sau 10 giây
-};
-</script>
-<?php endif; ?>
+        <form method="post" style="margin-top: 8px;">
+          <button type="submit" name="hide_feedback" style="padding: 6px 12px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;">✅ Đã đọc</button>
+        </form>
+      </div>
+    <?php endif; ?>
 </head>
 <body>
   <!-- Header -->
