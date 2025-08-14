@@ -37,8 +37,9 @@ if ($account_name === false) {
     exit();
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['confirm']) && $_POST['confirm'] === "yes") {
+$step = $_POST['step'] ?? 'info'; // mặc định là bước hiển thị thông tin
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && $step === "confirm") {
         $entered_password = $_POST['password'] ?? '';
 
         // Truy vấn mật khẩu đã mã hóa từ DB
@@ -103,9 +104,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     h2 {
-      color: #dc3545;
-      margin-bottom: 20px;
       font-size: 22px;
+      margin-bottom: 20px;
+      color: #dc3545;
     }
 
     p {
@@ -134,6 +135,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       justify-content: space-between;
     }
 
+    .actions button,
+    .actions a {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      text-decoration: none;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .actions button {
+      background-color: #dc3545;
+    }
+    .actions a {
+      background-color: #6c757d;
+    }
     button, a {
       padding: 10px 20px;
       border: none;
@@ -144,7 +162,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-
+    .actions button:hover {
+      background-color: #c82333;
+    }
+    
+    .actions a:hover {
+      background-color: #5a6268;
+    }
     button {
       background-color: #dc3545;
     }
@@ -163,29 +187,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </style>
 </head>
 <body>
-  <form method="post">
-    <h2>Xác nhận xóa giao dịch</h2>
-    <p><strong>Tài khoản:</strong> <?= htmlspecialchars($account_name) ?></p>
-    <p><strong>Loại:</strong> <?= $info['type'] == 0 ? 'Thu' : 'Chi' ?></p>
-    <p><strong>Số tiền:</strong> <?= number_format($info['amount'], 2) ?> VND</p>
-
-    <?php
-      $desc = trim($info['description'] ?? '');
-      if (strpos($desc, 'Tạo tài khoản mới:') === 0) {
-          $desc = 'Tạo khoản tiền mới';
-      }
-    ?>
-    <p><strong>Mô tả:</strong> <?= htmlspecialchars($desc ?: 'Không có') ?></p>
-
-    <label for="password">Nhập mật khẩu để xác nhận:</label>
-    <input type="password" name="password" id="password" required>
-
-    <input type="hidden" name="confirm" value="yes">
-    <div class="actions">
-      <button type="submit">✅ Đồng ý</button>
-      <a href="dashboard.php">❌ Hủy</a>
-    </div>
-  </form>
+    <form method="post">
+      <h2>🗑️ Xóa giao dịch</h2>
+    
+      <p><strong>Tài khoản:</strong> <?= htmlspecialchars($account_name) ?></p>
+      <p><strong>Loại:</strong> <?= $info['type'] == 0 ? 'Thu' : 'Chi' ?></p>
+      <p><strong>Số tiền:</strong> <?= number_format($info['amount'], 2) ?> VND</p>
+      <?php
+        $desc = trim($info['description'] ?? '');
+        if (strpos($desc, 'Tạo tài khoản mới:') === 0) {
+            $desc = 'Tạo khoản tiền mới';
+        }
+      ?>
+      <p><strong>Mô tả:</strong> <?= htmlspecialchars($desc ?: 'Không có') ?></p>
+    
+      <?php if ($step === 'confirm'): ?>
+        <?php if (isset($error)): ?><p style="color:red;"><?= $error ?></p><?php endif; ?>
+        <label for="password">🔐 Nhập mật khẩu để xác nhận:</label>
+        <input type="password" name="password" id="password" required>
+        <input type="hidden" name="step" value="confirm">
+        <div class="actions">
+          <button type="submit">✅ Xác nhận xóa</button>
+          <a href="dashboard.php">← Quay lại Dashboard</a>
+        </div>
+      <?php else: ?>
+        <input type="hidden" name="step" value="confirm">
+        <div class="actions">
+          <button type="submit">🗑️ Xóa giao dịch</button>
+          <a href="dashboard.php">← Quay lại Dashboard</a>
+        </div>
+      <?php endif; ?>
+    </form>
 </body>
 </html>
 
