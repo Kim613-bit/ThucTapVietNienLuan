@@ -264,7 +264,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $step === "confirm") {
         }
       ?>
       <p><strong>Mô tả:</strong> <?= htmlspecialchars($desc ?: 'Không có') ?></p>
-        <?php if ($step === 'info' && $new_balance < 0): ?>
+        <?php if ($step === 'warning' && $new_balance < 0): ?>
           <div class="overlay">
             <div class="confirm-box">
               <h3>⚠️ Số dư sẽ bị âm nếu xoá giao dịch này</h3>
