@@ -867,17 +867,7 @@ $typeLabels = [
       </main>
     </div>
   </div>
-  <script>
-
-  function toggleGroup(id) {
-    const el = document.getElementById(id);
-    el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
-  }
-    function closeAdminFeedback() {
-      const popup = document.getElementById('adminFeedbackPopup');
-      if (popup) popup.style.display = 'none';
-    }
-</script>
+    <!-- Popup phản hồi từ admin -->
     <?php if (!empty($feedback_popup['admin_reply'])): ?>
       <div class="popup-feedback" id="adminFeedbackPopup">
         <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -885,22 +875,46 @@ $typeLabels = [
           <button onclick="closeAdminFeedback()" style="background: none; border: none; font-size: 16px; cursor: pointer;">✖</button>
         </div>
         <div style="margin-top: 8px;">
-          <?= htmlspecialchars($feedback_popup['admin_reply']) ?>
+          <?= nl2br(htmlspecialchars($feedback_popup['admin_reply'])) ?>
         </div>
       </div>
     <?php endif; ?>
+    
+    <!-- Popup phản hồi từ hệ thống -->
     <?php if (!isset($_SESSION['feedback_hidden']) && $feedback_popup): ?>
-          <div class="popup-feedback">
-            <p><strong>📬 Phản hồi từ hệ thống</strong></p>
-            <p><strong>Bạn đã gửi:</strong> <?= htmlspecialchars($feedback_popup['message']) ?></p>
-            <p><strong>Trạng thái:</strong> <?= htmlspecialchars($feedback_popup['status']) ?></p>
-            <?php if (!empty($feedback_popup['admin_reply'])): ?>
-              <p><strong>Phản hồi từ Admin:</strong><br><?= nl2br(htmlspecialchars($feedback_popup['admin_reply'])) ?></p>
-            <?php endif; ?>
-             <form method="post" style="margin-top: 8px;">
-              <button type="submit" name="hide_feedback" style="padding: 6px 12px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;">✅ Đã đọc</button>
-            </form>
-          </div>
-        <?php endif; ?>
+      <div class="popup-feedback" id="systemFeedbackPopup">
+        <p><strong>📬 Phản hồi từ hệ thống</strong></p>
+        <p><strong>Bạn đã gửi:</strong> <?= htmlspecialchars($feedback_popup['message']) ?></p>
+        <p><strong>Trạng thái:</strong> <?= htmlspecialchars($feedback_popup['status']) ?></p>
+        <form method="post" style="margin-top: 8px;">
+          <button type="submit" name="hide_feedback" style="padding: 6px 12px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;">✅ Đã đọc</button>
+        </form>
+      </div>
+    <?php endif; ?>
+    
+    <!-- CSS hiển thị popup -->
+    <style>
+    .popup-feedback {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 9999;
+      max-width: 300px;
+      font-size: 14px;
+    }
+    </style>
+    
+    <!-- JS xử lý đóng popup -->
+    <script>
+    function closeAdminFeedback() {
+      const popup = document.getElementById('adminFeedbackPopup');
+      if (popup) popup.style.display = 'none';
+    }
+    </script>
 </body>
 </html>
