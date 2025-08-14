@@ -82,6 +82,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     );
                     $account['name'] = $new_name;
                     $success = "✅ Đã đổi tên khoản tiền!";
+                    header("Location: dashboard.php?renamed=1");
+                    exit;
                 } catch (Exception $e) {
                     $error = "❌ Lỗi cập nhật: " . htmlspecialchars($e->getMessage());
                 }
@@ -210,14 +212,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
     <body>
-      <?php if ($success): ?>
-        <div style="color: green; font-weight: bold;"><?= htmlspecialchars($success) ?></div>
-      <?php endif; ?>
-    
-      <?php if ($error): ?>
-        <div style="color: red; font-weight: bold;"><?= htmlspecialchars($error) ?></div>
-      <?php endif; ?>
-    
+    <?php if (!empty($success)): ?>
+      <div class="success"><?= $success ?></div>
+    <?php endif; ?>
+    <?php if (!empty($error)): ?>
+      <div class="error"><?= $error ?></div>
+    <?php endif; ?>
+    <?php if (isset($_GET['renamed'])): ?>
+      <div class="success">✅ Đã đổi tên khoản tiền thành công!</div>
+    <?php endif; ?>
+
       <div class="container">
         <h2>✏️ Đổi tên khoản tiền</h2>
     
@@ -283,7 +287,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
               if (nameInput) {
                 const hiddenName = document.createElement("input");
                 hiddenName.type = "hidden";
-                hiddenName.name = "name"; // hoặc "new_name" nếu bạn giữ nguyên
+                hiddenName.name = "name";
                 hiddenName.value = nameInput.value;
                 form.appendChild(hiddenName);
               }
