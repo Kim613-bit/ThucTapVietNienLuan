@@ -223,7 +223,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     
         <form method="post" id="balanceForm">
           <label>Tên khoản tiền:</label>
-          <input type="text" name="new_name" id="accountName" maxlength="30"
+          <input type="text" name="name" id="accountName" maxlength="30"
                  value="<?= htmlspecialchars($account['name']) ?>"
                  required class="form-control">
     
