@@ -941,6 +941,14 @@ $typeLabels = [
       const popup = document.getElementById('adminFeedbackPopup');
       if (popup) popup.style.display = 'none';
     }
+    function toggleGroup(id) {
+        const el = document.getElementById(id);
+        if (el.style.display === 'none') {
+          el.style.display = 'block';
+        } else {
+          el.style.display = 'none';
+        }
+      }
     </script>
 </body>
 </html>
