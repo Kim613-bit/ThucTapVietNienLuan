@@ -211,16 +211,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
     <body>
-    <?php if (!empty($success)): ?>
-      <div class="success"><?= $success ?></div>
-    <?php endif; ?>
-    <?php if (!empty($error)): ?>
-      <div class="error"><?= $error ?></div>
-    <?php endif; ?>
-    <?php if (isset($_GET['renamed'])): ?>
-      <div class="success">✅ Đã đổi tên khoản tiền thành công!</div>
-    <?php endif; ?>
-
       <div class="container">
         <h2>✏️ Đổi tên khoản tiền</h2>
     
@@ -243,6 +233,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           <input type="hidden" name="delete_account" value="yes">
           <button type="submit" class="form-control danger">🗑️ Xóa khoản tiền</button>
         </form>
+          
+        <?php if (!empty($success)): ?>
+          <div class="success"><?= $success ?></div>
+        <?php endif; ?>
+        <?php if (!empty($error)): ?>
+          <div class="error"><?= $error ?></div>
+        <?php endif; ?>
+        <?php if (isset($_GET['renamed'])): ?>
+          <div class="success">✅ Đã đổi tên khoản tiền thành công!</div>
+        <?php endif; ?>
     
         <a href="dashboard.php" class="back">← Quay lại Dashboard</a>
       </div>
@@ -295,34 +295,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           // Gửi form
           document.getElementById("hiddenRenameForm").submit();
         }
-
-        // function submitAction() {
-        //     if (actionType === "edit") {
-        //       const nameInput = document.getElementById("accountName");
-        //       if (nameInput) {
-        //         const hiddenName = document.createElement("input");
-        //         hiddenName.type = "hidden";
-        //         hiddenName.name = "name";
-        //         hiddenName.value = nameInput.value;
-        //         form.appendChild(hiddenName);
-        //       }
-        //     }
-
-        //   const password = document.getElementById("modalPassword").value;
-        //   if (!password) return alert("Vui lòng nhập mật khẩu.");
-    
-        //   const form = (actionType === "edit")
-        //     ? document.getElementById("balanceForm")
-        //     : document.getElementById("deleteForm");
-    
-        //   const input = document.createElement("input");
-        //   input.type = "hidden";
-        //   input.name = "confirm_password";
-        //   input.value = password;
-        //   form.appendChild(input);
-    
-        //   form.submit();
-        // }
     
         document.addEventListener("DOMContentLoaded", function() {
           document.getElementById("balanceForm").addEventListener("submit", function(e) {
