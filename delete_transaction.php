@@ -37,19 +37,28 @@ if ($account_name === false) {
     exit();
 }
 
-// Xử lý khi người dùng xác nhận xóa
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['confirm']) && $_POST['confirm'] === "yes") {
+        $entered_password = $_POST['password'] ?? '';
+
+        // Truy vấn mật khẩu đã mã hóa từ DB
+        $user_query = "SELECT password FROM users WHERE id = $1";
+        $user_result = pg_query_params($conn, $user_query, array($user_id));
+        $user_data = pg_fetch_assoc($user_result);
+
+        if (!$user_data || !password_verify($entered_password, $user_data['password'])) {
+            echo "<p style='color:red;'>Mật khẩu không đúng. Không thể xóa giao dịch.</p>";
+            exit();
+        }
+
+        // Nếu mật khẩu đúng, tiếp tục xử lý xóa
         $amount = floatval($info['amount']);
         $type = intval($info['type']);
-
-        // Cập nhật lại số dư tài khoản
         $adjust_query = ($type == 1)
             ? "UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3"
             : "UPDATE accounts SET balance = balance - $1 WHERE id = $2 AND user_id = $3";
         pg_query_params($conn, $adjust_query, array($amount, $account_id, $user_id));
 
-        // Xóa giao dịch
         $result = pg_query_params($conn,
             "DELETE FROM transactions WHERE id = $1 AND user_id = $2",
             array($transaction_id, $user_id)
@@ -64,6 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -116,14 +126,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <form method="post">
-        <p>Bạn có chắc chắn muốn xóa giao dịch này?</p>
-        <p><strong>Tài khoản:</strong> <?= htmlspecialchars($account_name) ?></p>
-        <p><strong>Loại:</strong> <?= $info['type'] == 0 ? 'Thu' : 'Chi' ?></p>
-        <p><strong>Số tiền:</strong> <?= number_format($info['amount'], 2) ?> VND</p>
-        <input type="hidden" name="confirm" value="yes">
-        <button type="submit">✅ Đồng ý</button>
-        <a href="dashboard.php">❌ Hủy</a>
-        <p><strong>Mô tả:</strong> <?= htmlspecialchars($info['description'] ?? 'Không có') ?></p>
+      <p>Bạn có chắc chắn muốn xóa giao dịch này?</p>
+      <p><strong>Tài khoản:</strong> <?= htmlspecialchars($account_name) ?></p>
+      <p><strong>Loại:</strong> <?= $info['type'] == 0 ? 'Thu' : 'Chi' ?></p>
+      <p><strong>Số tiền:</strong> <?= number_format($info['amount'], 2) ?> VND</p>
+    
+      <label for="password">Nhập mật khẩu để xác nhận:</label><br>
+      <input type="password" name="password" required><br><br>
+    
+      <input type="hidden" name="confirm" value="yes">
+      <button type="submit">✅ Đồng ý</button>
+      <a href="dashboard.php">❌ Hủy</a>
+    
+      <p><strong>Mô tả:</strong> <?= htmlspecialchars($info['description'] ?? 'Không có') ?></p>
     </form>
 </body>
 </html>
