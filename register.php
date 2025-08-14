@@ -19,6 +19,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !empty($_POST)) {
     $email = trim($_POST['email'] ?? '');
     $old['email'] = $email;
 
+    if (strlen($email) < 1) {
+        $errors['email'] = "Email không được để trống!";
+    } 
     // 2. Server-side validation
     // 2.1 Username: 1–50 ký tự, chỉ chữ và số
     if (strlen($old['username']) < 1 || strlen($old['username']) > 50) {
@@ -203,7 +206,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !empty($_POST)) {
       <div class="error"><?= $errors['birthyear'] ?? '' ?></div>
 
       <!-- Email -->
-      <input type="email" name="email" value="<?= htmlspecialchars($old['email'] ?? '') ?>" required>
+      <input type="email" name="email" placeholder="Email" value="<?= htmlspecialchars($old['email'] ?? '') ?>" required>
         <?php if (isset($errors['email'])): ?>
             <div class="error"><?= $errors['email'] ?></div>
         <?php endif; ?>
