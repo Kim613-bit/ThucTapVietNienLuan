@@ -678,18 +678,6 @@ $typeLabels = [
       gap: 16px;
     }
   </style>
-    <?php if (!isset($_SESSION['feedback_hidden']) && $feedback_popup): ?>
-      <div class="popup-feedback">
-        <p><strong>📬 Phản hồi từ hệ thống</strong></p>
-        <p><strong>Bạn đã gửi:</strong> <?= htmlspecialchars($feedback_popup['message']) ?></p>
-        <p><strong>Trạng thái:</strong> <?= htmlspecialchars($feedback_popup['status']) ?></p>
-        <?php if (!empty($feedback_popup['admin_reply'])): ?>
-          <p><strong>Phản hồi từ Admin:</strong><br><?= nl2br(htmlspecialchars($feedback_popup['admin_reply'])) ?></p>
-        <?php endif; ?>
-          <button type="submit" name="hide_feedback" style="padding: 6px 12px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;">✅ Đã đọc</button>
-        </form>
-      </div>
-    <?php endif; ?>
 </head>
 <body>
   <!-- Header -->
@@ -901,5 +889,18 @@ $typeLabels = [
         </div>
       </div>
     <?php endif; ?>
+    <?php if (!isset($_SESSION['feedback_hidden']) && $feedback_popup): ?>
+          <div class="popup-feedback">
+            <p><strong>📬 Phản hồi từ hệ thống</strong></p>
+            <p><strong>Bạn đã gửi:</strong> <?= htmlspecialchars($feedback_popup['message']) ?></p>
+            <p><strong>Trạng thái:</strong> <?= htmlspecialchars($feedback_popup['status']) ?></p>
+            <?php if (!empty($feedback_popup['admin_reply'])): ?>
+              <p><strong>Phản hồi từ Admin:</strong><br><?= nl2br(htmlspecialchars($feedback_popup['admin_reply'])) ?></p>
+            <?php endif; ?>
+             <form method="post" style="margin-top: 8px;">
+              <button type="submit" name="hide_feedback" style="padding: 6px 12px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;">✅ Đã đọc</button>
+            </form>
+          </div>
+        <?php endif; ?>
 </body>
 </html>
