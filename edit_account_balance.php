@@ -29,68 +29,67 @@ $success = "";
 $error   = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (isset($_POST['delete_account']) && $_POST['delete_account'] === 'yes') {
-        $input_password = $_POST['confirm_password'] ?? '';
-        if (empty($input_password)) {
-            $error = "⚠️ Vui lòng nhập mật khẩu.";
-        }
+    $input_password = $_POST['confirm_password'] ?? '';
+
+    // Kiểm tra mật khẩu trước
+    if (empty($input_password)) {
+        $error = "⚠️ Vui lòng nhập mật khẩu.";
+    } else {
         $sql = "SELECT password FROM users WHERE id = $1";
         $res = pg_query_params($conn, $sql, [ $user_id ]);
         $user = pg_fetch_assoc($res);
 
         if (! $user || !password_verify($input_password, $user['password'])) {
-            $error = "❌ Mật khẩu không đúng. Không thể xóa khoản tiền.";
+            $error = "❌ Mật khẩu không đúng.";
         } else {
-            pg_query($conn, 'BEGIN');
-            try {
-                pg_query_params($conn,
-                    "DELETE FROM transactions WHERE account_id = $1 AND user_id = $2",
-                    [ $account_id, $user_id ]
-                );
-                pg_query_params($conn,
-                    "DELETE FROM accounts WHERE id = $1 AND user_id = $2",
-                    [ $account_id, $user_id ]
-                );
-                pg_query($conn, 'COMMIT');
-                header("Location: dashboard.php?deleted=1");
-                exit();
-            } catch (Exception $e) {
-                pg_query($conn, 'ROLLBACK');
-                $error = "❌ Lỗi xoá: " . $e->getMessage();
-            }
-        }
-    } elseif (isset($_POST['name']) && isset($_POST['confirm_password'])) {
-        $input_password = $_POST['confirm_password'];
-        $sql = "SELECT password FROM users WHERE id = $1";
-        $res = pg_query_params($conn, $sql, [ $user_id ]);
-        $user = pg_fetch_assoc($res);
-    
-        if (! $user || !password_verify($input_password, $user['password'])) {
-            $error = "❌ Mật khẩu không đúng. Không thể đổi tên.";
-        } else {
-            $new_name = trim($_POST['name']);
-            if ($new_name !== '' && $new_name !== $account['name']) {
+            // ✅ Trường hợp xóa khoản tiền
+            if (isset($_POST['delete_account']) && $_POST['delete_account'] === 'yes') {
+                pg_query($conn, 'BEGIN');
                 try {
                     pg_query_params($conn,
-                      "INSERT INTO transactions (user_id, account_id, type, description, amount, date, created_at)
-                       VALUES ($1, $2, $3, $4, $5, $6, NOW())",
-                      [ $user_id, $account_id, 2, 'Đổi tên khoản tiền thành: ' . $new_name, 0, date('Y-m-d') ]
+                        "DELETE FROM transactions WHERE account_id = $1 AND user_id = $2",
+                        [ $account_id, $user_id ]
                     );
                     pg_query_params($conn,
-                      "UPDATE accounts SET name = $1 WHERE id = $2 AND user_id = $3",
-                      [ $new_name, $account_id, $user_id ]
+                        "DELETE FROM accounts WHERE id = $1 AND user_id = $2",
+                        [ $account_id, $user_id ]
                     );
-                    $account['name'] = $new_name;
-                    $success = "✅ Đã đổi tên khoản tiền!";
-                    header("Location: dashboard.php?renamed=1");
-                    exit;
+                    pg_query($conn, 'COMMIT');
+                    header("Location: dashboard.php?deleted=1");
+                    exit();
                 } catch (Exception $e) {
-                    $error = "❌ Lỗi cập nhật: " . htmlspecialchars($e->getMessage());
+                    pg_query($conn, 'ROLLBACK');
+                    $error = "❌ Lỗi xoá: " . $e->getMessage();
+                }
+            }
+
+            // ✅ Trường hợp đổi tên khoản tiền
+            elseif (isset($_POST['action']) && $_POST['action'] === 'rename') {
+                $new_name = trim($_POST['new_name'] ?? '');
+
+                if ($new_name !== '' && $new_name !== $account['name']) {
+                    try {
+                        pg_query_params($conn,
+                          "INSERT INTO transactions (user_id, account_id, type, description, amount, date, created_at)
+                           VALUES ($1, $2, $3, $4, $5, $6, NOW())",
+                          [ $user_id, $account_id, 2, 'Đổi tên khoản tiền thành: ' . $new_name, 0, date('Y-m-d') ]
+                        );
+                        pg_query_params($conn,
+                          "UPDATE accounts SET name = $1 WHERE id = $2 AND user_id = $3",
+                          [ $new_name, $account_id, $user_id ]
+                        );
+                        $account['name'] = $new_name;
+                        header("Location: dashboard.php?renamed=1");
+                        exit();
+                    } catch (Exception $e) {
+                        $error = "❌ Lỗi cập nhật: " . htmlspecialchars($e->getMessage());
+                    }
                 }
             }
         }
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -261,7 +260,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           </div>
         </div>
       </div>
-    
+        <form id="hiddenRenameForm" method="post" action="edit_account_balance.php?account_id=<?= $account_id ?>" style="display:none;">
+          <input type="hidden" name="confirm_password" id="hiddenPassword">
+          <input type="hidden" name="new_name" id="hiddenNewName">
+          <input type="hidden" name="action" value="rename">
+        </form>
+
       <script>
         let actionType = "";
     
@@ -280,34 +284,45 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             submitBtn.textContent = "💾 Lưu thay đổi";
           }
         }
-    
         function submitAction() {
-            if (actionType === "edit") {
-              const nameInput = document.getElementById("accountName");
-              if (nameInput) {
-                const hiddenName = document.createElement("input");
-                hiddenName.type = "hidden";
-                hiddenName.name = "name";
-                hiddenName.value = nameInput.value;
-                form.appendChild(hiddenName);
-              }
-            }
-
           const password = document.getElementById("modalPassword").value;
-          if (!password) return alert("Vui lòng nhập mật khẩu.");
-    
-          const form = (actionType === "edit")
-            ? document.getElementById("balanceForm")
-            : document.getElementById("deleteForm");
-    
-          const input = document.createElement("input");
-          input.type = "hidden";
-          input.name = "confirm_password";
-          input.value = password;
-          form.appendChild(input);
-    
-          form.submit();
+          const newName = document.getElementById("accountName").value;
+        
+          // Gán dữ liệu vào form ẩn
+          document.getElementById("hiddenPassword").value = password;
+          document.getElementById("hiddenNewName").value = newName;
+        
+          // Gửi form
+          document.getElementById("hiddenRenameForm").submit();
         }
+
+        // function submitAction() {
+        //     if (actionType === "edit") {
+        //       const nameInput = document.getElementById("accountName");
+        //       if (nameInput) {
+        //         const hiddenName = document.createElement("input");
+        //         hiddenName.type = "hidden";
+        //         hiddenName.name = "name";
+        //         hiddenName.value = nameInput.value;
+        //         form.appendChild(hiddenName);
+        //       }
+        //     }
+
+        //   const password = document.getElementById("modalPassword").value;
+        //   if (!password) return alert("Vui lòng nhập mật khẩu.");
+    
+        //   const form = (actionType === "edit")
+        //     ? document.getElementById("balanceForm")
+        //     : document.getElementById("deleteForm");
+    
+        //   const input = document.createElement("input");
+        //   input.type = "hidden";
+        //   input.name = "confirm_password";
+        //   input.value = password;
+        //   form.appendChild(input);
+    
+        //   form.submit();
+        // }
     
         document.addEventListener("DOMContentLoaded", function() {
           document.getElementById("balanceForm").addEventListener("submit", function(e) {
