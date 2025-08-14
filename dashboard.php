@@ -26,11 +26,25 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
-$sql_feedback = "SELECT message, status, admin_reply FROM feedbacks 
-                 WHERE user_id = $1 AND status != 'pending' 
-                 ORDER BY created_at DESC LIMIT 3";
+$sql_feedback = "SELECT id, message, status FROM feedbacks WHERE user_id = $1 AND status != 'pending' ORDER BY created_at DESC LIMIT 1";
 $res_feedback = pg_query_params($conn, $sql_feedback, [$user_id]);
 $feedback_popup = pg_fetch_assoc($res_feedback);
+
+function getAdminReplies($feedback_id) {
+    global $conn;
+    $query = "SELECT content, created_at FROM admin_feedbacks WHERE feedback_id = $1 ORDER BY created_at ASC";
+    $result = pg_query_params($conn, $query, array($feedback_id));
+    $replies = [];
+    while ($row = pg_fetch_assoc($result)) {
+        $replies[] = $row;
+    }
+    return $replies;
+}
+
+$admin_replies = [];
+if (!empty($feedback_popup)) {
+    $admin_replies = getAdminReplies($feedback_popup['id']);
+}
 
 $sql_user = "SELECT username, fullname, avatar, role FROM users WHERE id = $1";
 $result = pg_query_params($conn, $sql_user, [$_SESSION['user_id']]);
@@ -42,11 +56,6 @@ $filter_type        = isset($_GET['type'])       ? $_GET['type']           : 'al
 $filter_description = isset($_GET['description'])? trim($_GET['description']) : '';
 $from_date          = $_GET['from_date'] ?? '';
 $to_date            = $_GET['to_date']   ?? '';
-
-    // Nút "Đã đọc" nằm ngoài vòng while
-    echo "<form method='post' style='margin-top: 8px;'>";
-    echo "<button type='submit' name='hide_feedback' style='padding: 6px 12px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;'>✅ Đã đọc</button>";
-    echo "</form>";
     echo "</div>"; // đóng khối phản hồi
 
 // 4. Lấy danh sách tài khoản và tính tổng số dư
@@ -868,17 +877,27 @@ $typeLabels = [
     </div>
   </div>
     <!-- Popup phản hồi từ admin -->
-    <?php if (!empty($feedback_popup['admin_reply'])): ?>
+    <?php if (!empty($admin_replies) && empty($_SESSION['feedback_hidden'])): ?>
       <div class="popup-feedback" id="adminFeedbackPopup">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <strong>📬 Phản hồi từ admin:</strong>
-          <button onclick="closeAdminFeedback()" style="background: none; border: none; font-size: 16px; cursor: pointer;">✖</button>
+          <button onclick="document.getElementById('adminFeedbackPopup').style.display='none'" style="background: none; border: none; font-size: 16px; cursor: pointer;">✖</button>
         </div>
         <div style="margin-top: 8px;">
-          <?= nl2br(htmlspecialchars($feedback_popup['admin_reply'])) ?>
+          <?php foreach ($admin_replies as $reply): ?>
+            <p style="margin-bottom: 8px;">
+              🗨️ <?= nl2br(htmlspecialchars($reply['content'])) ?><br>
+              <small style="color: gray;">🕒 <?= date('d/m/Y H:i', strtotime($reply['created_at'])) ?></small>
+            </p>
+          <?php endforeach; ?>
+          <form method="post" style="margin-top: 8px;">
+            <button type="submit" name="hide_feedback" style="padding: 6px 12px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;">✅ Đã đọc</button>
+          </form>
         </div>
       </div>
     <?php endif; ?>
+
+
     
     <!-- Popup phản hồi từ hệ thống -->
     <?php if (!isset($_SESSION['feedback_hidden']) && $feedback_popup): ?>
