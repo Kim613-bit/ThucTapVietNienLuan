@@ -9,7 +9,11 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id    = $_SESSION['user_id'];
-$account_id = isset($_GET['account_id']) ? intval($_GET['account_id']) : 0;
+$account_id = filter_input(INPUT_GET, 'account_id', FILTER_VALIDATE_INT);
+if (!$account_id) {
+    echo "ID tài khoản không hợp lệ.";
+    exit();
+}
 
 // 🔹 Lấy thông tin tài khoản
 $sql    = "SELECT * FROM accounts WHERE id = $1 AND user_id = $2";
@@ -27,7 +31,9 @@ $error   = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['delete_account']) && $_POST['delete_account'] === 'yes') {
         $input_password = $_POST['confirm_password'] ?? '';
-
+        if (empty($input_password)) {
+            $error = "⚠️ Vui lòng nhập mật khẩu.";
+        }
         $sql = "SELECT password FROM users WHERE id = $1";
         $res = pg_query_params($conn, $sql, [ $user_id ]);
         $user = pg_fetch_assoc($res);
@@ -53,19 +59,32 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $error = "❌ Lỗi xoá: " . $e->getMessage();
             }
         }
-    } elseif (isset($_POST['name'])) {
-        $new_name = trim($_POST['name']);
-        if ($new_name !== '' && $new_name !== $account['name']) {
-            try {
-                pg_query_params($conn,
-                  "INSERT INTO transactions (user_id, account_id, type, description, amount, created_at)
-                   VALUES ($1, $2, $3, $4, $5, NOW())",
-                  [ $user_id, $account_id, 2, 'Đổi tên khoản tiền thành: ' . $new_name, 0 ]
-                );
-                $account['name'] = $new_name;
-                $success = "✅ Đã đổi tên khoản tiền!";
-            } catch (Exception $e) {
-                $error = "❌ Lỗi cập nhật: " . htmlspecialchars($e->getMessage());
+    } elseif (isset($_POST['name']) && isset($_POST['confirm_password'])) {
+        $input_password = $_POST['confirm_password'];
+        $sql = "SELECT password FROM users WHERE id = $1";
+        $res = pg_query_params($conn, $sql, [ $user_id ]);
+        $user = pg_fetch_assoc($res);
+    
+        if (! $user || !password_verify($input_password, $user['password'])) {
+            $error = "❌ Mật khẩu không đúng. Không thể đổi tên.";
+        } else {
+            $new_name = trim($_POST['name']);
+            if ($new_name !== '' && $new_name !== $account['name']) {
+                try {
+                    pg_query_params($conn,
+                      "INSERT INTO transactions (user_id, account_id, type, description, amount, created_at)
+                       VALUES ($1, $2, $3, $4, $5, NOW())",
+                      [ $user_id, $account_id, 2, 'Đổi tên khoản tiền thành: ' . $new_name, 0 ]
+                    );
+                    pg_query_params($conn,
+                      "UPDATE accounts SET name = $1 WHERE id = $2 AND user_id = $3",
+                      [ $new_name, $account_id, $user_id ]
+                    );
+                    $account['name'] = $new_name;
+                    $success = "✅ Đã đổi tên khoản tiền!";
+                } catch (Exception $e) {
+                    $error = "❌ Lỗi cập nhật: " . htmlspecialchars($e->getMessage());
+                }
             }
         }
     }
@@ -190,88 +209,67 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
-<body>
-  <div class="container">
-    <h2>✏️ Đổi tên khoản tiền</h2>
-
-    <?php if ($success): ?>
-      <p class="success"><?= $success ?></p>
-    <?php endif; ?>
-
-    <?php if ($error): ?>
-      <p class="error"><?= $error ?></p>
-    <?php endif; ?>
-
-    <form method="post" id="balanceForm" onsubmit="return confirm('Bạn có chắc chắn muốn lưu thay đổi không?');">
-      <!-- Tên khoản tiền -->
-      <label>Tên khoản tiền:</label>
-      <input type="text" name="name" id="accountName" maxlength="30"
-             value="<?= htmlspecialchars($account['name']) ?>"
-             required class="form-control">
-
-      <!-- Số dư hiện tại -->
-      <label>Số dư hiện tại:</label>
-      <input type="text" readonly
-             value="<?= number_format($account['balance'], 0, ',', '.') ?> VND"
-             class="form-control">
-
-      <button type="submit" class="form-control">💾 Lưu thay đổi</button>
-    </form>
-
-    <form method="post" id="deleteForm" onsubmit="return confirm('Bạn có chắc chắn muốn xóa khoản tiền này không?');">
-      <input type="hidden" name="delete_account" value="yes">
+    <body>
+      <?php if ($success): ?>
+        <div style="color: green; font-weight: bold;"><?= htmlspecialchars($success) ?></div>
+      <?php endif; ?>
     
-        <script>
-          function togglePassword() {
-            const input = document.getElementById("confirmPassword");
-            input.type = input.type === "password" ? "text" : "password";
-          }
-        </script>
+      <?php if ($error): ?>
+        <div style="color: red; font-weight: bold;"><?= htmlspecialchars($error) ?></div>
+      <?php endif; ?>
     
-      <button type="submit" class="form-control danger">🗑️ Xóa khoản tiền</button>
-    </form>
-
-
-    <a href="dashboard.php" class="back">← Quay lại Dashboard</a>
-  </div>
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-        const form = document.getElementById("balanceForm");
-        const submitBtn = document.querySelector('button[type="submit"]');
+      <div class="container">
+        <h2>✏️ Đổi tên khoản tiền</h2>
     
-        // ✅ Xử lý nút submit
-        form.addEventListener("submit", function() {
-          submitBtn.disabled = true;
-          submitBtn.textContent = "⏳ Đang xử lý...";
-        });
-      });
-    </script>
-    <div id="passwordModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-         background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
-      <div style="background:#fff; padding:24px; border-radius:8px; max-width:400px; width:90%;">
-        <h3>🔐 Xác nhận mật khẩu</h3>
-        <p>Vui lòng nhập mật khẩu để tiếp tục:</p>
-        <input type="password" id="modalPassword" class="form-control" required>
-        <div style="margin-top:12px; display:flex; gap:12px;">
-          <button onclick="submitAction()" class="form-control">✅ Xác nhận</button>
-          <button onclick="closeModal()" class="form-control danger">❌ Hủy</button>
+        <form method="post" id="balanceForm">
+          <label>Tên khoản tiền:</label>
+          <input type="text" name="new_name" id="accountName" maxlength="30"
+                 value="<?= htmlspecialchars($account['name']) ?>"
+                 required class="form-control">
+    
+          <label>Số dư hiện tại:</label>
+          <input type="text" readonly
+                 value="<?= number_format($account['balance'], 0, ',', '.') ?> VND"
+                 class="form-control">
+    
+          <input type="hidden" name="action" value="edit">
+          <button type="submit" class="form-control">💾 Lưu thay đổi</button>
+        </form>
+    
+        <form method="post" id="deleteForm">
+          <input type="hidden" name="action" value="delete">
+          <button type="submit" class="form-control danger">🗑️ Xóa khoản tiền</button>
+        </form>
+    
+        <a href="dashboard.php" class="back">← Quay lại Dashboard</a>
+      </div>
+    
+      <!-- Modal xác nhận mật khẩu -->
+      <div id="passwordModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+           background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
+        <div style="background:#fff; padding:24px; border-radius:8px; max-width:400px; width:90%;">
+          <h3>🔐 Xác nhận mật khẩu</h3>
+          <p>Vui lòng nhập mật khẩu để tiếp tục:</p>
+          <input type="password" id="modalPassword" class="form-control" required>
+          <div style="margin-top:12px; display:flex; gap:12px;">
+            <button onclick="submitAction()" class="form-control">✅ Xác nhận</button>
+            <button onclick="closeModal()" class="form-control danger">❌ Hủy</button>
+          </div>
         </div>
       </div>
-    </div>
-    <script>
-      let actionType = "";
     
-      function openModal(type) {
-        actionType = type;
-        document.getElementById("passwordModal").style.display = "flex";
-        document.getElementById("modalPassword").value = "";
-        document.getElementById("modalPassword").focus();
-      }
+      <script>
+        let actionType = "";
     
-      function closeModal() {
+        function openModal(type) {
+          actionType = type;
+          document.getElementById("passwordModal").style.display = "flex";
+          document.getElementById("modalPassword").value = "";
+          document.getElementById("modalPassword").focus();
+        }
+    
+        function closeModal() {
           document.getElementById("passwordModal").style.display = "none";
-        
-          // ✅ Reset lại nút submit nếu đang xử lý
           const submitBtn = document.querySelector('#balanceForm button[type="submit"]');
           if (submitBtn.disabled) {
             submitBtn.disabled = false;
@@ -279,34 +277,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           }
         }
     
-      function submitAction() {
-        const password = document.getElementById("modalPassword").value;
-        if (!password) return alert("Vui lòng nhập mật khẩu.");
+        function submitAction() {
+          const password = document.getElementById("modalPassword").value;
+          if (!password) return alert("Vui lòng nhập mật khẩu.");
     
-        const form = (actionType === "save")
-          ? document.getElementById("balanceForm")
-          : document.getElementById("deleteForm");
+          const form = (actionType === "edit")
+            ? document.getElementById("balanceForm")
+            : document.getElementById("deleteForm");
     
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = "confirm_password";
-        input.value = password;
-        form.appendChild(input);
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = "confirm_password";
+          input.value = password;
+          form.appendChild(input);
     
-        form.submit();
-      }
+          form.submit();
+        }
     
-      document.addEventListener("DOMContentLoaded", function() {
-        document.getElementById("balanceForm").addEventListener("submit", function(e) {
-          e.preventDefault();
-          openModal("save");
+        document.addEventListener("DOMContentLoaded", function() {
+          document.getElementById("balanceForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            openModal("edit");
+          });
+    
+          document.getElementById("deleteForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            openModal("delete");
+          });
         });
-    
-        document.getElementById("deleteForm").addEventListener("submit", function(e) {
-          e.preventDefault();
-          openModal("delete");
-        });
-      });
-    </script>
-</body>
+      </script>
+    </body>
 </html>
