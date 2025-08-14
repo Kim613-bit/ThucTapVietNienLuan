@@ -72,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         pg_query_params($conn,
                           "INSERT INTO transactions (user_id, account_id, type, description, amount, date, created_at)
                            VALUES ($1, $2, $3, $4, $5, $6, NOW())",
-                          [ $user_id, $account_id, 2, 'Đổi tên khoản tiền thành: ' . $new_name, 0, created_at ]
+                          [ $user_id, $account_id, 2, 'Đổi tên khoản tiền thành: ' . $new_name, 0, date('Y-m-d') ]
                         );
                         pg_query_params($conn,
                           "UPDATE accounts SET name = $1 WHERE id = $2 AND user_id = $3",
