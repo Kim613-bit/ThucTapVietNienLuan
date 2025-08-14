@@ -66,22 +66,41 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             // ✅ Trường hợp đổi tên khoản tiền
             elseif (isset($_POST['action']) && $_POST['action'] === 'rename') {
                 $new_name = trim($_POST['new_name'] ?? '');
-
+            
                 if ($new_name !== '' && $new_name !== $account['name']) {
+                    pg_query($conn, 'BEGIN'); // Bắt đầu transaction
+            
                     try {
-                        pg_query_params($conn,
-                          "INSERT INTO transactions (user_id, account_id, type, description, amount, created_at)
-                           VALUES ($1, $2, $3, $4, $5, NOW())",
-                          [ $user_id, $account_id, 2, 'Đổi tên khoản tiền thành: ' . $new_name, 0 ]
+                        // Ghi lịch sử giao dịch
+                        $res1 = pg_query_params($conn,
+                            "INSERT INTO transactions (user_id, account_id, type, description, amount, date, created_at)
+                             VALUES ($1, $2, $3, $4, $5, $6, NOW())",
+                            [ $user_id, $account_id, 2, 'Đổi tên khoản tiền thành: ' . $new_name, 0, date('Y-m-d H:i:s') ]
                         );
-                        pg_query_params($conn,
-                          "UPDATE accounts SET name = $1 WHERE id = $2 AND user_id = $3",
-                          [ $new_name, $account_id, $user_id ]
+            
+                        if (!$res1) {
+                            throw new Exception("Không thể ghi lịch sử giao dịch.");
+                        }
+            
+                        // Cập nhật tên tài khoản
+                        $res2 = pg_query_params($conn,
+                            "UPDATE accounts SET name = $1 WHERE id = $2 AND user_id = $3",
+                            [ $new_name, $account_id, $user_id ]
                         );
+            
+                        if (!$res2) {
+                            throw new Exception("Không thể cập nhật tên tài khoản.");
+                        }
+            
+                        pg_query($conn, 'COMMIT'); // Giao dịch thành công
                         $account['name'] = $new_name;
+            
+                        // ✅ Không có lỗi nào in ra → có thể dùng header
                         header("Location: dashboard.php?renamed=1");
                         exit();
+            
                     } catch (Exception $e) {
+                        pg_query($conn, 'ROLLBACK'); // Hoàn tác nếu có lỗi
                         $error = "❌ Lỗi cập nhật: " . htmlspecialchars($e->getMessage());
                     }
                 }
@@ -89,7 +108,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 }
-
 ?>
 
 <!DOCTYPE html>
