@@ -72,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         pg_query_params($conn,
                           "INSERT INTO transactions (user_id, account_id, type, description, amount, date, created_at)
                            VALUES ($1, $2, $3, $4, $5, $6, NOW())",
-                          [ $user_id, $account_id, 2, 'Đổi tên khoản tiền thành: ' . $new_name, 0, date('Y-m-d') ]
+                          [ $user_id, $account_id, 2, 'Đổi tên khoản tiền thành: ' . $new_name, 0, created_at ]
                         );
                         pg_query_params($conn,
                           "UPDATE accounts SET name = $1 WHERE id = $2 AND user_id = $3",
@@ -265,6 +265,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           <input type="hidden" name="new_name" id="hiddenNewName">
           <input type="hidden" name="action" value="rename">
         </form>
+        <form id="hiddenDeleteForm" method="post" action="edit_account_balance.php?account_id=<?= $account_id ?>" style="display:none;">
+          <input type="hidden" name="confirm_password" id="hiddenDeletePassword">
+          <input type="hidden" name="delete_account" value="yes">
+        </form>
 
       <script>
         let actionType = "";
@@ -301,7 +305,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             e.preventDefault();
             openModal("edit");
           });
-    
+            if (actionType === "edit") {
+                const newName = document.getElementById("accountName").value;
+                document.getElementById("hiddenPassword").value = password;
+                document.getElementById("hiddenNewName").value = newName;
+                document.getElementById("hiddenRenameForm").submit();
+              } else if (actionType === "delete") {
+                document.getElementById("hiddenDeletePassword").value = password;
+                document.getElementById("hiddenDeleteForm").submit();
+              }
           document.getElementById("deleteForm").addEventListener("submit", function(e) {
             e.preventDefault();
             openModal("delete");
