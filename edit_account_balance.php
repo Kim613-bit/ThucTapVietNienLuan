@@ -225,7 +225,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                  value="<?= number_format($account['balance'], 0, ',', '.') ?> VND"
                  class="form-control">
     
-          <input type="hidden" name="action" value="edit">
+          <input type="hidden" name="action" value="rename">
           <button type="submit" class="form-control">💾 Lưu thay đổi</button>
         </form>
     
