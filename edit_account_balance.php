@@ -67,9 +67,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             elseif (isset($_POST['action']) && $_POST['action'] === 'rename') {
                 $new_name = trim($_POST['new_name'] ?? '');
             
-                if ($new_name !== '' && $new_name !== $account['name']) {
-                    pg_query($conn, 'BEGIN'); // Bắt đầu transaction
-            
+                if ($new_name === '') {
+                    $error = "⚠️ Vui lòng nhập tên khoản tiền.";
+                } elseif ($new_name === $account['name']) {
+                    $error = "⚠️ Tên khoản tiền mới không được trùng với tên hiện tại.";
+                } else {
+                    pg_query($conn, 'BEGIN');
                     try {
                         // Ghi lịch sử giao dịch
                         $res1 = pg_query_params($conn,
@@ -92,15 +95,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             throw new Exception("Không thể cập nhật tên tài khoản.");
                         }
             
-                        pg_query($conn, 'COMMIT'); // Giao dịch thành công
+                        pg_query($conn, 'COMMIT');
                         $account['name'] = $new_name;
-            
-                        // ✅ Không có lỗi nào in ra → có thể dùng header
                         header("Location: dashboard.php?renamed=1");
                         exit();
             
                     } catch (Exception $e) {
-                        pg_query($conn, 'ROLLBACK'); // Hoàn tác nếu có lỗi
+                        pg_query($conn, 'ROLLBACK');
                         $error = "❌ Lỗi cập nhật: " . htmlspecialchars($e->getMessage());
                     }
                 }
