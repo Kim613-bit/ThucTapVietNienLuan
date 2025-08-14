@@ -883,16 +883,23 @@ $typeLabels = [
     <!-- Popup phản hồi từ hệ thống -->
     <?php if (!isset($_SESSION['feedback_hidden']) && $feedback_popup): ?>
       <div class="popup-feedback" id="systemFeedbackPopup">
-        <p><strong>📬 Phản hồi từ hệ thống</strong></p>
-        <p><strong>Bạn đã gửi:</strong> <?= htmlspecialchars($feedback_popup['message']) ?></p>
-        <p><strong>Trạng thái:</strong> <?= htmlspecialchars($feedback_popup['status']) ?></p>
-        <form method="post" style="margin-top: 8px;">
-          <button type="submit" name="hide_feedback" style="padding: 6px 12px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;">✅ Đã đọc</button>
-        </form>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>📬 Phản hồi từ hệ thống</strong>
+          <button onclick="document.getElementById('systemFeedbackPopup').style.display='none'" style="background: none; border: none; font-size: 16px; cursor: pointer;">✖</button>
+        </div>
+        <div style="margin-top: 8px;">
+          <p><strong>Bạn đã gửi:</strong> <?= htmlspecialchars($feedback_popup['message']) ?></p>
+          <p><strong>Trạng thái:</strong> <?= htmlspecialchars($feedback_popup['status']) ?></p>
+          <?php if (!empty($feedback_popup['admin_reply'])): ?>
+            <p><strong>Phản hồi từ Admin:</strong><br><?= nl2br(htmlspecialchars($feedback_popup['admin_reply'])) ?></p>
+          <?php endif; ?>
+          <form method="post" style="margin-top: 8px;">
+            <button type="submit" name="hide_feedback" style="padding: 6px 12px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;">✅ Đã đọc</button>
+          </form>
+        </div>
       </div>
     <?php endif; ?>
     
-    <!-- CSS hiển thị popup -->
     <style>
     .popup-feedback {
       position: fixed;
@@ -900,11 +907,11 @@ $typeLabels = [
       right: 20px;
       background-color: #fff3cd;
       border: 1px solid #ffeeba;
-      padding: 12px 16px;
+      padding: 16px;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      max-width: 320px;
       z-index: 9999;
-      max-width: 300px;
       font-size: 14px;
     }
     </style>
