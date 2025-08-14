@@ -290,16 +290,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         function submitAction() {
           const password = document.getElementById("modalPassword").value;
-          const newName = document.getElementById("accountName").value;
         
-          // Gán dữ liệu vào form ẩn
-          document.getElementById("hiddenPassword").value = password;
-          document.getElementById("hiddenNewName").value = newName;
-        
-          // Gửi form
-          document.getElementById("hiddenRenameForm").submit();
+          if (actionType === "rename") {
+            const newName = document.getElementById("accountName").value;
+            document.getElementById("hiddenPassword").value = password;
+            document.getElementById("hiddenNewName").value = newName;
+            document.getElementById("hiddenRenameForm").submit();
+          } else if (actionType === "delete") {
+            document.getElementById("hiddenDeletePassword").value = password;
+            document.getElementById("hiddenDeleteForm").submit();
+          }
         }
-    
+
         document.addEventListener("DOMContentLoaded", function() {
           document.getElementById("balanceForm").addEventListener("submit", function(e) {
             e.preventDefault();
