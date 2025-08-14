@@ -805,7 +805,7 @@ $typeLabels = [
           <p>Không có giao dịch nào.</p>
         <?php else: ?>
           <?php
-                $groupedData = $grouped;               
+                $groupedData = $grouped;
                 foreach ($groupedData as $label => $entries):
                     $totalThu = 0;
                     $totalChi = 0;
@@ -825,8 +825,8 @@ $typeLabels = [
                       <button onclick="toggleGroup('<?= $groupId ?>')" class="toggle-btn">👁️ Xem chi tiết</button>
                     </div>
                 </div>
-          
-                <div id="<?= $groupId ?>" style="display: none;">
+                <?php $todayLabel = date('d/m/Y'); ?>
+                <div id="<?= $groupId ?>" style="display: <?= ($label === $todayLabel) ? 'block' : 'none' ?>;">
                     <div class="table-wrapper">
                       <table>
                         <thead>
