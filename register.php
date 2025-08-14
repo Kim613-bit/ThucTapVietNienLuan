@@ -7,25 +7,17 @@ $success = "";
 $old     = [];          // Lưu lại giá trị đã nhập
 $errors  = [];          // Mảng lỗi chi tiết
 $avatar = 'uploads/avt_mem.png';
+$email = '';
 
-$email = $_POST['email'];
-
-// 2.3 Email: kiểm tra trùng
-$check_query = "SELECT COUNT(*) FROM users WHERE email = $1";
-$check_result = pg_query_params($conn, $check_query, array($old['email']));
-$count = pg_fetch_result($check_result, 0, 0);
-
-$check_result = pg_query_params($conn, $check_query, array($email));
-$count = pg_fetch_result($check_result, 0, 0);
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST" && !empty($_POST)) {
     // 1. Sanitize & giữ lại giá trị cũ
     $old['username']  = trim($_POST["username"]  ?? "");
     $old['password']  =             $_POST["password"]  ?? "";
     $old['confirm']   =             $_POST["confirm"]   ?? "";
     $old['fullname']  = trim($_POST["fullname"]  ?? "");
     $old['birthyear'] =             $_POST["birthyear"] ?? "";
-    $old['email']     = trim($_POST["email"]     ?? "");
+    $email = trim($_POST['email'] ?? '');
+    $old['email'] = $email;
 
     // 2. Server-side validation
     // 2.1 Username: 1–50 ký tự, chỉ chữ và số
@@ -47,9 +39,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         elseif (strlen($old['password']) > 50) {
             $errors['password'] = "Mật khẩu không được vượt quá 50 ký tự!";
         }
-        elseif ($count > 0) {
-            $errors['email'] = "Email đã được sử dụng. Vui lòng nhập email khác!";
-        }
     }
     
     // 2.3 Fullname: chỉ chữ (có dấu) và khoảng trắng, tối đa 50 ký tự
@@ -67,12 +56,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     elseif (strlen($old['email']) > 50) {
         $errors['email'] = "Email không được vượt quá 50 ký tự!";
     }
+    if (filter_var($old['email'], FILTER_VALIDATE_EMAIL) && strlen($old['email']) <= 50) {
+        $check_query = "SELECT COUNT(*) FROM users WHERE email = $1";
+        $check_result = pg_query_params($conn, $check_query, array($email));
+        $count = pg_fetch_result($check_result, 0, 0);
+    }
 
     // 2.5 Birthyear: 1900 → năm hiện tại
     $by = intval($old['birthyear']);
     $cy = intval(date('Y'));
-    if ($by < 1900 || $by > $cy) {
-        $errors['birthyear'] = "Năm sinh phải từ 1900 đến $cy!";
+    if ($by < 1930 || $by > $cy) {
+        $errors['birthyear'] = "Năm sinh phải từ 1930 đến $cy!";
     }
 
     // 3. Kiểm tra trùng username trong DB
@@ -108,8 +102,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         header("Location: verify_register_otp.php");
         exit;
     }
-}
+}   
 ?>
+    
 <!DOCTYPE html>
 <html lang="vi">
 <head>
