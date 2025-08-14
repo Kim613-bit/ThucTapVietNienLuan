@@ -37,10 +37,7 @@ $current_balance = floatval($balance_data['balance']);
 
 // Tính số dư sau khi xoá
 $new_balance = ($type == 1) ? $current_balance + $amount : $current_balance - $amount;
-if ($new_balance < 0) {
-    echo "<p style='color:red;'>⚠️ Việc xoá giao dịch này sẽ khiến số dư âm. Vui lòng kiểm tra lại.</p>";
-    exit();
-}
+
 
 // Truy vấn tên tài khoản để hiển thị
 $account_name_query = "SELECT name FROM accounts WHERE id = $1 AND user_id = $2";
@@ -196,6 +193,61 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $step === "confirm") {
     a:hover {
       background-color: #5a6268;
     }
+      .overlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+      .confirm-box {
+        background: white;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        text-align: center;
+        max-width: 400px;
+        font-family: 'Roboto', sans-serif;
+      }
+      .confirm-box h3 {
+        color: #dc3545;
+        margin-bottom: 20px;
+      }
+      .confirm-box p {
+        margin: 10px 0;
+        font-size: 16px;
+      }
+      .confirm-actions {
+        margin-top: 25px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .confirm-actions button,
+      .confirm-actions a {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        text-decoration: none;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      .confirm-actions button {
+        background-color: #dc3545;
+      }
+      .confirm-actions a {
+        background-color: #6c757d;
+      }
+      .confirm-actions button:hover {
+        background-color: #c82333;
+      }
+      .confirm-actions a:hover {
+        background-color: #5a6268;
+      }
   </style>
 </head>
 <body>
@@ -212,7 +264,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $step === "confirm") {
         }
       ?>
       <p><strong>Mô tả:</strong> <?= htmlspecialchars($desc ?: 'Không có') ?></p>
-    
+        <?php if ($step === 'info' && $new_balance < 0): ?>
+          <div class="overlay">
+            <div class="confirm-box">
+              <h3>⚠️ Số dư sẽ bị âm nếu xoá giao dịch này</h3>
+              <p>Số dư hiện tại: <?= number_format($current_balance, 0, ',', '.') ?> VND</p>
+              <p>Số dư sau khi xoá: <?= number_format($new_balance, 0, ',', '.') ?> VND</p>
+              <input type="hidden" name="step" value="confirm">
+              <div class="confirm-actions">
+                <button type="submit">✅ Xóa giao dịch</button>
+                <a href="dashboard.php">← Quay lại</a>
+              </div>
+            </div>
+          </div>
+        <?php endif; ?>
+
       <?php if ($step === 'confirm'): ?>
         <?php if (isset($error)): ?><p style="color:red;"><?= $error ?></p><?php endif; ?>
         <label for="password">🔐 Nhập mật khẩu để xác nhận:</label>
