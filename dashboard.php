@@ -11,8 +11,10 @@ if (!function_exists('bcadd')) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['hide_feedback'])) {
-    $_SESSION['feedback_hidden'] = true;
+    $feedback_id = $_POST['feedback_id'] ?? 0;
+    pg_query_params($conn, "UPDATE feedbacks SET is_read = TRUE WHERE id = $1 AND user_id = $2", [$feedback_id, $_SESSION['user_id']]);
 }
+
 // 1. Chuyển admin nếu user_id = 1
 if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == 1) {
     header("Location: admin_feedback.php");
@@ -891,8 +893,9 @@ $typeLabels = [
             </p>
           <?php endforeach; ?>
           <form method="post" style="margin-top: 8px;">
-            <button type="submit" name="hide_feedback" style="padding: 6px 12px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;">✅ Đã đọc</button>
-          </form>
+              <input type="hidden" name="feedback_id" value="<?= $feedback_popup['id'] ?>">
+              <button type="submit" name="hide_feedback" style="...">✅ Đã đọc</button>
+            </form>
         </div>
       </div>
     <?php endif; ?>
@@ -900,7 +903,7 @@ $typeLabels = [
 
     
     <!-- Popup phản hồi từ hệ thống -->
-    <?php if (!isset($_SESSION['feedback_hidden']) && $feedback_popup): ?>
+    <?php if (!empty($admin_replies) && !$feedback_popup['is_read']): ?>
       <div class="popup-feedback" id="systemFeedbackPopup">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <strong>📬 Phản hồi từ hệ thống</strong>
