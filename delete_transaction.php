@@ -17,7 +17,7 @@ if (!$transaction_id) {
 }
 
 // Truy vấn thông tin giao dịch
-$info_query = "SELECT amount, type, account_id FROM transactions WHERE id = $1 AND user_id = $2";
+$info_query = "SELECT amount, type, account_id, description FROM transactions WHERE id = $1 AND user_id = $2";
 $info_result = pg_query_params($conn, $info_query, array($transaction_id, $user_id));
 $info = pg_fetch_assoc($info_result);
 
@@ -73,72 +73,119 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 }
-
 ?>
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Xác nhận xóa giao dịch</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #f9f9f9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
+  <meta charset="UTF-8">
+  <title>Xác nhận xóa giao dịch</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      background-color: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
 
-        form {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
-            text-align: center;
-        }
+    form {
+      background-color: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 100%;
+      text-align: left;
+    }
 
-        button, a {
-            margin: 10px;
-            padding: 10px 20px;
-            text-decoration: none;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-        }
+    h2 {
+      color: #dc3545;
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
 
-        button {
-            background-color: #dc3545;
-            color: white;
-            cursor: pointer;
-        }
+    p {
+      margin: 10px 0;
+      font-size: 16px;
+    }
 
-        a {
-            background-color: #6c757d;
-            color: white;
-        }
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+    }
 
-        a:hover, button:hover {
-            opacity: 0.85;
-        }
-    </style>
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    .actions {
+      margin-top: 25px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    button, a {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      text-decoration: none;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button {
+      background-color: #dc3545;
+    }
+
+    a {
+      background-color: #6c757d;
+    }
+
+    button:hover {
+      background-color: #c82333;
+    }
+
+    a:hover {
+      background-color: #5a6268;
+    }
+  </style>
 </head>
 <body>
-    <form method="post">
-      <p>Bạn có chắc chắn muốn xóa giao dịch này?</p>
-      <p><strong>Tài khoản:</strong> <?= htmlspecialchars($account_name) ?></p>
-      <p><strong>Loại:</strong> <?= $info['type'] == 0 ? 'Thu' : 'Chi' ?></p>
-      <p><strong>Số tiền:</strong> <?= number_format($info['amount'], 2) ?> VND</p>
-    
-      <label for="password">Nhập mật khẩu để xác nhận:</label><br>
-      <input type="password" name="password" required><br><br>
-    
-      <input type="hidden" name="confirm" value="yes">
+  <form method="post">
+    <h2>Xác nhận xóa giao dịch</h2>
+    <p><strong>Tài khoản:</strong> <?= htmlspecialchars($account_name) ?></p>
+    <p><strong>Loại:</strong> <?= $info['type'] == 0 ? 'Thu' : 'Chi' ?></p>
+    <p><strong>Số tiền:</strong> <?= number_format($info['amount'], 2) ?> VND</p>
+
+    <?php
+      $desc = trim($info['description'] ?? '');
+      if (strpos($desc, 'Tạo tài khoản mới:') === 0) {
+          $desc = 'Tạo khoản tiền mới';
+      }
+    ?>
+    <p><strong>Mô tả:</strong> <?= htmlspecialchars($desc ?: 'Không có') ?></p>
+
+    <label for="password">Nhập mật khẩu để xác nhận:</label>
+    <input type="password" name="password" id="password" required>
+
+    <input type="hidden" name="confirm" value="yes">
+    <div class="actions">
       <button type="submit">✅ Đồng ý</button>
       <a href="dashboard.php">❌ Hủy</a>
-    
-      <p><strong>Mô tả:</strong> <?= htmlspecialchars($info['description'] ?? 'Không có') ?></p>
-    </form>
+    </div>
+  </form>
 </body>
 </html>
+
