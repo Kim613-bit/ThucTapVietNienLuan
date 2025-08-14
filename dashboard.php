@@ -48,9 +48,7 @@ $to_date            = $_GET['to_date']   ?? '';
     echo "<form method='post' style='margin-top: 8px;'>";
     echo "<button type='submit' name='hide_feedback' style='padding: 6px 12px; background: #ffc107; border: none; border-radius: 4px; cursor: pointer;'>✅ Đã đọc</button>";
     echo "</form>";
-
     echo "</div>"; // đóng khối phản hồi
-}
 
 // 4. Lấy danh sách tài khoản và tính tổng số dư
 $accounts = [];
